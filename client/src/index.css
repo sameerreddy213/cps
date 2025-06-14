@@ -13,124 +13,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-/* Updated body and root styles for centering */
+/* Global body and root styles are now managed more extensively in App.css */
+/* This file can remain minimal for project-wide resets/defaults if necessary,
+   but most of the visual styling is centralized in App.css. */
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  place-items: center; /* This centers content vertically and horizontally, adjusted in App.css body */
   min-width: 320px;
   min-height: 100vh;
-  /* Flexbox for centering */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column; /* Allows content within root to stack if needed */
-  padding: 1rem; /* Add some padding around the edges */
-  box-sizing: border-box; /* Include padding in element's total width and height */
 }
-
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  width: 100%; /* Ensure it takes full width up to max-width */
-  box-sizing: border-box; /* Include padding in element's total width and height */
-}
-
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
-/* Basic form and input styling for better appearance */
-input[type="text"],
-input[type="password"],
-input[type="email"],
-textarea {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.75rem;
-  font-size: 1rem;
-  width: 100%;
-  box-sizing: border-box; /* Crucial for consistent width with padding */
-  margin-bottom: 1rem;
-  background-color: #f0f0f0; /* Light background for inputs */
-  color: #333; /* Darker text for readability */
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: #646cff;
-  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
-}
-
-form > div {
-  margin-bottom: 1rem; /* Space between form groups */
-  text-align: left; /* Align labels to the left */
-}
-
-label {
-  display: block; /* Ensure labels are on their own line */
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-  color: #ccc; /* Adjust label color for dark theme */
-}
-
-/* Adjust label color for light theme */
-@media (prefers-color-scheme: light) {
-  label {
-    color: #333;
-  }
-}
-
-button {
-  width: auto; /* Buttons can have their own width */
-  min-width: 120px; /* Give buttons a minimum width */
-  display: inline-block; /* Allow buttons to be next to each other */
-  margin: 0.5rem; /* Space between multiple buttons */
-}
-/*final*/

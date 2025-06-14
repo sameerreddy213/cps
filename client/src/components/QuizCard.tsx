@@ -17,7 +17,7 @@ const QuizCard = ({ topic }: QuizCardProps) => {
       <h4>{topic}</h4>
       <button
         onClick={handleTakeQuiz}
-        className="quiz-card-button"
+        className="btn btn-warning"
       >
         Take Quiz
       </button>

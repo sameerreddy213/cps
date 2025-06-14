@@ -1,575 +1,440 @@
+/* General Setup */
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  width: 100%; /* Ensure it takes full width up to max-width */
-  box-sizing: border-box; /* Include padding in element's total width and height */
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* New: General container for pages */
-.page-container {
-  padding: 2rem;
-  max-width: 800px; /* Slightly wider for content pages */
-  margin: auto;
-  text-align: center;
-  background-color: #2a2a2a; /* Consistent background for content areas */
-  border-radius: 10px; /* Slightly rounded corners */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow */
-}
-
-/* Flex container for cards (LearnedConceptCard, QuizCard) */
-.cards-container {
+  min-height: 100vh; /* Ensure root takes full height */
   display: flex;
-  flex-wrap: wrap; /* Allow cards to wrap to the next line */
-  justify-content: center; /* Center cards horizontally */
-  gap: 1rem; /* Space between cards */
-  margin-top: 1rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Specific styling for the list items on the dashboard */
-.dashboard-list {
-  list-style: none; /* Remove bullet points */
-  padding: 0;
-  margin: 0; /* Remove default margin */
-}
-
-.dashboard-list li {
-  background-color: #333; /* Slightly lighter background for list items */
-  margin-bottom: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  text-align: left; /* Align text within list items */
-  color: #f0f0f0;
-  border-left: 5px solid #ff9800; /* Accent border */
-}
-
-/* LearnedConceptCard styles */
-.learned-concept-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  /* margin: 0.5rem; Will be overridden by gap in .cards-container */
-  background-color: #e3f2fd; /* Light blue background */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  flex: 1; /* Allow cards to grow and shrink */
-  min-width: 200px; /* Minimum width before wrapping */
-  max-width: calc(50% - 1rem); /* Two cards per row with gap */
-  box-sizing: border-box;
-  color: #333; /* Darker text for readability */
-}
-
-/* QuizCard styles */
-.quiz-card {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 1rem;
-  /* margin: 0.5rem; Will be overridden by gap in .cards-container */
-  background-color: #fff3e0; /* Light orange background */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  flex: 1; /* Allow cards to grow and shrink */
-  min-width: 200px; /* Minimum width before wrapping */
-  max-width: calc(50% - 1rem); /* Two cards per row with gap */
-  box-sizing: border-box;
-  color: #333; /* Darker text for readability */
-}
-
-.quiz-card-button {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #ff9800; /* Orange button */
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  min-width: unset; /* Override general button min-width for card button */
-  width: auto; /* Ensure it doesn't stretch */
-}
-
-.quiz-card-button:hover {
-  background-color: #e68900; /* Darker orange on hover */
-}
-
-/* Dashboard specific sections */
-.dashboard-section {
-  margin-top: 2rem;
-  background-color: #2a2a2a; /* Consistent background with page-container for sections */
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.dashboard-section h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: #646cff; /* Highlight section titles */
-}
-
-.dashboard-actions {
-  margin-top: 2rem;
+/* Base Styles for all pages and components */
+body {
+  font-family: 'Poppins', sans-serif; /* A more modern font */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Soft gradient background */
+  color: #333;
+  margin: 0;
   display: flex;
   justify-content: center;
-  gap: 1rem; /* Space between buttons */
-  flex-wrap: wrap; /* Allow buttons to wrap */
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.dashboard-button {
-  background-color: #646cff;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  min-width: 120px; /* Give buttons a minimum width */
+h1, h2, h3, h4 {
+  color: #2c3e50; /* Dark blue-grey for headings */
+  margin-bottom: 1rem;
+  font-weight: 700;
 }
 
-.dashboard-button:hover {
-  background-color: #535bf2;
+h2 {
+  font-size: 2.8em;
+  color: #4a90e2; /* Bright blue for main page titles */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-
-/* Form specific styles (Login, Register, QuizSelectPage) */
-.form-page {
-  max-width: 450px; /* Slightly narrower for forms */
-  background-color: #2a2a2a;
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  text-align: center;
+/* Card Base Style */
+.card-base {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  margin-bottom: 2rem;
+  border: 1px solid #e0e0e0;
 }
 
-.auth-form {
-  margin-top: 1.5rem;
-}
-
+/* Forms */
 .form-group {
   margin-bottom: 1.5rem;
-  text-align: left;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 0.6rem;
-  font-weight: bold;
-  color: #ccc;
+  font-weight: 600;
+  color: #555;
+  font-size: 1.1em;
 }
 
-.form-group input,
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="email"],
 .form-group textarea {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #444;
-  border-radius: 6px;
-  background-color: #333;
-  color: #eee;
+  width: calc(100% - 24px); /* Account for padding and border */
+  padding: 12px;
+  border: 2px solid #a8c8e9; /* Softer blue border */
+  border-radius: 10px;
   font-size: 1rem;
-  box-sizing: border-box; /* Ensures padding doesn't add to total width */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+  background-color: #f9fcff; /* Slightly off-white background */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
+  border-color: #4a90e2; /* Focus blue */
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2); /* Soft glow on focus */
   outline: none;
-  border-color: #646cff;
-  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.3);
 }
 
-.primary-button {
-  background-color: #646cff;
+/* Buttons */
+.btn {
+  background-color: #6a0572; /* Deep Purple */
   color: white;
-  padding: 0.8rem 1.8rem;
-  border-radius: 8px;
+  padding: 14px 30px;
   border: none;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  width: 100%; /* Make button full width in forms */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
   margin-top: 1rem;
+  box-shadow: 0 4px 10px rgba(106, 5, 114, 0.3);
 }
 
-.primary-button:hover {
-  background-color: #535bf2;
-  transform: translateY(-2px);
+.btn:hover {
+  background-color: #9333ea; /* Lighter purple on hover */
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(106, 5, 114, 0.4);
 }
 
-.primary-button:active {
-  transform: translateY(0);
+.btn-secondary {
+  background-color: #27ae60; /* Emerald Green */
+  box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
 }
 
-.error-message {
-  color: #ff6b6b;
-  margin-top: 1rem;
-  font-weight: bold;
+.btn-secondary:hover {
+  background-color: #2ecc71; /* Lighter green */
+  box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
 }
 
-.form-link {
-  margin-top: 1.5rem;
-  color: #bbb;
+.btn-warning {
+  background-color: #f39c12; /* Sunflower Yellow */
+  color: #333; /* Darker text for contrast */
+  box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);
 }
 
-.form-link a {
-  color: #646cff;
+.btn-warning:hover {
+  background-color: #f1c40f; /* Lighter yellow */
+  box-shadow: 0 6px 15px rgba(243, 156, 18, 0.4);
+}
+
+.btn-danger {
+  background-color: #e74c3c; /* Alizarin Red */
+  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger:hover {
+  background-color: #c0392b; /* Darker red */
+  box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+}
+
+.btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Links */
+a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #347dc4;
   text-decoration: underline;
 }
 
-.form-link a:hover {
-  color: #535bf2;
-}
-
-/* QuizPage specific styles */
-.quiz-page {
-  max-width: 700px; /* Wider than forms, narrower than dashboard */
-  /* Reuses .page-container for background, padding, shadow */
-}
-
-.quiz-title {
-  font-size: 2.2rem;
-  color: #646cff;
-  margin-bottom: 2rem;
-}
-
-.no-questions-message {
-  color: #bbb;
-  font-style: italic;
+.error-message {
+  color: #e74c3c;
   margin-top: 1.5rem;
-}
-
-.quiz-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem; /* Space between question cards */
-}
-
-.quiz-question-card {
-  background-color: #333;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  text-align: left;
-}
-
-.question-text {
-  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 1rem;
-  color: #eee;
+  background-color: #ffe8e8;
+  border: 1px solid #e74c3c;
+  padding: 10px 15px;
+  border-radius: 8px;
 }
 
-.options-container {
+/* --- Dashboard Specific Styles --- */
+.dashboard-container {
+  padding: 3rem;
+  max-width: 950px;
+  margin: auto;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center the overall content within dashboard */
+}
+
+.dashboard-container h2 {
+  margin-bottom: 1.5rem;
+  color: #6a0572; /* Purple heading for dashboard */
+}
+
+.dashboard-section {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 2px dashed #e0e0e0; /* Dashed separator */
+  text-align: left; /* Align section content to left */
+}
+
+.dashboard-section:first-of-type {
+  border-top: none; /* No top border for the first section */
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.dashboard-section h3 {
+  color: #34495e;
+  font-size: 2.2em;
+  margin-bottom: 1.5rem;
+  text-align: center; /* Center section headings */
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+  justify-items: center; /* Center items within grid cells */
+  align-items: stretch;
+  padding: 10px; /* Some padding for the grid itself */
+}
+
+/* LearnedConceptCard */
+.learned-concept-card {
+  border: 2px solid #90caf9; /* Medium blue border */
+  border-radius: 12px;
+  padding: 1.2rem;
+  background-color: #e1f5fe; /* Lighter blue */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* Space between options */
-}
-
-.option-label {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background-color: #444;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  border: 1px solid transparent; /* Default border */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%; /* Make cards fill grid height */
 }
 
-.option-label:hover {
-  background-color: #555;
-  border-color: #646cff;
+.learned-concept-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-.option-radio {
-  /* Hide default radio button, style custom one if desired */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #aaa;
-  border-radius: 50%;
-  background-color: #444;
-  cursor: pointer;
-  position: relative;
-  flex-shrink: 0; /* Prevent shrinking */
-}
-
-.option-radio:checked {
-  background-color: #646cff;
-  border-color: #646cff;
-}
-
-.option-radio:checked::before {
-  content: '';
-  display: block;
-  width: 8px;
-  height: 8px;
-  background-color: #fff;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.option-text {
-  color: #ccc;
-  font-size: 1rem;
-}
-
-/* Styles for correct/incorrect answers after submission */
-.option-correct {
-  background-color: #4CAF50; /* Green */
-  border-color: #4CAF50;
-  color: white; /* Ensure text is visible */
-}
-
-.option-correct .option-text {
-  color: white;
-}
-
-.option-incorrect {
-  background-color: #f44336; /* Red */
-  border-color: #f44336;
-  color: white; /* Ensure text is visible */
-}
-
-.option-incorrect .option-text {
-  color: white;
-}
-
-.option-correct .option-radio,
-.option-incorrect .option-radio {
-  border-color: transparent; /* Hide border on custom radio */
-}
-
-.option-correct .option-radio:checked,
-.option-incorrect .option-radio:checked {
-  background-color: #fff; /* White dot for checked correct/incorrect */
-}
-
-.option-correct .option-radio:checked::before {
-  background-color: #4CAF50; /* Green dot for correct */
-}
-.option-incorrect .option-radio:checked::before {
-  background-color: #f44336; /* Red dot for incorrect */
-}
-
-
-.submit-quiz-button {
-  background-color: #2196f3; /* Blue submit button */
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 600;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  margin-top: 2rem;
-  width: 100%; /* Full width */
-}
-
-.submit-quiz-button:disabled {
-  background-color: #666;
-  cursor: not-allowed;
-}
-
-.submit-quiz-button:hover:not(:disabled) {
-  background-color: #1976d2;
-  transform: translateY(-2px);
-}
-
-.submit-quiz-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* Quiz Results Summary */
-.quiz-results-summary {
-  background-color: #3a3a3a;
-  padding: 2rem;
-  border-radius: 10px;
-  margin-top: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+.learned-concept-card h4 {
+  color: #2196f3; /* Blue for topic title */
+  margin: 0;
+  font-size: 1.3em;
   text-align: center;
 }
 
-.results-title {
-  font-size: 1.8rem;
-  color: #ffc107; /* Amber for results title */
-  margin-bottom: 1.5rem;
+.learned-concept-card p {
+  font-size: 1em;
+  color: #555;
+  margin-top: 10px;
+  font-weight: 500;
 }
 
-.results-score,
-.results-mastery {
-  font-size: 1.3rem;
-  margin-bottom: 0.8rem;
-  color: #eee;
-}
-
-.results-score .font-semibold,
-.results-mastery .font-semibold {
-  color: #fff;
-  font-weight: bold;
-}
-
-/* General primary button style (reused from index.css for consistency) */
-.button-primary {
-  background-color: #646cff;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-top: 1.5rem;
-}
-
-.button-primary:hover {
-  background-color: #535bf2;
-}
-
-/* Loading Spinner */
-.loading-state {
+/* QuizCard */
+.quiz-card {
+  border: 2px solid #ffcc80; /* Medium orange border */
+  border-radius: 12px;
+  padding: 1.2rem;
+  background-color: #fff3e0; /* Lighter orange */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  min-height: 400px; /* Ensure spinner is centered vertically */
-  color: #aaa;
-  font-size: 1.2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%; /* Make cards fill grid height */
 }
 
-.spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #646cff;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+.quiz-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.quiz-card h4 {
+  color: #f39c12; /* Orange for topic title */
+  margin: 0;
+  font-size: 1.3em;
+  text-align: center;
 }
 
-/* Error state styles */
-.error-state {
-  background-color: #4a2a2a; /* Darker red background for error */
-  color: #ffcccc;
-  padding: 2rem;
+.quiz-card .btn {
+  padding: 0.7rem 1.5rem;
+  font-size: 1em;
+  margin-top: 1rem;
+}
+
+/* Quiz History */
+.quiz-history-list {
+  list-style: none;
+  padding: 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.quiz-history-list li {
+  background-color: #f0f4f8; /* Light blue-grey for list items */
+  border: 1px solid #dcdcdc;
+  border-left: 5px solid #4a90e2; /* Accent left border */
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.error-state .error-title {
-  color: #ff6b6b;
-  font-size: 2rem;
+.quiz-history-list li:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-history-list strong {
+  color: #4a69bd;
+  font-size: 1.1em;
+}
+
+.quiz-history-list small {
+  color: #777;
+  font-size: 0.9em;
+  display: block; /* New line for timestamp */
+  margin-top: 5px;
+}
+
+/* Chart Container */
+.chart-container {
+  height: 350px; /* Fixed height for chart */
+  width: 100%;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin-top: 2rem;
+}
+
+/* --- QuizPage Styles --- */
+.quiz-page-container {
+  padding: 3rem;
+  max-width: 900px;
+  margin: auto;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.quiz-page-container h2 {
+  color: #6a0572; /* Purple heading for quiz page */
+  margin-bottom: 2rem;
+}
+
+.quiz-question-card {
+  background-color: #fefefe;
+  border: 2px solid #d4e3f4; /* Soft blue border */
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+.quiz-question-card p {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.quiz-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quiz-option-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 15px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #ffffff;
+  font-size: 1.05em;
+  font-weight: 500;
+}
+
+.quiz-option-label:hover {
+  background-color: #f8f8f8;
+  border-color: #b0d4f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.quiz-option-label input[type="radio"] {
+  accent-color: #4a90e2;
+  transform: scale(1.3);
+  margin-right: 10px;
+}
+
+/* Quiz result styling */
+.quiz-result-summary {
+  margin-top: 3rem;
+  padding: 2.5rem;
+  background: linear-gradient(45deg, #e8f5e9 0%, #d4edda 100%); /* Light green gradient */
+  border-radius: 15px;
+  border: 1px solid #c8e6c9;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-result-summary h3 {
+  color: #2e7d32;
+  font-size: 2.4em;
   margin-bottom: 1rem;
 }
 
-.error-state .error-message {
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+.quiz-result-summary p {
+  font-size: 1.2em;
+  color: #444;
+  margin-bottom: 1rem;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-  .page-container {
-    padding: 1rem;
-  }
-
-  .cards-container {
-    flex-direction: column; /* Stack cards vertically on small screens */
-    align-items: center; /* Center stacked cards */
-  }
-
-  .dashboard-button,
-  .primary-button,
-  .submit-quiz-button {
-    width: 100%; /* Full width buttons on small screens */
-    margin: 0.5rem 0; /* Adjust margin for stacked buttons */
-  }
-
-  .learned-concept-card,
-  .quiz-card {
-    max-width: 100%; /* Full width on very small screens */
-  }
-
-  .quiz-page, .form-page {
-    padding: 1.5rem; /* Reduce padding on smaller screens for forms/quiz */
-  }
+.correct-answer {
+  background-color: #e6ffe6; /* Very light green background */
+  border-color: #28a745; /* Green border */
 }
 
-/* Further adjustments for very small screens (e.g., mobile portrait) */
-@media (max-width: 480px) {
-  .page-container {
-    padding: 0.8rem;
-    border-radius: 0; /* Remove border-radius on very small screens for full edge-to-edge feel */
-    box-shadow: none; /* Remove shadow on very small screens */
-  }
-
-  .quiz-question-card {
-    padding: 1rem;
-  }
-
-  .quiz-title {
-    font-size: 1.8rem;
-  }
-
-  h2 {
-    font-size: 1.8rem;
-  }
-
-  h3 {
-    font-size: 1.4rem;
-  }
-
-  .option-label {
-    padding: 0.6rem 0.8rem;
-  }
-
-  .submit-quiz-button {
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-  }
+.incorrect-answer {
+  background-color: #ffe6e6; /* Very light red background */
+  border-color: #dc3545; /* Red border */
 }
+
+.correct-answer span, .incorrect-answer span {
+  font-weight: 600;
+}
+
+.correct-answer::before {
+  content: '✓';
+  color: #28a745;
+  font-size: 1.2em;
+  margin-right: 5px;
+}
+
+.incorrect-answer::before {
+  content: '✗';
+  color: #dc3545;
+  font
