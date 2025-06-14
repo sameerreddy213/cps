@@ -50,6 +50,7 @@ router.post('/analyzePDF', upload.single('pdf'), async (req: Request, res: Respo
   try {
     const text = await extractTextFromPDF(pdfPath);
     const concepts = loadConceptsFromExcel(excelPath);
+    console.log(concepts)
     const matchedConcepts = identifyConcepts(text, concepts);
 
     // Delete uploaded file

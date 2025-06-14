@@ -2,7 +2,7 @@ import { extractTextFromPDF } from './utils/pdfExtractor';
 import { loadConceptsFromExcel, identifyConcepts } from './utils/matchTopics';
 
 async function runTopicMatching() {
-  const pdfPath = 'DSA_Concept_Graph.xlsx'; // Replace with uploaded filename
+  const pdfPath = "C:/Users/parth/Downloads/CST201 M2 Ktunotes.in.pdf"; // Replace with uploaded filename
   const excelPath = 'DSA_Concept_Graph.xlsx';
 
   const pdfText = await extractTextFromPDF(pdfPath);
