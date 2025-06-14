@@ -9,6 +9,8 @@ import quizRoutes from "./routes/quiz";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import quizHistoryRoutes from "./routes/quizHistory";
+import recommendationRoutes from "./routes/recommendation";
+
 dotenv.config();
 
 
@@ -24,6 +26,7 @@ app.use("/api", learningPathRoutes);
 app.use('/api', authRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz-history", quizHistoryRoutes);
+app.use("/api/recommendation", recommendationRoutes);
 
 connectDB(); // before app.listen
 app.listen(PORT, () => {
