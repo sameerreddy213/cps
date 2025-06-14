@@ -203,3 +203,4 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
 });
 
 export default router;
+//added the question routes and control
