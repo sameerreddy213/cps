@@ -19,9 +19,6 @@ router.post('/submit', async (req: Request, res: Response): Promise<void> => {
 
     const evaluatedResponses = assessment.questions.map((q, i) => {
       const userAns = answers[i]?.userAnswer || [];
-    //   const correct = Array.isArray(q.correct_answer)
-    //     ? q.correct_answer.sort().join(',') === userAns.sort().join(',')
-    //     : q.correct_answer === userAns;
     let correct = false;
 
     if (Array.isArray(q.correct_answer)) {
@@ -87,3 +84,5 @@ router.get('/analysis/:userId/:assessmentId', async (req: Request, res: Response
 });
 
 export const responseRoutes = router;
+
+
