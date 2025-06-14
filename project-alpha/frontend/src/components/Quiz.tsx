@@ -1,4 +1,4 @@
-// Total code developed by sahithya and meghana - team4
+// Total code developed by sahithya, meghana and pradeep - team4
 // from here developed by sahithya
 import { useState, useEffect, useRef } from 'react';
 
@@ -18,6 +18,7 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [showEnterFullScreenModal, setShowEnterFullScreenModal] = useState(true); // New state for initial modal
   const quizRef = useRef<HTMLDivElement>(null);
 
   const handleOptionChange = (index: number, value: string) => {
@@ -49,6 +50,7 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
       quizRef.current.requestFullscreen().then(() => {
         setIsFullScreen(true);
         setShowWarning(false);
+        setShowEnterFullScreenModal(false); // Hide the initial modal
       }).catch((err) => {
         console.error('Error entering full-screen mode:', err);
         setShowWarning(true);
@@ -67,8 +69,6 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
   };
 
   useEffect(() => {
-    enterFullScreen();
-
     const handleFullScreenChange = () => {
       const isCurrentlyFullScreen = !!document.fullscreenElement;
       setIsFullScreen(isCurrentlyFullScreen);
@@ -103,6 +103,55 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
         gap: '20px',
       }}
     >
+    {/* Initial Enter Full Screen Modal */}
+      {showEnterFullScreenModal && !isFullScreen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              padding: '30px',
+              borderRadius: '12px',
+              textAlign: 'center',
+              maxWidth: '500px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+            }}
+          >
+            <h3 style={{ color: '#6366f1', marginBottom: '20px' }}>
+              📝 Enter Full-Screen Mode
+            </h3>
+            <p style={{ marginBottom: '20px', color: '#374151' }}>
+              Please enter full-screen mode to start the quiz. This ensures a distraction-free experience.
+            </p>
+            <button
+              onClick={enterFullScreen}
+              style={{
+                padding: '12px 20px',
+                backgroundColor: '#6366f1',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }}
+            >
+              Enter Full Screen
+            </button>
+          </div>
+        </div>
+      )}
+
     {/* from this part developed by meghana */}
       {/* Warning Modal */}
       {showWarning && !isFullScreen && (
