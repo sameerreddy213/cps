@@ -13,25 +13,11 @@ const QuizCard = ({ topic }: QuizCardProps) => {
   };
 
   return (
-    <div style={{
-      border: "1px solid #ccc",
-      borderRadius: "8px",
-      padding: "1rem",
-      margin: "0.5rem",
-      backgroundColor: "#fff3e0"
-    }}>
+    <div className="quiz-card">
       <h4>{topic}</h4>
       <button
         onClick={handleTakeQuiz}
-        style={{
-          marginTop: "0.5rem",
-          padding: "0.5rem 1rem",
-          backgroundColor: "#ff9800",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}
+        className="quiz-card-button"
       >
         Take Quiz
       </button>

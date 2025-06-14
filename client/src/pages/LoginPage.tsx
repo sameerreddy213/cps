@@ -34,34 +34,34 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "400px", margin: "auto" }}>
+    <div className="page-container form-page">
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username:</label><br />
+      <form onSubmit={handleLogin} className="auth-form">
+        <div className="form-group">
+          <label htmlFor="username">Username:</label>
           <input
             type="text"
+            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
-        <div>
-          <label>Password:</label><br />
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
           <input
             type="password"
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="primary-button">Login</button>
       </form>
 
-      {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
-      <p style={{ marginTop: "1rem" }}>
+      {error && <p className="error-message">{error}</p>}
+      <p className="form-link">
         Don't have an account? <Link to="/register">Register here</Link>
       </p>
     </div>

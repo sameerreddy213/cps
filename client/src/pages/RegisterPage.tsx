@@ -42,69 +42,69 @@ const RegisterPage = () => {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "500px", margin: "auto" }}>
+    <div className="page-container form-page">
       <h2>Register</h2>
-      <form onSubmit={handleRegister}>
-        <div>
-          <label>Full Name:</label>
+      <form onSubmit={handleRegister} className="auth-form">
+        <div className="form-group">
+          <label htmlFor="fullName">Full Name:</label>
           <input
             type="text"
+            id="fullName"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
 
-        <div>
-          <label>Username:</label>
+        <div className="form-group">
+          <label htmlFor="registerUsername">Username:</label>
           <input
             type="text"
+            id="registerUsername"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
 
-        <div>
-          <label>Password:</label>
+        <div className="form-group">
+          <label htmlFor="registerPassword">Password:</label>
           <input
             type="password"
+            id="registerPassword"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
 
-        <div>
-          <label>Email:</label>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
 
-        <div>
-          <label>Topics Already Covered (comma-separated):</label>
+        <div className="form-group">
+          <label htmlFor="topicsCovered">Topics Already Covered (comma-separated):</label>
           <textarea
+            id="topicsCovered"
             value={topics}
             onChange={(e) => setTopics(e.target.value)}
             placeholder="e.g. Recursion, Loops, Functions"
             rows={3}
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
 
-        <button type="submit">Register</button>
+        <button type="submit" className="primary-button">Register</button>
       </form>
 
-      {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
-      <p style={{ marginTop: "1rem" }}>
-        Already have an account? <Link to="/login">Login</Link>
+      {error && <p className="error-message">{error}</p>}
+      <p className="form-link">
+        Already have an account? <Link to="/">Login</Link>
       </p>
     </div>
   );

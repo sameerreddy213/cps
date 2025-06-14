@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  width: 100%; /* Ensure it takes full width up to max-width */
+  box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
 .logo {
@@ -39,4 +41,535 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* New: General container for pages */
+.page-container {
+  padding: 2rem;
+  max-width: 800px; /* Slightly wider for content pages */
+  margin: auto;
+  text-align: center;
+  background-color: #2a2a2a; /* Consistent background for content areas */
+  border-radius: 10px; /* Slightly rounded corners */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+}
+
+/* Flex container for cards (LearnedConceptCard, QuizCard) */
+.cards-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow cards to wrap to the next line */
+  justify-content: center; /* Center cards horizontally */
+  gap: 1rem; /* Space between cards */
+  margin-top: 1rem;
+}
+
+/* Specific styling for the list items on the dashboard */
+.dashboard-list {
+  list-style: none; /* Remove bullet points */
+  padding: 0;
+  margin: 0; /* Remove default margin */
+}
+
+.dashboard-list li {
+  background-color: #333; /* Slightly lighter background for list items */
+  margin-bottom: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: left; /* Align text within list items */
+  color: #f0f0f0;
+  border-left: 5px solid #ff9800; /* Accent border */
+}
+
+/* LearnedConceptCard styles */
+.learned-concept-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  /* margin: 0.5rem; Will be overridden by gap in .cards-container */
+  background-color: #e3f2fd; /* Light blue background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1; /* Allow cards to grow and shrink */
+  min-width: 200px; /* Minimum width before wrapping */
+  max-width: calc(50% - 1rem); /* Two cards per row with gap */
+  box-sizing: border-box;
+  color: #333; /* Darker text for readability */
+}
+
+/* QuizCard styles */
+.quiz-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  /* margin: 0.5rem; Will be overridden by gap in .cards-container */
+  background-color: #fff3e0; /* Light orange background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1; /* Allow cards to grow and shrink */
+  min-width: 200px; /* Minimum width before wrapping */
+  max-width: calc(50% - 1rem); /* Two cards per row with gap */
+  box-sizing: border-box;
+  color: #333; /* Darker text for readability */
+}
+
+.quiz-card-button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #ff9800; /* Orange button */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: unset; /* Override general button min-width for card button */
+  width: auto; /* Ensure it doesn't stretch */
+}
+
+.quiz-card-button:hover {
+  background-color: #e68900; /* Darker orange on hover */
+}
+
+/* Dashboard specific sections */
+.dashboard-section {
+  margin-top: 2rem;
+  background-color: #2a2a2a; /* Consistent background with page-container for sections */
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-section h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #646cff; /* Highlight section titles */
+}
+
+.dashboard-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem; /* Space between buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap */
+}
+
+.dashboard-button {
+  background-color: #646cff;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 120px; /* Give buttons a minimum width */
+}
+
+.dashboard-button:hover {
+  background-color: #535bf2;
+}
+
+
+/* Form specific styles (Login, Register, QuizSelectPage) */
+.form-page {
+  max-width: 450px; /* Slightly narrower for forms */
+  background-color: #2a2a2a;
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.auth-form {
+  margin-top: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background-color: #333;
+  color: #eee;
+  font-size: 1rem;
+  box-sizing: border-box; /* Ensures padding doesn't add to total width */
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.3);
+}
+
+.primary-button {
+  background-color: #646cff;
+  color: white;
+  padding: 0.8rem 1.8rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  width: 100%; /* Make button full width in forms */
+  margin-top: 1rem;
+}
+
+.primary-button:hover {
+  background-color: #535bf2;
+  transform: translateY(-2px);
+}
+
+.primary-button:active {
+  transform: translateY(0);
+}
+
+.error-message {
+  color: #ff6b6b;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.form-link {
+  margin-top: 1.5rem;
+  color: #bbb;
+}
+
+.form-link a {
+  color: #646cff;
+  text-decoration: underline;
+}
+
+.form-link a:hover {
+  color: #535bf2;
+}
+
+/* QuizPage specific styles */
+.quiz-page {
+  max-width: 700px; /* Wider than forms, narrower than dashboard */
+  /* Reuses .page-container for background, padding, shadow */
+}
+
+.quiz-title {
+  font-size: 2.2rem;
+  color: #646cff;
+  margin-bottom: 2rem;
+}
+
+.no-questions-message {
+  color: #bbb;
+  font-style: italic;
+  margin-top: 1.5rem;
+}
+
+.quiz-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Space between question cards */
+}
+
+.quiz-question-card {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #eee;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Space between options */
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: #444;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border: 1px solid transparent; /* Default border */
+}
+
+.option-label:hover {
+  background-color: #555;
+  border-color: #646cff;
+}
+
+.option-radio {
+  /* Hide default radio button, style custom one if desired */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  background-color: #444;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.option-radio:checked {
+  background-color: #646cff;
+  border-color: #646cff;
+}
+
+.option-radio:checked::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.option-text {
+  color: #ccc;
+  font-size: 1rem;
+}
+
+/* Styles for correct/incorrect answers after submission */
+.option-correct {
+  background-color: #4CAF50; /* Green */
+  border-color: #4CAF50;
+  color: white; /* Ensure text is visible */
+}
+
+.option-correct .option-text {
+  color: white;
+}
+
+.option-incorrect {
+  background-color: #f44336; /* Red */
+  border-color: #f44336;
+  color: white; /* Ensure text is visible */
+}
+
+.option-incorrect .option-text {
+  color: white;
+}
+
+.option-correct .option-radio,
+.option-incorrect .option-radio {
+  border-color: transparent; /* Hide border on custom radio */
+}
+
+.option-correct .option-radio:checked,
+.option-incorrect .option-radio:checked {
+  background-color: #fff; /* White dot for checked correct/incorrect */
+}
+
+.option-correct .option-radio:checked::before {
+  background-color: #4CAF50; /* Green dot for correct */
+}
+.option-incorrect .option-radio:checked::before {
+  background-color: #f44336; /* Red dot for incorrect */
+}
+
+
+.submit-quiz-button {
+  background-color: #2196f3; /* Blue submit button */
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: 2rem;
+  width: 100%; /* Full width */
+}
+
+.submit-quiz-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.submit-quiz-button:hover:not(:disabled) {
+  background-color: #1976d2;
+  transform: translateY(-2px);
+}
+
+.submit-quiz-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Quiz Results Summary */
+.quiz-results-summary {
+  background-color: #3a3a3a;
+  padding: 2rem;
+  border-radius: 10px;
+  margin-top: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.results-title {
+  font-size: 1.8rem;
+  color: #ffc107; /* Amber for results title */
+  margin-bottom: 1.5rem;
+}
+
+.results-score,
+.results-mastery {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: #eee;
+}
+
+.results-score .font-semibold,
+.results-mastery .font-semibold {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* General primary button style (reused from index.css for consistency) */
+.button-primary {
+  background-color: #646cff;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 1.5rem;
+}
+
+.button-primary:hover {
+  background-color: #535bf2;
+}
+
+/* Loading Spinner */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px; /* Ensure spinner is centered vertically */
+  color: #aaa;
+  font-size: 1.2rem;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #646cff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state styles */
+.error-state {
+  background-color: #4a2a2a; /* Darker red background for error */
+  color: #ffcccc;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.error-state .error-title {
+  color: #ff6b6b;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.error-state .error-message {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+  }
+
+  .cards-container {
+    flex-direction: column; /* Stack cards vertically on small screens */
+    align-items: center; /* Center stacked cards */
+  }
+
+  .dashboard-button,
+  .primary-button,
+  .submit-quiz-button {
+    width: 100%; /* Full width buttons on small screens */
+    margin: 0.5rem 0; /* Adjust margin for stacked buttons */
+  }
+
+  .learned-concept-card,
+  .quiz-card {
+    max-width: 100%; /* Full width on very small screens */
+  }
+
+  .quiz-page, .form-page {
+    padding: 1.5rem; /* Reduce padding on smaller screens for forms/quiz */
+  }
+}
+
+/* Further adjustments for very small screens (e.g., mobile portrait) */
+@media (max-width: 480px) {
+  .page-container {
+    padding: 0.8rem;
+    border-radius: 0; /* Remove border-radius on very small screens for full edge-to-edge feel */
+    box-shadow: none; /* Remove shadow on very small screens */
+  }
+
+  .quiz-question-card {
+    padding: 1rem;
+  }
+
+  .quiz-title {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  h3 {
+    font-size: 1.4rem;
+  }
+
+  .option-label {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .submit-quiz-button {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+  }
 }
