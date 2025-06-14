@@ -15,6 +15,7 @@ const LoginPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
 
     try {
       const res = await axios.post("http://localhost:5000/api/login", {
@@ -29,19 +30,19 @@ const LoginPage = () => {
         navigate(`/dashboard/${userData.username}`);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Login failed.");
+      setError(err.response?.data?.error || "Login failed. Please check your credentials.");
     }
   };
 
   return (
-    <div className="page-container form-page">
+    <div className="card-base">
       <h2>Login</h2>
-      <form onSubmit={handleLogin} className="auth-form">
+      <form onSubmit={handleLogin}>
         <div className="form-group">
           <label htmlFor="username">Username:</label>
           <input
-            type="text"
             id="username"
+            type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -50,18 +51,18 @@ const LoginPage = () => {
         <div className="form-group">
           <label htmlFor="password">Password:</label>
           <input
-            type="password"
             id="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <button type="submit" className="primary-button">Login</button>
+        <button type="submit" className="btn">Login</button>
       </form>
 
       {error && <p className="error-message">{error}</p>}
-      <p className="form-link">
+      <p style={{ marginTop: "2rem", textAlign: "center" }}>
         Don't have an account? <Link to="/register">Register here</Link>
       </p>
     </div>

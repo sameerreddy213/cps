@@ -96,7 +96,7 @@ const QuizPage = () => {
         topic,
         answers,
         username,
-        _correctAnswers: correctAnswers,
+        _correctAnswers: correctAnswers, // Pass correct answers to backend for verification/scoring
       });
 
       setSummary(res.data);
@@ -119,21 +119,20 @@ const QuizPage = () => {
 
   if (loading) {
     return (
-      <div className="loading-state">
-        <div className="spinner"></div>
-        <p>Loading quiz questions...</p>
+      <div className="quiz-page-container" style={{ textAlign: 'center' }}>
+        <p className="loading-message">Loading quiz questions...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="page-container error-state">
-        <h2 className="error-title">Error</h2>
+      <div className="quiz-page-container">
+        <h2 style={{ color: '#e74c3c' }}>Error</h2>
         <p className="error-message">{error}</p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="button-primary"
+          className="btn"
         >
           Return to Dashboard
         </button>
@@ -142,28 +141,28 @@ const QuizPage = () => {
   }
 
   return (
-    <div className="page-container quiz-page">
-      <h2 className="quiz-title">Quiz on: {topic}</h2>
+    <div className="quiz-page-container">
+      <h2>Quiz on: {topic}</h2>
 
       {questions.length === 0 ? (
-        <p className="no-questions-message">No questions available for this topic.</p>
+        <p>No questions available for this topic.</p>
       ) : (
-        <form onSubmit={(e) => e.preventDefault()} className="quiz-form">
+        <form onSubmit={(e) => e.preventDefault()}>
           {questions.map((q, i) => (
             <div key={i} className="quiz-question-card">
-              <p className="question-text">
+              <p>
                 {i + 1}. {q.question}
               </p>
-              <div className="options-container">
+              <div className="quiz-options-group">
                 {q.options.map((option, optionIndex) => (
                   <label
                     key={optionIndex}
-                    className={`option-label ${
+                    className={`quiz-option-label ${
                       submitted && summary
                         ? summary.correctAnswers?.[i] === option
-                          ? "option-correct"
-                          : summary.userAnswers?.[i] === option
-                          ? "option-incorrect"
+                          ? "correct-answer"
+                          : (summary.userAnswers?.[i] === option && summary.correctAnswers?.[i] !== option)
+                          ? "incorrect-answer"
                           : ""
                         : ""
                     }`}
@@ -175,11 +174,8 @@ const QuizPage = () => {
                       checked={answers[i] === option}
                       onChange={() => handleOptionSelect(i, option)}
                       disabled={submitted}
-                      className="option-radio"
                     />
-                    <span className="option-text">
-                      {option}
-                    </span>
+                    <span>{option}</span>
                   </label>
                 ))}
               </div>
@@ -190,7 +186,7 @@ const QuizPage = () => {
             <button
               onClick={handleSubmit}
               disabled={answers.some((a) => !a)}
-              className="submit-quiz-button"
+              className="btn"
             >
               Submit Quiz
             </button>
@@ -200,20 +196,20 @@ const QuizPage = () => {
 
       {/* Quiz Results */}
       {summary && (
-        <div className="quiz-results-summary">
-          <h3 className="results-title">Quiz Results</h3>
-          <p className="results-score">
+        <div className="quiz-result-summary">
+          <h3>Quiz Results</h3>
+          <p>
             <span className="font-semibold">Score:</span> {summary.score.toFixed(1)}%
           </p>
           {summary.masteryUpdate && topic && (
-            <p className="results-mastery">
+            <p>
               <span className="font-semibold">Mastery Level:</span>{" "}
               {((1 - (summary.masteryUpdate[topic] || 0)) * 100).toFixed(1)}%
             </p>
           )}
           <button
             onClick={() => navigate("/dashboard")}
-            className="button-primary"
+            className="btn"
           >
             Return to Dashboard
           </button>

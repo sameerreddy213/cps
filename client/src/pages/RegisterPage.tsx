@@ -18,6 +18,7 @@ const RegisterPage = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
 
     try {
       const userPayload = {
@@ -25,7 +26,7 @@ const RegisterPage = () => {
         username,
         password,
         email,
-        progress: topics.split(",").map((topic) => topic.trim()), // convert comma-separated string to array
+        progress: topics.split(",").map((topic) => topic.trim()).filter(Boolean),
       };
 
       const res = await axios.post("http://localhost:5000/api/register", userPayload);
@@ -37,19 +38,19 @@ const RegisterPage = () => {
         navigate(`/dashboard/${userData.username}`);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Registration failed.");
+      setError(err.response?.data?.error || "Registration failed. Please try again.");
     }
   };
 
   return (
-    <div className="page-container form-page">
+    <div className="card-base">
       <h2>Register</h2>
-      <form onSubmit={handleRegister} className="auth-form">
+      <form onSubmit={handleRegister}>
         <div className="form-group">
           <label htmlFor="fullName">Full Name:</label>
           <input
-            type="text"
             id="fullName"
+            type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -57,10 +58,10 @@ const RegisterPage = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="registerUsername">Username:</label>
+          <label htmlFor="regUsername">Username:</label>
           <input
+            id="regUsername"
             type="text"
-            id="registerUsername"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -68,10 +69,10 @@ const RegisterPage = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="registerPassword">Password:</label>
+          <label htmlFor="regPassword">Password:</label>
           <input
+            id="regPassword"
             type="password"
-            id="registerPassword"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -81,8 +82,8 @@ const RegisterPage = () => {
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
-            type="email"
             id="email"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -96,15 +97,15 @@ const RegisterPage = () => {
             onChange={(e) => setTopics(e.target.value)}
             placeholder="e.g. Recursion, Loops, Functions"
             rows={3}
-          />
+          ></textarea>
         </div>
 
-        <button type="submit" className="primary-button">Register</button>
+        <button type="submit" className="btn">Register</button>
       </form>
 
       {error && <p className="error-message">{error}</p>}
-      <p className="form-link">
-        Already have an account? <Link to="/login">Login</Link>
+      <p style={{ marginTop: "2rem", textAlign: "center" }}>
+        Already have an account? <Link to="/">Login</Link>
       </p>
     </div>
   );
