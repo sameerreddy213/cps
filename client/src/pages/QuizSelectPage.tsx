@@ -1,7 +1,7 @@
 // src/pages/QuizSelectPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { validTopics } from "../data/validTopic";
+import { validTopics } from "../data/validTopic"; // Assuming this file exists and exports validTopics
 
 const QuizSelectPage = () => {
   const [selectedTopic, setSelectedTopic] = useState("");
@@ -14,22 +14,26 @@ const QuizSelectPage = () => {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "600px", margin: "auto" }}>
+    <div className="page-container form-page"> {/* Reusing form-page styles */}
       <h2>Select a Topic for Quiz</h2>
-      <input
-        list="topics"
-        value={selectedTopic}
-        onChange={(e) => setSelectedTopic(e.target.value)}
-        placeholder="Start typing a topic..."
-        style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
-      />
-      <datalist id="topics">
-        {validTopics.map((topic: string, i: number) => (
-          <option key={i} value={topic} />
-        ))}
-      </datalist>
-      <br />
-      <button onClick={handleSubmit}>Take Quiz</button>
+      <div className="form-group">
+        <label htmlFor="topic-select">Choose a Topic:</label>
+        <input
+          list="topics"
+          id="topic-select"
+          value={selectedTopic}
+          onChange={(e) => setSelectedTopic(e.target.value)}
+          placeholder="Start typing a topic..."
+        />
+        <datalist id="topics">
+          {validTopics.map((topic: string, i: number) => (
+            <option key={i} value={topic} />
+          ))}
+        </datalist>
+      </div>
+      <button onClick={handleSubmit} className="primary-button">
+        Take Quiz
+      </button>
     </div>
   );
 };

@@ -119,20 +119,21 @@ const QuizPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="text-lg text-gray-600">Loading quiz questions...</div>
+      <div className="loading-state">
+        <div className="spinner"></div>
+        <p>Loading quiz questions...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-8 max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold text-red-600">Error</h2>
-        <p className="mt-4 text-red-500">{error}</p>
+      <div className="page-container error-state">
+        <h2 className="error-title">Error</h2>
+        <p className="error-message">{error}</p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="button-primary"
         >
           Return to Dashboard
         </button>
@@ -141,23 +142,31 @@ const QuizPage = () => {
   }
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Quiz on: {topic}</h2>
+    <div className="page-container quiz-page">
+      <h2 className="quiz-title">Quiz on: {topic}</h2>
 
       {questions.length === 0 ? (
-        <p className="text-gray-600">No questions available for this topic.</p>
+        <p className="no-questions-message">No questions available for this topic.</p>
       ) : (
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+        <form onSubmit={(e) => e.preventDefault()} className="quiz-form">
           {questions.map((q, i) => (
-            <div key={i} className="p-4 bg-white rounded-lg shadow">
-              <p className="font-semibold mb-3">
+            <div key={i} className="quiz-question-card">
+              <p className="question-text">
                 {i + 1}. {q.question}
               </p>
-              <div className="space-y-2">
+              <div className="options-container">
                 {q.options.map((option, optionIndex) => (
                   <label
                     key={optionIndex}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                    className={`option-label ${
+                      submitted && summary
+                        ? summary.correctAnswers?.[i] === option
+                          ? "option-correct"
+                          : summary.userAnswers?.[i] === option
+                          ? "option-incorrect"
+                          : ""
+                        : ""
+                    }`}
                   >
                     <input
                       type="radio"
@@ -166,19 +175,9 @@ const QuizPage = () => {
                       checked={answers[i] === option}
                       onChange={() => handleOptionSelect(i, option)}
                       disabled={submitted}
-                      className="text-blue-600"
+                      className="option-radio"
                     />
-                    <span
-                      className={
-                        submitted && summary
-                          ? summary.correctAnswers?.[i] === option
-                            ? "text-green-600 font-semibold"
-                            : summary.userAnswers?.[i] === option
-                            ? "text-red-600"
-                            : "text-gray-600"
-                          : "text-gray-700"
-                      }
-                    >
+                    <span className="option-text">
                       {option}
                     </span>
                   </label>
@@ -191,8 +190,7 @@ const QuizPage = () => {
             <button
               onClick={handleSubmit}
               disabled={answers.some((a) => !a)}
-              className="w-full mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-                       disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="submit-quiz-button"
             >
               Submit Quiz
             </button>
@@ -202,20 +200,20 @@ const QuizPage = () => {
 
       {/* Quiz Results */}
       {summary && (
-        <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">Quiz Results</h3>
-          <p className="text-lg">
+        <div className="quiz-results-summary">
+          <h3 className="results-title">Quiz Results</h3>
+          <p className="results-score">
             <span className="font-semibold">Score:</span> {summary.score.toFixed(1)}%
           </p>
           {summary.masteryUpdate && topic && (
-            <p className="text-lg">
+            <p className="results-mastery">
               <span className="font-semibold">Mastery Level:</span>{" "}
               {((1 - (summary.masteryUpdate[topic] || 0)) * 100).toFixed(1)}%
             </p>
           )}
           <button
             onClick={() => navigate("/dashboard")}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="button-primary"
           >
             Return to Dashboard
           </button>

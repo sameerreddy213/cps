@@ -5,15 +5,8 @@ import LearnedConceptCard from "../components/LearnedConceptCard";
 import QuizCard from "../components/QuizCard";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+// Removed Recharts import as it's not being used in the provided code logic
+// import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 
 interface QuizHistoryEntry {
   topic: string;
@@ -61,17 +54,17 @@ const Dashboard = () => {
   }, [username]);
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "800px", margin: "auto" }}>
+    <div className="page-container">
       <h2>Welcome, {username}!</h2>
       <p>This is your personalized dashboard.</p>
 
       {/* Mastery Scores */}
-      <div style={{ marginTop: "2rem" }}>
+      <div className="dashboard-section">
         <h3>Mastery Levels</h3>
         {Object.keys(mastery).length === 0 ? (
           <p>No mastery data available.</p>
         ) : (
-          <ul>
+          <ul className="dashboard-list">
             {Object.entries(mastery).map(([topic, score]) => (
               <li key={topic}>
                 {topic}: {(1 - score).toFixed(2)} confidence
@@ -82,9 +75,9 @@ const Dashboard = () => {
       </div>
 
       {/* Topics Learned */}
-      <div style={{ marginTop: "2rem" }}>
+      <div className="dashboard-section">
         <h3>Topics Learned</h3>
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <div className="cards-container">
           {progress.length === 0 ? (
             <p>No topics marked as completed.</p>
           ) : (
@@ -96,9 +89,9 @@ const Dashboard = () => {
       </div>
 
       {/* Recommendations */}
-      <div style={{ marginTop: "2rem" }}>
+      <div className="dashboard-section">
         <h3>Recommended Next Topics</h3>
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
+        <div className="cards-container">
           {recommendations.length === 0 ? (
             <p>No current recommendations.</p>
           ) : (
@@ -114,12 +107,12 @@ const Dashboard = () => {
       </div>
 
       {/* Quiz History */}
-      <div style={{ marginTop: "2rem" }}>
+      <div className="dashboard-section">
         <h3>Quiz History</h3>
         {!Array.isArray(quizHistory) || quizHistory.length === 0 ? (
           <p>No quiz attempts recorded.</p>
         ) : (
-          <ul>
+          <ul className="dashboard-list">
             {quizHistory.map((entry, i) => (
               <li key={i}>
                 <strong>{entry.topic}</strong> — Score: {entry.score}% — Weight: {entry.mastery}
@@ -131,13 +124,15 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Logout */}
-      <button onClick={handleLogout} style={{ marginTop: "2rem" }}>
-        Logout
-      </button>
-      <button onClick={() => navigate("/quiz-select")}>
-  Choose Your Own Quiz Topic
-</button>
+      {/* Logout & Choose Quiz Buttons */}
+      <div className="dashboard-actions">
+        <button onClick={handleLogout} className="dashboard-button">
+          Logout
+        </button>
+        <button onClick={() => navigate("/quiz-select")} className="dashboard-button">
+          Choose Your Own Quiz Topic
+        </button>
+      </div>
     </div>
   );
 };
