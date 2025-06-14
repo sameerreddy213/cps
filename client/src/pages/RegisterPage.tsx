@@ -104,7 +104,7 @@ const RegisterPage = () => {
 
       {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
       <p style={{ marginTop: "1rem" }}>
-        Already have an account? <Link to="/">Login</Link>
+        Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
   );
