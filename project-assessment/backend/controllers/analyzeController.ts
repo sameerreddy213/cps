@@ -1,7 +1,7 @@
-import getMainTopic from '../services/getMainTopic.js';
-import getAllPrerequisites from '../services/getPrerequisite.js';
-
-const analyzeController = async (req, res) => {
+// import getMainTopic from '../services/getMainTopic.js';
+// import getAllPrerequisites from '../services/getPrerequisite.js';
+import {Request,Response} from 'express';
+const analyzeController = async (req:Request, res:Response) => {
   try {
     const { typeofinput } = req.body;
     let inputData = '';
@@ -17,14 +17,14 @@ const analyzeController = async (req, res) => {
       return res.status(400).json({ error: 'Invalid input type' });
     }
 
-    const mainTopic = await getMainTopic(inputData, typeofinput);
-    const prerequisites = await getAllPrerequisites(mainTopic);
+    // const mainTopic = await getMainTopic(inputData, typeofinput);
+    // const prerequisites = await getAllPrerequisites(mainTopic);
 
-    return res.json({ mainTopic, prerequisites });
+    // return res.json({ mainTopic, prerequisites });
   } catch (error) {
     console.error('Error analyzing input:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-};
+};                                        
 
 export default analyzeController;
