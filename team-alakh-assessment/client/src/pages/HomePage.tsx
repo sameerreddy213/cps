@@ -1,3 +1,4 @@
+//developed by :@AlakhMathur
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Trophy, ArrowRight } from 'lucide-react';

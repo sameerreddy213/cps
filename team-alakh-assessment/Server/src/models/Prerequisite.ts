@@ -1,3 +1,4 @@
+//developed by :@Omkar Kumar
 import mongoose from 'mongoose';
 
 const prereqSchema = new mongoose.Schema({
