@@ -1,13 +1,18 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+import { Request, Response } from "express";
+import User from "../models/User";
 
-const register = async (req, res) => {
+interface AuthRequest extends Request {
+  user?: any;
+  token?: string;
+}
+
+export const register = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ error: 'Username already in use' });
+      return res.status(400).json({ error: "Username already in use" });
     }
 
     const user = new User({ username, password });
@@ -15,41 +20,38 @@ const register = async (req, res) => {
     const token = await user.generateAuthToken();
 
     res.status(201).json({ user, token });
-  } catch (error) {
+  } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findByCredentials (username, password);
+    const user = await (User as any).findByCredentials(username, password);
     const token = await user.generateAuthToken();
     res.json({ user, token });
   } catch (error) {
-    res.status(400).json({ error: 'Login failed' });
+    res.status(400).json({ error: "Login failed" });
   }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req: AuthRequest, res: Response) => {
   try {
-    req.user.tokens = req.user.tokens.filter(token => token.token !== req.token);
+    if (!req.user || !req.token) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    req.user.tokens = req.user.tokens.filter(
+      (token: any) => token.token !== req.token
+    );
     await req.user.save();
-    res.json({ message: 'Logged out successfully' });
-  } catch (error) {
+    res.json({ message: "Logged out successfully" });
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 };
 
-const getCurrentUser = async (req, res) => {
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
   res.json(req.user);
 };
-
-module.exports = {
-  register,
-  login,
-  logout,
-  getCurrentUser
-};
-//Added by Adwaidh

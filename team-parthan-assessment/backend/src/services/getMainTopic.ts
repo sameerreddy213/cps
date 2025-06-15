@@ -1,6 +1,6 @@
-import { dsaConcepts } from "../../../concept-graph/conceptList";
-import {extractTextFromPDF} from "../../../pdf-parser/src/utils/pdfExtractor"
-import {identifyConcepts} from "../../../pdf-parser/src/utils/matchTopics"
+import { dsaConcepts } from "../concept-graph/conceptList";
+import {extractTextFromPDF} from "./pdfExtractor"
+import {identifyConcepts} from "./matchTopics"
 
 export default async function getMainTopic(
   inputData: string,typeOfInput: string 

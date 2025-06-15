@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { dsaConcepts } from '../../../concept-graph/conceptList';
+import { dsaConcepts } from '../concept-graph/conceptList';
 
 const uri =
   'mongodb+srv://recommendation:RYxDZJWicf0VeglY@cluster0.b8papcu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
