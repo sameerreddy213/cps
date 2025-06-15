@@ -1,4 +1,4 @@
-/* General Setup */
+/* General Setup for the entire application */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -7,59 +7,60 @@
   min-height: 100vh; /* Ensure root takes full height */
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; /* Center content vertically in root */
+  align-items: center; /* Center content horizontally in root */
 }
 
 /* Base Styles for all pages and components */
 body {
-  font-family: 'Poppins', sans-serif; /* A more modern font */
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Soft gradient background */
-  color: #333;
+  font-family: 'Poppins', sans-serif; /* A more modern and readable font */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Soft gradient background for a fresh feel */
+  color: #333; /* Default text color */
   margin: 0;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
+  justify-content: center; /* Center body content horizontally */
+  align-items: flex-start; /* Align body content to the top, allowing it to grow downwards */
+  min-height: 100vh; /* Ensure body takes at least full viewport height */
+  padding: 20px; /* Overall padding for the body */
+  box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
+/* Headings Styling */
 h1, h2, h3, h4 {
-  color: #2c3e50; /* Dark blue-grey for headings */
+  color: #2c3e50; /* Dark blue-grey for headings, providing good contrast */
   margin-bottom: 1rem;
-  font-weight: 700;
+  font-weight: 700; /* Bold font weight for prominence */
 }
 
 h2 {
-  font-size: 2.8em;
-  color: #4a90e2; /* Bright blue for main page titles */
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  font-size: 2.8em; /* Larger font size for main page titles */
+  color: #4a90e2; /* Bright blue for main page titles, making them stand out */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Subtle text shadow for depth */
 }
 
-/* Card Base Style */
+/* Base Card Style for common containers like forms and dashboards */
 .card-base {
-  background-color: #ffffff;
+  background-color: #ffffff; /* White background for cards */
   padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+  border-radius: 15px; /* More rounded corners */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Pronounced shadow for a floating effect */
   width: 100%;
   box-sizing: border-box;
-  text-align: left;
+  text-align: left; /* Default text alignment within cards */
   margin-bottom: 2rem;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e0e0e0; /* Light grey border */
 }
 
-/* Forms */
+/* Form Group Styling */
 .form-group {
   margin-bottom: 1.5rem;
 }
 
 .form-group label {
-  display: block;
+  display: block; /* Make labels take full width */
   margin-bottom: 0.6rem;
-  font-weight: 600;
-  color: #555;
+  font-weight: 600; /* Semi-bold labels */
+  color: #555; /* Dark grey for labels */
   font-size: 1.1em;
 }
 
@@ -67,100 +68,111 @@ h2 {
 .form-group input[type="password"],
 .form-group input[type="email"],
 .form-group textarea {
-  width: calc(100% - 24px); /* Account for padding and border */
+  width: calc(100% - 24px); /* Full width minus padding and border */
   padding: 12px;
-  border: 2px solid #a8c8e9; /* Softer blue border */
-  border-radius: 10px;
+  border: 2px solid #a8c8e9; /* Softer blue border for inputs */
+  border-radius: 10px; /* Rounded input fields */
   font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition on focus */
   box-sizing: border-box;
-  background-color: #f9fcff; /* Slightly off-white background */
+  background-color: #f9fcff; /* Slightly off-white background for inputs */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #4a90e2; /* Focus blue */
+  border-color: #4a90e2; /* Bright blue border on focus */
   box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2); /* Soft glow on focus */
-  outline: none;
+  outline: none; /* Remove default outline */
 }
 
-/* Buttons */
+/* Button Styling */
 .btn {
-  background-color: #6a0572; /* Deep Purple */
-  color: white;
+  background-color: #6a0572; /* Deep Purple for primary buttons */
+  color: white; /* White text for contrast */
   padding: 14px 30px;
   border: none;
   border-radius: 10px;
-  cursor: pointer;
+  cursor: pointer; /* Indicate clickable element */
   font-size: 1.15rem;
   font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
   margin-top: 1rem;
-  box-shadow: 0 4px 10px rgba(106, 5, 114, 0.3);
+  box-shadow: 0 4px 10px rgba(106, 5, 114, 0.3); /* Shadow for depth */
 }
 
 .btn:hover {
   background-color: #9333ea; /* Lighter purple on hover */
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(106, 5, 114, 0.4);
+  transform: translateY(-3px); /* Slight lift effect */
+  box-shadow: 0 6px 15px rgba(106, 5, 114, 0.4); /* More pronounced shadow on hover */
 }
 
 .btn-secondary {
-  background-color: #27ae60; /* Emerald Green */
+  background-color: #27ae60; /* Emerald Green for secondary actions */
   box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
 }
 
 .btn-secondary:hover {
-  background-color: #2ecc71; /* Lighter green */
+  background-color: #2ecc71; /* Lighter green on hover */
   box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
 }
 
 .btn-warning {
-  background-color: #f39c12; /* Sunflower Yellow */
-  color: #333; /* Darker text for contrast */
+  background-color: #f39c12; /* Sunflower Yellow for warning/action buttons */
+  color: #333; /* Darker text for contrast on yellow */
   box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);
 }
 
 .btn-warning:hover {
-  background-color: #f1c40f; /* Lighter yellow */
+  background-color: #f1c40f; /* Lighter yellow on hover */
   box-shadow: 0 6px 15px rgba(243, 156, 18, 0.4);
 }
 
 .btn-danger {
-  background-color: #e74c3c; /* Alizarin Red */
+  background-color: #e74c3c; /* Alizarin Red for destructive actions */
   box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
 }
 
 .btn-danger:hover {
-  background-color: #c0392b; /* Darker red */
+  background-color: #c0392b; /* Darker red on hover */
   box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
 }
 
+.btn-info { /* New style for 'Explore' button */
+    background-color: #1abc9c; /* Turquoise */
+    box-shadow: 0 4px 10px rgba(26, 188, 156, 0.3);
+}
+
+.btn-info:hover {
+    background-color: #16a085; /* Darker turquoise */
+    box-shadow: 0 6px 15px rgba(26, 188, 156, 0.4);
+}
+
 .btn:disabled {
-  background-color: #cccccc;
+  background-color: #cccccc; /* Greyed out for disabled state */
   cursor: not-allowed;
-  transform: none;
+  transform: none; /* Remove hover effects when disabled */
   box-shadow: none;
 }
 
-/* Links */
+/* Link Styling */
 a {
-  color: #4a90e2;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s ease;
+  color: #4a90e2; /* Blue for links */
+  text-decoration: none; /* No underline by default */
+  font-weight: 600; /* Semi-bold links */
+  transition: color 0.3s ease; /* Smooth color transition on hover */
 }
 
 a:hover {
-  color: #347dc4;
-  text-decoration: underline;
+  color: #347dc4; /* Darker blue on hover */
+  text-decoration: underline; /* Underline on hover */
 }
 
+/* Error Message Styling */
 .error-message {
-  color: #e74c3c;
+  color: #e74c3c; /* Red for error messages */
   margin-top: 1.5rem;
   font-weight: 600;
-  background-color: #ffe8e8;
+  background-color: #ffe8e8; /* Light red background for error boxes */
   border: 1px solid #e74c3c;
   padding: 10px 15px;
   border-radius: 8px;
@@ -173,7 +185,7 @@ a:hover {
   margin: auto;
   background-color: #ffffff;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Stronger shadow for the main dashboard */
   text-align: center; /* Center the overall content within dashboard */
 }
 
@@ -185,7 +197,7 @@ a:hover {
 .dashboard-section {
   margin-top: 2.5rem;
   padding-top: 2rem;
-  border-top: 2px dashed #e0e0e0; /* Dashed separator */
+  border-top: 2px dashed #e0e0e0; /* Dashed separator between sections */
   text-align: left; /* Align section content to left */
 }
 
@@ -196,7 +208,7 @@ a:hover {
 }
 
 .dashboard-section h3 {
-  color: #34495e;
+  color: #34495e; /* Darker blue-grey for section headings */
   font-size: 2.2em;
   margin-bottom: 1.5rem;
   text-align: center; /* Center section headings */
@@ -204,31 +216,31 @@ a:hover {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid for cards */
+  gap: 1.5rem; /* Space between grid items */
   justify-items: center; /* Center items within grid cells */
-  align-items: stretch;
+  align-items: stretch; /* Make cards stretch to fill row height */
   padding: 10px; /* Some padding for the grid itself */
 }
 
-/* LearnedConceptCard */
+/* LearnedConceptCard Styling */
 .learned-concept-card {
   border: 2px solid #90caf9; /* Medium blue border */
   border-radius: 12px;
   padding: 1.2rem;
-  background-color: #e1f5fe; /* Lighter blue */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: #e1f5fe; /* Lighter blue background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effects */
   height: 100%; /* Make cards fill grid height */
 }
 
 .learned-concept-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px); /* Lift effect on hover */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
 }
 
 .learned-concept-card h4 {
@@ -245,12 +257,12 @@ a:hover {
   font-weight: 500;
 }
 
-/* QuizCard */
+/* QuizCard Styling */
 .quiz-card {
   border: 2px solid #ffcc80; /* Medium orange border */
   border-radius: 12px;
   padding: 1.2rem;
-  background-color: #fff3e0; /* Lighter orange */
+  background-color: #fff3e0; /* Lighter orange background */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
@@ -278,9 +290,9 @@ a:hover {
   margin-top: 1rem;
 }
 
-/* Quiz History */
+/* Quiz History List Styling */
 .quiz-history-list {
-  list-style: none;
+  list-style: none; /* Remove default list bullets */
   padding: 0;
   max-width: 700px;
   margin: 0 auto;
@@ -289,7 +301,7 @@ a:hover {
 .quiz-history-list li {
   background-color: #f0f4f8; /* Light blue-grey for list items */
   border: 1px solid #dcdcdc;
-  border-left: 5px solid #4a90e2; /* Accent left border */
+  border-left: 5px solid #4a90e2; /* Accent left border for visual interest */
   border-radius: 10px;
   padding: 1.2rem;
   margin-bottom: 1rem;
@@ -299,12 +311,12 @@ a:hover {
 }
 
 .quiz-history-list li:hover {
-  transform: translateX(5px);
+  transform: translateX(5px); /* Slight slide effect on hover */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .quiz-history-list strong {
-  color: #4a69bd;
+  color: #4a69bd; /* Darker blue for topic name */
   font-size: 1.1em;
 }
 
@@ -315,7 +327,45 @@ a:hover {
   margin-top: 5px;
 }
 
-/* Chart Container */
+/* Mastery List Styling (for Current Mastery Levels) */
+.mastery-list {
+  list-style: none;
+  padding: 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.mastery-list li {
+  background-color: #f8fcfb; /* Very light green-blue */
+  border: 1px solid #cce7e4;
+  border-left: 5px solid #2ecc71; /* Green accent border */
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  justify-content: space-between; /* Space out topic and score */
+  align-items: center;
+}
+
+.mastery-list li:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mastery-list strong {
+  color: #27ae60; /* Darker green */
+  font-size: 1.1em;
+}
+
+.mastery-score {
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Chart Container for Recharts */
 .chart-container {
   height: 350px; /* Fixed height for chart */
   width: 100%;
@@ -324,6 +374,121 @@ a:hover {
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
   margin-top: 2rem;
+}
+
+/* Path Recommendation Input Group Styling */
+.path-input-group {
+    display: flex;
+    flex-wrap: wrap; /* Allow inputs and button to wrap on smaller screens */
+    gap: 1rem; /* Space between inputs and button */
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.path-input {
+    flex: 1 1 200px; /* Allow inputs to grow but maintain a minimum width */
+    min-width: 150px; /* Ensure inputs are not too small */
+    padding: 12px;
+    border: 2px solid #a8c8e9;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #f9fcff;
+}
+
+.path-input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+    outline: none;
+}
+
+.path-input-group .btn {
+    margin-top: 0; /* Override default button margin-top to align with inputs */
+    flex-shrink: 0; /* Prevent button from shrinking in flex container */
+}
+
+/* Recommended Path Display Styling */
+.recommended-path-section {
+    margin-top: 2rem;
+    background-color: #eaf7ff; /* Light blue background for path section */
+    border-radius: 15px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    text-align: left;
+}
+
+.recommended-path-section h4 {
+    color: #4a90e2; /* Blue for path heading */
+    font-size: 1.6em;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.path-list {
+    list-style: none;
+    padding: 0;
+}
+
+.path-list-item {
+    background-color: #ffffff;
+    border: 1px solid #d4e3f4;
+    border-left: 5px solid #4a90e2; /* Blue accent border */
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between; /* Space out topic and buttons */
+    align-items: center;
+    flex-wrap: wrap; /* Allow buttons to wrap if space is tight */
+    gap: 10px; /* Space between topic and buttons, and between buttons */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.path-list-item:hover {
+    transform: translateX(3px); /* Slight slide effect on hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.path-topic {
+    font-size: 1.1em;
+    color: #333;
+    font-weight: 500;
+}
+
+.path-list-item strong {
+    color: #2c3e50;
+}
+
+.path-buttons {
+    display: flex;
+    gap: 0.8rem; /* Space between path action buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap to next line if space is tight */
+}
+
+.btn-path {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9em;
+    margin-top: 0; /* Override default button margin for path buttons */
+}
+
+/* Specific error message for path recommendation */
+.error-message.path-error {
+    background-color: #fff0f0;
+    border-color: #e74c3c;
+    color: #e74c3c;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* General button group at the bottom of dashboard */
+.actions-group {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    border-top: none; /* No border for this action group as it's typically at the very bottom */
+    padding-top: 1.5rem;
 }
 
 /* --- QuizPage Styles --- */
@@ -385,16 +550,16 @@ a:hover {
 }
 
 .quiz-option-label input[type="radio"] {
-  accent-color: #4a90e2;
-  transform: scale(1.3);
+  accent-color: #4a90e2; /* Blue accent for radio buttons */
+  transform: scale(1.3); /* Slightly larger radio buttons */
   margin-right: 10px;
 }
 
-/* Quiz result styling */
+/* Quiz Result Styling */
 .quiz-result-summary {
   margin-top: 3rem;
   padding: 2.5rem;
-  background: linear-gradient(45deg, #e8f5e9 0%, #d4edda 100%); /* Light green gradient */
+  background: linear-gradient(45deg, #e8f5e9 0%, #d4edda 100%); /* Light green gradient for success */
   border-radius: 15px;
   border: 1px solid #c8e6c9;
   text-align: center;
@@ -402,7 +567,7 @@ a:hover {
 }
 
 .quiz-result-summary h3 {
-  color: #2e7d32;
+  color: #2e7d32; /* Dark green for result heading */
   font-size: 2.4em;
   margin-bottom: 1rem;
 }
@@ -413,6 +578,7 @@ a:hover {
   margin-bottom: 1rem;
 }
 
+/* Styling for correct/incorrect answers */
 .correct-answer {
   background-color: #e6ffe6; /* Very light green background */
   border-color: #28a745; /* Green border */
@@ -428,13 +594,202 @@ a:hover {
 }
 
 .correct-answer::before {
-  content: '✓';
+  content: '✓'; /* Checkmark icon */
   color: #28a745;
   font-size: 1.2em;
   margin-right: 5px;
 }
 
 .incorrect-answer::before {
-  content: '✗';
+  content: '✗'; /* Cross icon */
   color: #dc3545;
-  font
+  font-size: 1.2em;
+  margin-right: 5px;
+}
+
+/* --- QuizSelectPage Styles --- */
+.quiz-select-container {
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+  padding: 3rem;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-select-container h2 {
+  margin-bottom: 2rem;
+  color: #6a0572; /* Purple heading */
+}
+
+.quiz-select-container input[type="text"] {
+  width: calc(100% - 24px); /* Full width minus padding and border */
+  padding: 12px;
+  border: 2px solid #a8c8e9;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  box-sizing: border-box;
+  background-color: #f9fcff;
+}
+
+.quiz-select-container input[type="text"]:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+  outline: none;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+  .dashboard-container,
+  .quiz-page-container {
+    padding: 2.5rem;
+    max-width: 850px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+
+  #root {
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 2.2em;
+  }
+
+  .card-base,
+  .dashboard-container,
+  .quiz-page-container,
+  .quiz-select-container {
+    padding: 20px;
+    margin: 10px auto; /* Center with margins */
+    border-radius: 15px;
+  }
+
+  .btn {
+    padding: 12px 25px;
+    font-size: 1em;
+  }
+
+  .form-group label {
+    font-size: 1em;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* 2-3 cards per row */
+    gap: 1rem;
+  }
+
+  .learned-concept-card,
+  .quiz-card {
+    padding: 1rem;
+  }
+
+  .quiz-question-card {
+    padding: 1.5rem;
+  }
+
+  .quiz-option-label {
+    padding: 12px 15px;
+    font-size: 1em;
+  }
+
+  .quiz-result-summary {
+    padding: 2rem;
+  }
+
+  /* Responsive for path input group */
+  .path-input-group {
+      flex-direction: column; /* Stack inputs and button vertically */
+      align-items: stretch; /* Stretch items to fill width */
+  }
+
+  .path-input {
+      width: 100%; /* Full width */
+      margin-right: 0; /* Remove horizontal margin */
+  }
+
+  /* Responsive for path list items */
+  .path-list-item {
+      flex-direction: column; /* Stack topic and buttons vertically */
+      align-items: flex-start; /* Align stacked items to the left */
+  }
+
+  .path-buttons {
+      margin-top: 10px; /* Space between topic and buttons when stacked */
+      width: 100%;
+      justify-content: center; /* Center buttons when stacked */
+  }
+
+  /* Responsive for action buttons at the bottom */
+  .actions-group {
+      flex-direction: column; /* Stack action buttons vertically */
+      gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.8em;
+  }
+
+  .card-base,
+  .dashboard-container,
+  .quiz-page-container,
+  .quiz-select-container {
+    padding: 15px;
+    margin: 5px auto;
+    border-radius: 12px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9em;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr; /* Stack cards vertically on very small screens */
+    gap: 0.8rem;
+  }
+
+  .learned-concept-card,
+  .quiz-card {
+    width: 95%; /* Take almost full width */
+    margin: 0 auto; /* Center them */
+  }
+
+  .quiz-question-card {
+    padding: 1rem;
+  }
+
+  .quiz-option-label {
+    padding: 10px 12px;
+    font-size: 0.9em;
+  }
+
+  .quiz-history-list li {
+    padding: 1rem;
+    font-size: 0.9em;
+  }
+
+  .quiz-result-summary {
+    padding: 1.5rem;
+  }
+}
