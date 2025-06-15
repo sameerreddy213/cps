@@ -1,4 +1,4 @@
-# 🎓 Educational Recommender System
+# 🎓 CPS Personalized Learning System Using Knowledge Graph
 An AI-powered platform that delivers personalized learning paths using knowledge graphs and adaptive quizzes.
 
 ## 🚀 Features
