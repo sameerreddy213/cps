@@ -96,7 +96,7 @@ const RegisterPage = () => {
             value={topics}
             onChange={(e) => setTopics(e.target.value)}
             placeholder="e.g. Recursion, Loops, Functions"
-            rows={3}
+            rows={4} // Slightly more rows for visibility
           ></textarea>
         </div>
 
@@ -104,7 +104,7 @@ const RegisterPage = () => {
       </form>
 
       {error && <p className="error-message">{error}</p>}
-      <p style={{ marginTop: "2rem", textAlign: "center" }}>
+      <p style={{ marginTop: "2.5rem", textAlign: "center" }}> {/* Adjusted margin */}
         Already have an account? <Link to="/">Login</Link>
       </p>
     </div>

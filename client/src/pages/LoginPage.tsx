@@ -62,7 +62,7 @@ const LoginPage = () => {
       </form>
 
       {error && <p className="error-message">{error}</p>}
-      <p style={{ marginTop: "2rem", textAlign: "center" }}>
+      <p style={{ marginTop: "2.5rem", textAlign: "center" }}> {/* Adjusted margin */}
         Don't have an account? <Link to="/register">Register here</Link>
       </p>
     </div>
