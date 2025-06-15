@@ -7,6 +7,12 @@ const analyzeController = async (req:Request, res:Response) => {
     //console.log(`type is ${typeofinput}`);
     let inputData = '';
 
+    const file = req.file;
+
+    if (!file || !typeofinput) {
+    return res.status(400).json({ error: 'Missing file or input type' });
+  }
+
     if (typeofinput === 'link') {
       inputData = req.body.input;
     } else if (typeofinput === 'pdf' || typeofinput === 'image') {

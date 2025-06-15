@@ -43,8 +43,8 @@ async function getAllPrerequisites(mainConcepts: string[]) {
     for (let concept of concepts) {
       await dfs(concept);
     }
-
-    return Array.from(result);
+    const preReqArray = Array.from(result).filter(concept => !normalizedMainConcepts.includes(concept.toLowerCase()));
+    return preReqArray;
   } catch (err) {
     console.error('Error during prerequisite fetch:', err);
     return [];

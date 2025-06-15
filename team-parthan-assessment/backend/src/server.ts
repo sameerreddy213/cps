@@ -7,7 +7,7 @@ const app = express();
 
 app.use(cors());
 app.use(json());
-app.use("/api/analyze", analyzeRoute);
+app.use("/api", analyzeRoute);
 app.use("/api/auth", authRoutes);
 
 // Error handling middleware

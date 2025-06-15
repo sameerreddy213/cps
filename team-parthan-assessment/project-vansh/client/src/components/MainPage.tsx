@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Brain,Trophy, BarChart3, Network, Clock, CheckCircle, AlertCircle, Play, User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink, XCircle } from 'lucide-react';
 import type { Topic, UserProfile, CustomContent, Quiz, QuizQuestion } from '../interface/types';
 import type { QuizState } from '../interface/types';
+import ConceptAnalyzer from './ConceptAnalyzer';
 
 const MainPage: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -20,6 +21,11 @@ const MainPage: React.FC = () => {
   const [currentQuiz, setCurrentQuiz] = useState<QuizState | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
+
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  //const [typeofinput, setTypeofInput] = useState("pdf");
+  const [concepts, setConcepts] = useState<{ mainTopic: string[]; prerequisites: string[] } | null>(null);
+  const [loadingConcepts, setLoadingConcepts] = useState(false);
 
   
 
@@ -176,6 +182,7 @@ const MainPage: React.FC = () => {
 
     const file = files[0];
     const fileType = file.type.includes('pdf') ? 'pdf' : 'image';
+    setUploadedFile(file.type.includes('pdf') ? file : null);
 
     setIsProcessing(true);
     const newContent: CustomContent = {
@@ -188,7 +195,7 @@ const MainPage: React.FC = () => {
     };
 
     setCustomContents(prev => [...prev, newContent]);
-    setShowUploadModal(false);
+    //setShowUploadModal(false);
 
     // Simulate AI processing
     setTimeout(() => {
@@ -646,7 +653,7 @@ const MainPage: React.FC = () => {
                         </div>
 
                         {content.status === 'ready' && content.quizGenerated && (
-                          <button  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors">
+                          <button  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors" onClick={getButtonHandler('ready','arrays')}>
                             Take AI Generated Quiz
                           </button>
                         )}
@@ -848,11 +855,36 @@ const MainPage: React.FC = () => {
                     ref={fileInputRef}
                     type="file"
                     accept={uploadType === 'pdf' ? '.pdf' : 'image/*'}
-                    onChange={(e) => handleFileUpload(e.target.files)}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadedFile(file);
+                        setConcepts(null);
+                      }
+                    }}
                     className="hidden"
                   />
+                  {uploadedFile && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected file: <span className="font-medium">{uploadedFile.name}</span>
+                    </p>
+                  )}
                 </div>
               )}
+
+
+
+              {/* Analyzer */}
+              <ConceptAnalyzer
+                file={uploadedFile}
+                typeofinput={uploadType}
+                concepts={concepts}
+                setConcepts={setConcepts}
+                loading={loadingConcepts}
+                setLoading={setLoadingConcepts}
+              />
+
+
 
               {/* AI Features Info */}
               <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
