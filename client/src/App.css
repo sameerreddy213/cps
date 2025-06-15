@@ -1,427 +1,467 @@
 /* General Setup for the entire application */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  /* Adjusted max-width for better fit on 1366px screens, allows some side margins */
+  max-width: 1024px; /* Optimal content width for 1366x768+ while leaving side margins */
+  margin: 0 auto; /* Center the root container */
+  padding: 2.5rem; /* Increased overall padding */
   text-align: center;
-  min-height: 100vh; /* Ensure root takes full height */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center content vertically in root */
-  align-items: center; /* Center content horizontally in root */
+  justify-content: flex-start; /* Align content to start, allows vertical growth */
+  align-items: center; /* Center content horizontally */
+  background-color: #121212; /* Deep dark background */
+  color: #e0e0e0; /* Default light text color */
 }
 
 /* Base Styles for all pages and components */
 body {
-  font-family: 'Poppins', sans-serif; /* A more modern and readable font */
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Soft gradient background for a fresh feel */
-  color: #333; /* Default text color */
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); /* Even darker, subtle gradient for body */
+  color: #f0f0f0; /* Default text color for overall body */
   margin: 0;
   display: flex;
-  justify-content: center; /* Center body content horizontally */
-  align-items: flex-start; /* Align body content to the top, allowing it to grow downwards */
-  min-height: 100vh; /* Ensure body takes at least full viewport height */
-  padding: 20px; /* Overall padding for the body */
-  box-sizing: border-box; /* Include padding in element's total width and height */
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 30px; /* Increased overall padding for the body */
+  box-sizing: border-box;
 }
 
 /* Headings Styling */
 h1, h2, h3, h4 {
-  color: #2c3e50; /* Dark blue-grey for headings, providing good contrast */
-  margin-bottom: 1rem;
-  font-weight: 700; /* Bold font weight for prominence */
+  color: #e0e0e0; /* Light text for general headings */
+  margin-bottom: 1.2rem; /* Slightly more margin below headings */
+  font-weight: 700;
 }
 
 h2 {
-  font-size: 2.8em; /* Larger font size for main page titles */
-  color: #4a90e2; /* Bright blue for main page titles, making them stand out */
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Subtle text shadow for depth */
+  font-size: 3.2em; /* Larger font size for main page titles */
+  color: #a872e6; /* Brighter purple for main titles */
+  text-shadow: 2px 2px 6px rgba(168, 114, 230, 0.4); /* Stronger text shadow */
+  letter-spacing: 0.05em; /* Slightly more spaced letters for elegance */
+  margin-bottom: 2rem; /* More space below main titles */
 }
 
-/* Base Card Style for common containers like forms and dashboards */
+/* --- Base Card Style (Login/Register/Home Cards) --- */
 .card-base {
-  background-color: #ffffff; /* White background for cards */
-  padding: 30px;
-  border-radius: 15px; /* More rounded corners */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Pronounced shadow for a floating effect */
-  width: 100%;
+  background-color: #1a1a1a; /* Dark background */
+  padding: 40px; /* Increased padding for more spacious feel */
+  border-radius: 20px; /* More rounded corners */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Stronger, darker shadow */
+  width: 100%; /* Ensures it fills its container up to max-width */
+  max-width: 480px; /* Specific max-width for forms for better alignment on large screens */
   box-sizing: border-box;
-  text-align: left; /* Default text alignment within cards */
-  margin-bottom: 2rem;
-  border: 1px solid #e0e0e0; /* Light grey border */
+  text-align: left;
+  margin-bottom: 3rem; /* More space below cards */
+  border: 1px solid #3a3a3a; /* Darker, subtle border */
+  color: #f0f0f0; /* Light text */
 }
+
+.card-base h2 { /* Specific adjustment for h2 inside card-base */
+    font-size: 2.5em; /* Adjusted size for card headings */
+    color: #a872e6; /* Brighter purple */
+    text-shadow: none;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
 
 /* Form Group Styling */
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem; /* More space between form groups */
 }
 
 .form-group label {
-  display: block; /* Make labels take full width */
-  margin-bottom: 0.6rem;
-  font-weight: 600; /* Semi-bold labels */
-  color: #555; /* Dark grey for labels */
+  display: block;
+  margin-bottom: 0.8rem; /* More space between label and input */
+  font-weight: 600;
+  color: #cccccc; /* Lighter grey for labels */
   font-size: 1.1em;
 }
 
 .form-group input[type="text"],
 .form-group input[type="password"],
 .form-group input[type="email"],
-.form-group textarea {
-  width: calc(100% - 24px); /* Full width minus padding and border */
-  padding: 12px;
-  border: 2px solid #a8c8e9; /* Softer blue border for inputs */
-  border-radius: 10px; /* Rounded input fields */
-  font-size: 1rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition on focus */
+.form-group textarea,
+.quiz-select-container input[type="text"] { /* Unified styling for all prominent inputs */
+  width: calc(100% - 32px); /* Full width minus padding and border */
+  padding: 16px; /* Larger padding for inputs */
+  border: 2px solid #555555; /* Defined border */
+  border-radius: 12px; /* Nicely rounded inputs */
+  font-size: 1.1rem; /* Clearer font size */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   box-sizing: border-box;
-  background-color: #f9fcff; /* Slightly off-white background for inputs */
+  background-color: #2b2b2b; /* Dark input background */
+  color: #e0e0e0; /* Light text for input fields */
+  outline: none; /* Remove default outline */
 }
 
+/* Placeholder styling */
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+.quiz-select-container input::placeholder {
+  color: #888888;
+  opacity: 1;
+}
+
+
 .form-group input:focus,
-.form-group textarea:focus {
-  border-color: #4a90e2; /* Bright blue border on focus */
-  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2); /* Soft glow on focus */
-  outline: none; /* Remove default outline */
+.form-group textarea:focus,
+.quiz-select-container input:focus { /* Unified focus styling */
+  border-color: #a872e6; /* Bright purple border on focus */
+  box-shadow: 0 0 0 6px rgba(168, 114, 230, 0.4); /* Soft glow on focus, adjusted for dark */
+  background-color: #333333; /* Slightly lighter background on focus */
 }
 
 /* Button Styling */
 .btn {
-  background-color: #6a0572; /* Deep Purple for primary buttons */
-  color: white; /* White text for contrast */
-  padding: 14px 30px;
+  background-color: #6a0572; /* Deep Purple */
+  color: white;
+  padding: 16px 35px; /* Larger buttons */
   border: none;
-  border-radius: 10px;
-  cursor: pointer; /* Indicate clickable element */
+  border-radius: 12px; /* Rounded buttons */
+  cursor: pointer;
   font-size: 1.15rem;
   font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
-  margin-top: 1rem;
-  box-shadow: 0 4px 10px rgba(106, 5, 114, 0.3); /* Shadow for depth */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  margin-top: 1.5rem; /* More space above buttons */
+  box-shadow: 0 6px 15px rgba(106, 5, 114, 0.4); /* Stronger shadow */
 }
 
 .btn:hover {
   background-color: #9333ea; /* Lighter purple on hover */
-  transform: translateY(-3px); /* Slight lift effect */
-  box-shadow: 0 6px 15px rgba(106, 5, 114, 0.4); /* More pronounced shadow on hover */
+  transform: translateY(-4px); /* More pronounced lift effect */
+  box-shadow: 0 8px 20px rgba(106, 5, 114, 0.5); /* Stronger hover shadow */
 }
 
 .btn-secondary {
-  background-color: #27ae60; /* Emerald Green for secondary actions */
-  box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+  background-color: #2ecc71; /* Emerald Green */
+  box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
 }
 
 .btn-secondary:hover {
-  background-color: #2ecc71; /* Lighter green on hover */
-  box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+  background-color: #28b46e; /* Slightly darker green */
+  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.5);
 }
 
 .btn-warning {
-  background-color: #f39c12; /* Sunflower Yellow for warning/action buttons */
-  color: #333; /* Darker text for contrast on yellow */
-  box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);
+  background-color: #f1c40f; /* Lighter Sunflower Yellow */
+  color: #333;
+  box-shadow: 0 6px 15px rgba(241, 196, 15, 0.4);
 }
 
 .btn-warning:hover {
-  background-color: #f1c40f; /* Lighter yellow on hover */
-  box-shadow: 0 6px 15px rgba(243, 156, 18, 0.4);
+  background-color: #f39c12; /* Slightly darker yellow */
+  box-shadow: 0 8px 20px rgba(241, 196, 15, 0.5);
 }
 
 .btn-danger {
-  background-color: #e74c3c; /* Alizarin Red for destructive actions */
-  box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
-}
-
-.btn-danger:hover {
-  background-color: #c0392b; /* Darker red on hover */
+  background-color: #e74c3c; /* Alizarin Red */
   box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
 }
 
-.btn-info { /* New style for 'Explore' button */
+.btn-danger:hover {
+  background-color: #c0392b; /* Darker red */
+  box-shadow: 0 8px 20px rgba(231, 76, 60, 0.5);
+}
+
+.btn-info {
     background-color: #1abc9c; /* Turquoise */
-    box-shadow: 0 4px 10px rgba(26, 188, 156, 0.3);
+    box-shadow: 0 6px 15px rgba(26, 188, 156, 0.4);
 }
 
 .btn-info:hover {
     background-color: #16a085; /* Darker turquoise */
-    box-shadow: 0 6px 15px rgba(26, 188, 156, 0.4);
+    box-shadow: 0 8px 20px rgba(26, 188, 156, 0.5);
 }
 
 .btn:disabled {
-  background-color: #cccccc; /* Greyed out for disabled state */
+  background-color: #555555;
   cursor: not-allowed;
-  transform: none; /* Remove hover effects when disabled */
+  transform: none;
   box-shadow: none;
+  color: #cccccc;
 }
 
 /* Link Styling */
 a {
-  color: #4a90e2; /* Blue for links */
-  text-decoration: none; /* No underline by default */
-  font-weight: 600; /* Semi-bold links */
-  transition: color 0.3s ease; /* Smooth color transition on hover */
+  color: #a8c8e9; /* Lighter blue for links */
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #347dc4; /* Darker blue on hover */
-  text-decoration: underline; /* Underline on hover */
+  color: #d4e3f4; /* Even lighter blue on hover */
+  text-decoration: underline;
 }
 
 /* Error Message Styling */
 .error-message {
-  color: #e74c3c; /* Red for error messages */
-  margin-top: 1.5rem;
+  color: #ffcccc;
+  margin-top: 1.8rem; /* More space above errors */
   font-weight: 600;
-  background-color: #ffe8e8; /* Light red background for error boxes */
-  border: 1px solid #e74c3c;
-  padding: 10px 15px;
+  background-color: #4a1a1a;
+  border: 1px solid #cc0000;
+  padding: 12px 18px; /* Slightly more padding */
   border-radius: 8px;
 }
 
 /* --- Dashboard Specific Styles --- */
 .dashboard-container {
-  padding: 3rem;
-  max-width: 950px;
+  padding: 4rem; /* Increased padding */
+  max-width: 1024px; /* Consistent max-width with #root */
   margin: auto;
-  background-color: #ffffff;
+  background-color: #1f1f1f; /* Dark background */
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Stronger shadow for the main dashboard */
-  text-align: center; /* Center the overall content within dashboard */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  color: #e0e0e0;
 }
 
 .dashboard-container h2 {
-  margin-bottom: 1.5rem;
-  color: #6a0572; /* Purple heading for dashboard */
+  margin-bottom: 2rem;
+  color: #a872e6; /* Brighter purple */
 }
 
 .dashboard-section {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 2px dashed #e0e0e0; /* Dashed separator between sections */
-  text-align: left; /* Align section content to left */
+  margin-top: 3.5rem; /* More space between sections */
+  padding-top: 3rem; /* More padding at top of sections */
+  border-top: 2px dashed #3a3a3a; /* Darker dashed separator */
+  text-align: left;
 }
 
 .dashboard-section:first-of-type {
-  border-top: none; /* No top border for the first section */
+  border-top: none;
   padding-top: 0;
   margin-top: 0;
 }
 
 .dashboard-section h3 {
-  color: #34495e; /* Darker blue-grey for section headings */
-  font-size: 2.2em;
-  margin-bottom: 1.5rem;
-  text-align: center; /* Center section headings */
+  color: #a8c8e9; /* Lighter blue-grey */
+  font-size: 2.5em; /* Larger section headings */
+  margin-bottom: 2rem; /* More space below section headings */
+  text-align: center;
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid for cards */
-  gap: 1.5rem; /* Space between grid items */
-  justify-items: center; /* Center items within grid cells */
-  align-items: stretch; /* Make cards stretch to fill row height */
-  padding: 10px; /* Some padding for the grid itself */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Slightly larger min-width for cards */
+  gap: 2rem; /* More space between grid items */
+  justify-items: center;
+  align-items: stretch;
+  padding: 15px; /* More padding */
 }
 
 /* LearnedConceptCard Styling */
 .learned-concept-card {
-  border: 2px solid #90caf9; /* Medium blue border */
-  border-radius: 12px;
-  padding: 1.2rem;
-  background-color: #e1f5fe; /* Lighter blue background */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  border: 2px solid #5a6ea3; /* Darker blue border */
+  border-radius: 15px; /* More rounded */
+  padding: 1.8rem; /* More padding */
+  background-color: #2b2b2b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); /* Stronger shadow */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effects */
-  height: 100%; /* Make cards fill grid height */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+  color: #e0e0e0;
 }
 
 .learned-concept-card:hover {
-  transform: translateY(-5px); /* Lift effect on hover */
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+  transform: translateY(-6px); /* More lift */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); /* More pronounced shadow */
 }
 
 .learned-concept-card h4 {
-  color: #2196f3; /* Blue for topic title */
+  color: #8cb9f7; /* Lighter blue */
   margin: 0;
-  font-size: 1.3em;
+  font-size: 1.4em; /* Larger font */
   text-align: center;
 }
 
 .learned-concept-card p {
-  font-size: 1em;
-  color: #555;
-  margin-top: 10px;
+  font-size: 1.05em; /* Slightly larger */
+  color: #b0b0b0;
+  margin-top: 12px;
   font-weight: 500;
 }
 
 /* QuizCard Styling */
 .quiz-card {
-  border: 2px solid #ffcc80; /* Medium orange border */
-  border-radius: 12px;
-  padding: 1.2rem;
-  background-color: #fff3e0; /* Lighter orange background */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #b38e4a; /* Darker orange border */
+  border-radius: 15px;
+  padding: 1.8rem;
+  background-color: #2b2b2b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  height: 100%; /* Make cards fill grid height */
+  height: 100%;
+  color: #e0e0e0;
 }
 
 .quiz-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .quiz-card h4 {
-  color: #f39c12; /* Orange for topic title */
+  color: #f7d460; /* Brighter Orange */
   margin: 0;
-  font-size: 1.3em;
+  font-size: 1.4em;
   text-align: center;
 }
 
 .quiz-card .btn {
-  padding: 0.7rem 1.5rem;
-  font-size: 1em;
-  margin-top: 1rem;
+  padding: 0.8rem 1.8rem; /* Adjusted for consistency */
+  font-size: 1.05em;
+  margin-top: 1.2rem;
 }
 
 /* Quiz History List Styling */
 .quiz-history-list {
-  list-style: none; /* Remove default list bullets */
+  list-style: none;
   padding: 0;
-  max-width: 700px;
+  max-width: 800px; /* Wider list */
   margin: 0 auto;
 }
 
 .quiz-history-list li {
-  background-color: #f0f4f8; /* Light blue-grey for list items */
-  border: 1px solid #dcdcdc;
-  border-left: 5px solid #4a90e2; /* Accent left border for visual interest */
-  border-radius: 10px;
-  padding: 1.2rem;
-  margin-bottom: 1rem;
+  background-color: #2b2b2b;
+  border: 1px solid #4a4a4a;
+  border-left: 6px solid #a8c8e9; /* Thicker accent border */
+  border-radius: 12px; /* More rounded */
+  padding: 1.5rem; /* More padding */
+  margin-bottom: 1.2rem; /* More space */
   text-align: left;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: #e0e0e0;
 }
 
 .quiz-history-list li:hover {
-  transform: translateX(5px); /* Slight slide effect on hover */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(6px); /* More slide effect */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 .quiz-history-list strong {
-  color: #4a69bd; /* Darker blue for topic name */
-  font-size: 1.1em;
+  color: #a8c8e9;
+  font-size: 1.15em; /* Slightly larger */
 }
 
 .quiz-history-list small {
-  color: #777;
-  font-size: 0.9em;
-  display: block; /* New line for timestamp */
-  margin-top: 5px;
+  color: #b0b0b0;
+  font-size: 0.95em; /* Slightly larger */
+  display: block;
+  margin-top: 8px; /* More space */
 }
 
 /* Mastery List Styling (for Current Mastery Levels) */
 .mastery-list {
   list-style: none;
   padding: 0;
-  max-width: 700px;
+  max-width: 800px; /* Wider list */
   margin: 0 auto;
 }
 
 .mastery-list li {
-  background-color: #f8fcfb; /* Very light green-blue */
-  border: 1px solid #cce7e4;
-  border-left: 5px solid #2ecc71; /* Green accent border */
-  border-radius: 10px;
-  padding: 1.2rem;
-  margin-bottom: 1rem;
+  background-color: #2b2b2b;
+  border: 1px solid #4a4a4a;
+  border-left: 6px solid #2ecc71; /* Thicker accent border */
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
   text-align: left;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
-  justify-content: space-between; /* Space out topic and score */
+  justify-content: space-between;
   align-items: center;
+  color: #e0e0e0;
 }
 
 .mastery-list li:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateX(6px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 .mastery-list strong {
-  color: #27ae60; /* Darker green */
-  font-size: 1.1em;
+  color: #2ecc71;
+  font-size: 1.15em;
 }
 
 .mastery-score {
     font-weight: 600;
-    color: #34495e;
+    color: #a8c8e9;
+    font-size: 1.1em; /* Make score slightly larger */
 }
 
 /* Chart Container for Recharts */
 .chart-container {
-  height: 350px; /* Fixed height for chart */
+  height: 400px; /* Taller chart */
   width: 100%;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  margin-top: 2rem;
+  padding: 20px; /* More padding */
+  background-color: #1f1f1f;
+  border-radius: 18px; /* More rounded */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3); /* Stronger shadow */
+  margin-top: 2.5rem;
 }
 
 /* Path Recommendation Input Group Styling */
 .path-input-group {
     display: flex;
-    flex-wrap: wrap; /* Allow inputs and button to wrap on smaller screens */
-    gap: 1rem; /* Space between inputs and button */
+    flex-wrap: wrap;
+    gap: 1.5rem; /* More space */
     justify-content: center;
     align-items: center;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
 }
 
-.path-input {
-    flex: 1 1 200px; /* Allow inputs to grow but maintain a minimum width */
-    min-width: 150px; /* Ensure inputs are not too small */
-    padding: 12px;
-    border: 2px solid #a8c8e9;
-    border-radius: 10px;
-    font-size: 1rem;
+.path-input { /* Unified with general input styling */
+    flex: 1 1 250px; /* Allows larger input fields */
+    min-width: 200px;
+    padding: 16px;
+    border: 2px solid #555555;
+    border-radius: 12px;
+    font-size: 1.1rem;
     box-sizing: border-box;
-    background-color: #f9fcff;
+    background-color: #2b2b2b;
+    color: #e0e0e0;
 }
 
 .path-input:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+    border-color: #a872e6;
+    box-shadow: 0 0 0 6px rgba(168, 114, 230, 0.4);
     outline: none;
 }
 
 .path-input-group .btn {
-    margin-top: 0; /* Override default button margin-top to align with inputs */
-    flex-shrink: 0; /* Prevent button from shrinking in flex container */
+    margin-top: 0;
+    flex-shrink: 0;
+    padding: 14px 30px; /* Adjusted button size to fit well with inputs */
+    font-size: 1.1em;
 }
 
 /* Recommended Path Display Styling */
 .recommended-path-section {
-    margin-top: 2rem;
-    background-color: #eaf7ff; /* Light blue background for path section */
-    border-radius: 15px;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-top: 3rem; /* More space */
+    background-color: #1f1f1f;
+    border-radius: 20px; /* More rounded */
+    padding: 2.5rem 3rem; /* More padding */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     text-align: left;
+    color: #e0e0e0;
 }
 
 .recommended-path-section h4 {
-    color: #4a90e2; /* Blue for path heading */
-    font-size: 1.6em;
-    margin-bottom: 1.5rem;
+    color: #a8c8e9;
+    font-size: 1.8em; /* Larger heading */
+    margin-bottom: 2rem;
     text-align: center;
 }
 
@@ -431,54 +471,55 @@ a:hover {
 }
 
 .path-list-item {
-    background-color: #ffffff;
-    border: 1px solid #d4e3f4;
-    border-left: 5px solid #4a90e2; /* Blue accent border */
-    border-radius: 10px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 0.8rem;
+    background-color: #2b2b2b;
+    border: 1px solid #4a4a4a;
+    border-left: 6px solid #a8c8e9; /* Thicker accent border */
+    border-radius: 12px;
+    padding: 1.2rem 1.8rem; /* More padding */
+    margin-bottom: 1rem;
     display: flex;
-    justify-content: space-between; /* Space out topic and buttons */
+    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Allow buttons to wrap if space is tight */
-    gap: 10px; /* Space between topic and buttons, and between buttons */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    flex-wrap: wrap;
+    gap: 12px; /* More space */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #e0e0e0;
 }
 
 .path-list-item:hover {
-    transform: translateX(3px); /* Slight slide effect on hover */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateX(6px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
 }
 
 .path-topic {
-    font-size: 1.1em;
-    color: #333;
+    font-size: 1.15em; /* Slightly larger */
+    color: #e0e0e0;
     font-weight: 500;
 }
 
 .path-list-item strong {
-    color: #2c3e50;
+    color: #a8c8e9;
 }
 
 .path-buttons {
     display: flex;
-    gap: 0.8rem; /* Space between path action buttons */
-    flex-wrap: wrap; /* Allow buttons to wrap to next line if space is tight */
+    gap: 1rem; /* More space */
+    flex-wrap: wrap;
 }
 
 .btn-path {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9em;
-    margin-top: 0; /* Override default button margin for path buttons */
+    padding: 0.8rem 1.5rem; /* Larger */
+    font-size: 0.95em; /* Slightly larger */
+    margin-top: 0;
 }
 
 /* Specific error message for path recommendation */
 .error-message.path-error {
-    background-color: #fff0f0;
-    border-color: #e74c3c;
-    color: #e74c3c;
-    margin-top: 1rem;
+    background-color: #4a1a1a;
+    border-color: #cc0000;
+    color: #ffcccc;
+    margin-top: 1.5rem;
     text-align: center;
 }
 
@@ -486,107 +527,114 @@ a:hover {
 .actions-group {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
-    border-top: none; /* No border for this action group as it's typically at the very bottom */
-    padding-top: 1.5rem;
+    gap: 2rem; /* More space */
+    border-top: none;
+    padding-top: 2rem; /* More padding */
 }
 
 /* --- QuizPage Styles --- */
 .quiz-page-container {
-  padding: 3rem;
-  max-width: 900px;
+  padding: 4rem; /* Increased padding */
+  max-width: 1024px; /* Consistent max-width */
   margin: auto;
-  background-color: #ffffff;
+  background-color: #1f1f1f;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   text-align: center;
+  color: #e0e0e0;
 }
 
 .quiz-page-container h2 {
-  color: #6a0572; /* Purple heading for quiz page */
-  margin-bottom: 2rem;
+  color: #a872e6; /* Brighter purple */
+  margin-bottom: 2.5rem; /* More space */
 }
 
 .quiz-question-card {
-  background-color: #fefefe;
-  border: 2px solid #d4e3f4; /* Soft blue border */
-  border-radius: 15px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  background-color: #2b2b2b;
+  border: 2px solid #4a4a4a;
+  border-radius: 18px; /* More rounded */
+  padding: 2.5rem; /* More padding */
+  margin-bottom: 2.5rem; /* More space */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  color: #e0e0e0;
 }
 
 .quiz-question-card p {
-  font-size: 1.25em;
+  font-size: 1.35em; /* Larger font */
   font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #333;
+  margin-bottom: 1.8rem; /* More space */
+  color: #e0e0e0;
+  line-height: 1.5; /* Better readability */
 }
 
 .quiz-options-group {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem; /* More space between options */
 }
 
 .quiz-option-label {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 15px 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
+  gap: 1.2rem; /* More space */
+  padding: 16px 25px; /* More padding */
+  border: 1px solid #4a4a4a;
+  border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  background-color: #ffffff;
-  font-size: 1.05em;
+  background-color: #2b2b2b;
+  font-size: 1.1em; /* Larger font */
   font-weight: 500;
+  color: #e0e0e0;
 }
 
 .quiz-option-label:hover {
-  background-color: #f8f8f8;
-  border-color: #b0d4f5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #3a3a3a;
+  border-color: #a8c8e9;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
 .quiz-option-label input[type="radio"] {
-  accent-color: #4a90e2; /* Blue accent for radio buttons */
-  transform: scale(1.3); /* Slightly larger radio buttons */
-  margin-right: 10px;
+  accent-color: #a872e6; /* Brighter purple accent */
+  transform: scale(1.4); /* Larger radio buttons */
+  margin-right: 12px; /* More space */
 }
 
 /* Quiz Result Styling */
 .quiz-result-summary {
-  margin-top: 3rem;
-  padding: 2.5rem;
-  background: linear-gradient(45deg, #e8f5e9 0%, #d4edda 100%); /* Light green gradient for success */
-  border-radius: 15px;
-  border: 1px solid #c8e6c9;
+  margin-top: 4rem; /* More space */
+  padding: 3rem; /* More padding */
+  background: linear-gradient(45deg, #2b2b2b 0%, #3a3a3a 100%);
+  border-radius: 20px;
+  border: 1px solid #4a4a4a;
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  color: #e0e0e0;
 }
 
 .quiz-result-summary h3 {
-  color: #2e7d32; /* Dark green for result heading */
-  font-size: 2.4em;
-  margin-bottom: 1rem;
+  color: #2ecc71;
+  font-size: 2.6em; /* Larger heading */
+  margin-bottom: 1.5rem;
 }
 
 .quiz-result-summary p {
-  font-size: 1.2em;
-  color: #444;
-  margin-bottom: 1rem;
+  font-size: 1.3em; /* Larger font */
+  color: #b0b0b0;
+  margin-bottom: 1.2rem; /* More space */
 }
 
 /* Styling for correct/incorrect answers */
 .correct-answer {
-  background-color: #e6ffe6; /* Very light green background */
-  border-color: #28a745; /* Green border */
+  background-color: #1a3a1a;
+  border-color: #28a745;
+  color: #e6ffe6;
 }
 
 .incorrect-answer {
-  background-color: #ffe6e6; /* Very light red background */
-  border-color: #dc3545; /* Red border */
+  background-color: #3a1a1a;
+  border-color: #dc3545;
+  color: #ffe6e6;
 }
 
 .correct-answer span, .incorrect-answer span {
@@ -594,147 +642,178 @@ a:hover {
 }
 
 .correct-answer::before {
-  content: '✓'; /* Checkmark icon */
+  content: '✓';
   color: #28a745;
-  font-size: 1.2em;
-  margin-right: 5px;
+  font-size: 1.3em; /* Larger icon */
+  margin-right: 8px; /* More space */
 }
 
 .incorrect-answer::before {
-  content: '✗'; /* Cross icon */
+  content: '✗';
   color: #dc3545;
-  font-size: 1.2em;
-  margin-right: 5px;
+  font-size: 1.3em; /* Larger icon */
+  margin-right: 8px;
 }
 
 /* --- QuizSelectPage Styles --- */
 .quiz-select-container {
-  max-width: 600px;
+  max-width: 650px; /* Slightly wider for the input and button */
   margin: auto;
   text-align: center;
-  padding: 3rem;
-  background-color: #ffffff;
+  padding: 4rem; /* More padding */
+  background-color: #1f1f1f;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  color: #e0e0e0;
 }
 
 .quiz-select-container h2 {
-  margin-bottom: 2rem;
-  color: #6a0572; /* Purple heading */
+  margin-bottom: 2.5rem; /* More space */
+  color: #a872e6;
 }
 
-.quiz-select-container input[type="text"] {
-  width: calc(100% - 24px); /* Full width minus padding and border */
-  padding: 12px;
-  border: 2px solid #a8c8e9;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-  box-sizing: border-box;
-  background-color: #f9fcff;
-}
+/* The input styling is unified under .form-group input[type="text"] etc. now */
+/* The specific overrides for quiz-select-container input[type="text"] are no longer needed
+   as they are covered by the more general rule above. This ensures consistency. */
 
-.quiz-select-container input[type="text"]:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
-  outline: none;
-}
-
-/* --- Responsive Adjustments --- */
+/* Responsive Adjustments - These values are critical for scaling down */
 @media (max-width: 992px) {
+  #root {
+    padding: 2rem;
+    max-width: 900px; /* Adjust max-width for tablets */
+  }
+  body {
+    padding: 25px;
+  }
+  h2 {
+    font-size: 2.5em;
+    margin-bottom: 1.8rem;
+  }
+  .card-base,
   .dashboard-container,
-  .quiz-page-container {
+  .quiz-page-container,
+  .quiz-select-container {
+    padding: 30px; /* Reduce padding slightly */
+    max-width: 800px; /* Adjust max-width for smaller tablets */
+  }
+  .dashboard-section {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+  }
+  .dashboard-section h3 {
+    font-size: 2em;
+    margin-bottom: 1.5rem;
+  }
+  .card-grid {
+    gap: 1.5rem;
+  }
+  .learned-concept-card,
+  .quiz-card {
+    padding: 1.5rem;
+  }
+  .quiz-history-list li,
+  .mastery-list li {
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    border-left-width: 5px;
+  }
+  .path-input-group {
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .path-list-item {
+    padding: 1rem 1.5rem;
+    gap: 10px;
+    border-left-width: 5px;
+  }
+  .quiz-question-card {
+    padding: 2rem;
+  }
+  .quiz-result-summary {
     padding: 2.5rem;
-    max-width: 850px;
   }
 }
 
 @media (max-width: 768px) {
+  #root {
+    padding: 1.5rem;
+    max-width: 100%; /* Allow root to take full width on smaller screens */
+  }
   body {
     padding: 15px;
   }
-
-  #root {
-    padding: 1rem;
-  }
-
   h2 {
-    font-size: 2.2em;
+    font-size: 2em;
+    margin-bottom: 1.5rem;
   }
-
   .card-base,
   .dashboard-container,
   .quiz-page-container,
   .quiz-select-container {
     padding: 20px;
-    margin: 10px auto; /* Center with margins */
+    margin: 10px auto;
     border-radius: 15px;
+    max-width: 100%; /* Allow containers to take full width */
   }
-
   .btn {
     padding: 12px 25px;
     font-size: 1em;
+    margin-top: 1rem;
   }
-
   .form-group label {
     font-size: 1em;
+    margin-bottom: 0.6rem;
   }
-
-  .form-group input,
-  .form-group textarea {
-    padding: 10px;
-    font-size: 0.95rem;
+  .form-group input[type="text"],
+  .form-group input[type="password"],
+  .form-group input[type="email"],
+  .form-group textarea,
+  .quiz-select-container input[type="text"] {
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 10px;
   }
-
   .card-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* 2-3 cards per row */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* 2-3 cards per row */
     gap: 1rem;
+    padding: 0px; /* Remove padding */
   }
-
   .learned-concept-card,
   .quiz-card {
-    padding: 1rem;
+    padding: 1.2rem;
   }
-
   .quiz-question-card {
     padding: 1.5rem;
   }
-
   .quiz-option-label {
     padding: 12px 15px;
     font-size: 1em;
   }
-
-  .quiz-result-summary {
-    padding: 2rem;
+  .quiz-history-list li,
+  .mastery-list li {
+    padding: 1rem;
+    font-size: 0.9em;
+    border-left-width: 4px;
   }
-
-  /* Responsive for path input group */
   .path-input-group {
-      flex-direction: column; /* Stack inputs and button vertically */
-      align-items: stretch; /* Stretch items to fill width */
+      flex-direction: column;
+      align-items: stretch;
   }
-
   .path-input {
-      width: 100%; /* Full width */
-      margin-right: 0; /* Remove horizontal margin */
-  }
-
-  /* Responsive for path list items */
-  .path-list-item {
-      flex-direction: column; /* Stack topic and buttons vertically */
-      align-items: flex-start; /* Align stacked items to the left */
-  }
-
-  .path-buttons {
-      margin-top: 10px; /* Space between topic and buttons when stacked */
       width: 100%;
-      justify-content: center; /* Center buttons when stacked */
+      margin-right: 0;
   }
-
-  /* Responsive for action buttons at the bottom */
+  .path-list-item {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+  .path-buttons {
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+  }
   .actions-group {
-      flex-direction: column; /* Stack action buttons vertically */
+      flex-direction: column;
       gap: 1rem;
   }
 }
@@ -743,7 +822,6 @@ a:hover {
   h2 {
     font-size: 1.8em;
   }
-
   .card-base,
   .dashboard-container,
   .quiz-page-container,
@@ -752,43 +830,37 @@ a:hover {
     margin: 5px auto;
     border-radius: 12px;
   }
-
   .btn {
     padding: 10px 20px;
     font-size: 0.9em;
   }
-
   .form-group input,
-  .form-group textarea {
-    padding: 8px;
+  .form-group textarea,
+  .quiz-select-container input[type="text"] {
+    padding: 10px;
     font-size: 0.9rem;
   }
-
   .card-grid {
     grid-template-columns: 1fr; /* Stack cards vertically on very small screens */
     gap: 0.8rem;
   }
-
   .learned-concept-card,
   .quiz-card {
     width: 95%; /* Take almost full width */
-    margin: 0 auto; /* Center them */
+    margin: 0 auto;
   }
-
   .quiz-question-card {
     padding: 1rem;
   }
-
   .quiz-option-label {
     padding: 10px 12px;
     font-size: 0.9em;
   }
-
-  .quiz-history-list li {
+  .quiz-history-list li,
+  .mastery-list li {
     padding: 1rem;
     font-size: 0.9em;
   }
-
   .quiz-result-summary {
     padding: 1.5rem;
   }

@@ -120,7 +120,7 @@ const QuizPage = () => {
   if (loading) {
     return (
       <div className="quiz-page-container" style={{ textAlign: 'center' }}>
-        <p className="loading-message">Loading quiz questions...</p>
+        <p className="loading-message" style={{ fontSize: '1.2em', color: '#b0b0b0' }}>Loading quiz questions...</p>
       </div>
     );
   }
@@ -145,7 +145,7 @@ const QuizPage = () => {
       <h2>Quiz on: {topic}</h2>
 
       {questions.length === 0 ? (
-        <p>No questions available for this topic.</p>
+        <p style={{ fontSize: '1.2em', color: '#b0b0b0', marginTop: '1rem' }}>No questions available for this topic.</p>
       ) : (
         <form onSubmit={(e) => e.preventDefault()}>
           {questions.map((q, i) => (
@@ -199,11 +199,11 @@ const QuizPage = () => {
         <div className="quiz-result-summary">
           <h3>Quiz Results</h3>
           <p>
-            <span className="font-semibold">Score:</span> {summary.score.toFixed(1)}%
+            <span className="font-semibold" style={{ color: '#e0e0e0' }}>Score:</span> {summary.score.toFixed(1)}%
           </p>
           {summary.masteryUpdate && topic && (
             <p>
-              <span className="font-semibold">Mastery Level:</span>{" "}
+              <span className="font-semibold" style={{ color: '#e0e0e0' }}>Mastery Level:</span>{" "}
               {((1 - (summary.masteryUpdate[topic] || 0)) * 100).toFixed(1)}%
             </p>
           )}
