@@ -1,9 +1,23 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
+/*Modified by Nakshatra Bhandary (16/6/26)*/
 import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
 const LoginPage: React.FC = () => {
+  useEffect(() => {
+  // Disable scrolling
+  document.body.style.overflow = 'hidden';
+
+  return () => {
+    // Re-enable scrolling on unmount
+    document.body.style.overflow = 'auto';
+  };
+}, []);
+
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -18,6 +32,7 @@ const LoginPage: React.FC = () => {
     if (email === 'user@example.com' && password === 'password123') {
       alert('Login successful!');
       setError('');
+      navigate('/dashboard');
     } else {
       setError('Invalid credentials. Try again.');
     }

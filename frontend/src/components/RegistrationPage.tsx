@@ -1,7 +1,21 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
+/*Modified by Nakshatra Bhandary on 16/6/25 to update UI and routes/navigation */
 import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginPage.css'; 
 const RegistrationPage: React.FC = () => {
+  useEffect(() => {
+  // Disable scrolling
+  document.body.style.overflow = 'hidden';
+
+  return () => {
+    // Re-enable scrolling on unmount
+    document.body.style.overflow = 'auto';
+  };
+}, []);
+
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,6 +36,7 @@ const RegistrationPage: React.FC = () => {
 
     alert('Registration successful!');
     setError('');
+    navigate('/');
   };
 
   return (
