@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnPath - Your Journey to Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #dbeafe 0%, #f3e8ff 100%);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body.dark {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+        }
+        .navbar {
+            transition: all 0.4s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .dark .navbar {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        .navbar:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .dark .navbar:hover {
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #2dd4bf;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover::after {
+            width: 70%;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            background: #ffffff;
+        }
+        .dark .card {
+            background: #334155;
+        }
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        }
+        .dark .card:hover {
+            box-shadow: 0 12px 24px rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, #475569, #1e293b);
+        }
+        .btn-primary {
+            transition: all 0.3s ease;
+            background: #2dd4bf;
+        }
+        .btn-primary:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(45, 212, 191, 0.4);
+            background: #14b8a6;
+        }
+        .hero-section {
+            background: #6366f1;
+            position: relative;
+        }
+        .animate-slide-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.8s ease forwards;
+        }
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .faq-item {
+            transition: background 0.3s ease;
+            background: #ffffff;
+            border-color: #e5e7eb;
+        }
+        .dark .faq-item {
+            background: #334155;
+            border-color: #475569;
+        }
+        .faq-item:hover {
+            background: #f0f9ff;
+        }
+        .dark .faq-item:hover {
+            background: #475569;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .faq-answer.open {
+            max-height: 200px;
+        }
+        .faq-toggle::after {
+            content: '▼';
+            display: inline-block;
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        .faq-toggle.open::after {
+            transform: rotate(180deg);
+        }
+        .dark .bg-white {
+            background: #1e293b;
+        }
+        .dark .bg-gray-50 {
+            background: #334155;
+        }
+        .dark .text-gray-800 {
+            color: #e2e8f0;
+        }
+        .dark .text-gray-600 {
+            color: #94a3b8;
+        }
+        .dark .text-indigo-600 {
+            color: #2dd4bf;
+        }
+        .dark .border {
+            border-color: #475569;
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        .modal-content {
+            position: relative;
+            background: white;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 28rem;
+            width: 100%;
+        }
+        .sign-in-modal-content {
+            position: relative;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 24rem;
+            width: 100%;
+        }
+        .dark .modal-content, .dark .sign-in-modal-content {
+            background: #334155;
+        }
+        .close-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .close-btn:hover {
+            color: #1f2937;
+        }
+        .dark .close-btn {
+            color: #94a3b8;
+        }
+        .dark .close-btn:hover {
+            color: #e2e8f0;
+        }
+        .social-btn {
+            transition: background 0.3s ease;
+        }
+        .social-btn:hover {
+            background: #e5e7eb;
+        }
+        .dark .social-btn:hover {
+            background: #475569;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="navbar sticky top-0 z-50 py-4 px-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-3xl font-bold text-indigo-600">LearnPath</div>
+            <div class="flex space-x-8 items-center">
+                <a href="#home" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Home</a>
+                <a href="#features" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Features</a>
+                <a href="#about" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">About</a>
+                <a href="#sign-in" class="nav-link text-gray-800 hover:text-indigo-600 font-medium" onclick="showSignInModal(event)">Sign In</a>
+                <a href="#try" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Try</a>
+                <button id="themeToggle" class="focus:outline-none">
+                    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-800">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section py-24 text-white text-center relative">
+        <div class="container mx-auto relative z-10">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6 animate-slide-up">Your Journey to Mastery Starts Here</h1>
+            <p class="text-xl md:text-2xl mb-8 animate-slide-up" style="animation-delay: 0.2s;">Discover a tailored learning experience designed to unlock your full potential.</p>
+            <button class="btn-primary text-white px-8 py-4 rounded-full text-lg font-medium animate-slide-up" style="animation-delay: 0.4s;" onclick="showCreateAccountModal()">Create Account</button>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Why Choose LearnPath?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-600">Personalized Experience</h3>
+                    <p class="text-gray-600">Tailored recommendations to match your learning style and goals.</p>
+                </div>
+                <div class="card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-600">Interactive Assessments</h3>
+                    <p class="text-gray-600">Engage with dynamic tests to track and boost your progress.</p>
+                </div>
+                <div class="card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-600">Guided Learning</h3>
+                    <p class="text-gray-600">Follow a clear, customized path to achieve academic success.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">About Our Site</h2>
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/2">
+                    <img src="https://source.unsplash.com/random/600x400/?learning,team" alt="About LearnPath" class="rounded-lg shadow-lg w-full">
+                </div>
+                <div class="md:w-1/2">
+                    <p class="text-gray-600 text-lg">
+                        LearnPath is dedicated to empowering students by providing personalized learning experiences. Our platform leverages advanced technology to help you master any subject with ease. Whether you're a beginner or an advanced learner, we guide you through a journey tailored to your needs, ensuring you achieve your academic goals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQs Section -->
+    <section id="faq" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Frequently Asked Questions</h2>
+            <div class="space-y-4 max-w-2xl mx-auto">
+                <div class="faq-item p-6 border rounded-lg cursor-pointer" onclick="toggleFAQ(this)">
+                    <h3 class="faq-toggle text-xl font-semibold text-indigo-600">How does LearnPath personalize my learning?</h3>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 mt-2">We analyze your learning style and goals to recommend a path that suits you best, ensuring efficient and effective learning.</p>
+                    </div>
+                </div>
+                <div class="faq-item p-6 border rounded-lg cursor-pointer" onclick="toggleFAQ(this)">
+                    <h3 class="faq-toggle text-xl font-semibold text-indigo-600">Can I track my progress?</h3>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 mt-2">Yes, our platform provides detailed insights into your progress, helping you understand your strengths and areas for improvement.</p>
+                    </div>
+                </div>
+                <div class="faq-item p-6 border rounded-lg cursor-pointer" onclick="toggleFAQ(this)">
+                    <h3 class="faq-toggle text-xl font-semibold text-indigo-600">Is LearnPath suitable for all subjects?</h3>
+                    <div class="faq-answer">
+                        <p class="text-gray-600 mt-2">Absolutely! We cover a wide range of subjects and topics, making it suitable for learners of all levels and disciplines.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-indigo-600 text-white py-10">
+        <div class="container mx-auto text-center">
+            <p class="mb-4">© 2025 LearnPath. Made with Love by Our Team.</p>
+            <div class="space-x-6">
+                <a href="#privacy" class="hover:text-indigo-200 transition-colors">Privacy Policy</a>
+                <a href="#terms" class="hover:text-indigo-200 transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Create Account Modal -->
+    <div id="createAccountModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeCreateAccountModal()">×</button>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Create Account</h2>
+            <div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="signup-username">Username</label>
+                    <input type="text" id="signup-username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your username" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="signup-email">Email</label>
+                    <input type="email" id="signup-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your email" required oninput="validateEmail()">
+                    <p id="email-error" class="error-message">Please enter a valid email (e.g., user@example.com).</p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="signup-password">Password</label>
+                    <input type="password" id="signup-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your password" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Confirm your password" required>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="closeCreateAccountModal()" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button onclick="submitCreateAccount()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Sign Up</button>
+                </div>
+                <p class="text-center mt-4">
+                    Already have an account? <a href="#" class="text-indigo-600 hover:underline" onclick="switchToSignIn(event)">Sign In</a>
+                </p>
+                <div class="mt-6">
+                    <p class="text-center text-gray-600 mb-4">Or sign up with</p>
+                    <div class="flex justify-center space-x-4">
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('facebook')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="w-6 h-6"></button>
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('google')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google" class="w-6 h-6"></button>
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('x')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" alt="X" class="w-6 h-6"></button>
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('github')"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" class="w-6 h-6"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign In Modal -->
+    <div id="signInModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="sign-in-modal-content">
+            <button class="close-btn" onclick="closeSignInModal()">×</button>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Sign In</h2>
+            <div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="signin-username-email">Username or Email</label>
+                    <input type="text" id="signin-username-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your username or email" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="signin-password">Password</label>
+                    <input type="password" id="signin-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your password" required>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="closeSignInModal()" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button onclick="submitSignIn()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Sign In</button>
+                </div>
+                <p class="text-center mt-4">
+                    Don't have an account? <a href="#" class="text-indigo-600 hover:underline" onclick="switchToCreateAccount(event)">Create Account</a>
+                </p>
+                <div class="mt-6">
+                    <p class="text-center text-gray-600 mb-4">Or sign in with</p>
+                    <div class="flex justify-center space-x-4">
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('facebook')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="w-6 h-6"></button>
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('google')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google" class="w-6 h-6"></button>
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('x')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" alt="X" class="w-6 h-6"></button>
+                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('github')"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" class="w-6 h-6"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for navbar links
+        document.querySelectorAll('.nav-link').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                if (!this.getAttribute('onclick')) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // FAQ toggle functionality
+        function toggleFAQ(element) {
+            const answer = element.querySelector('.faq-answer');
+            const toggle = element.querySelector('.faq-toggle');
+            answer.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        // Dark mode toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark');
+            themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`;
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Modal functionality
+        const createAccountModal = document.getElementById('createAccountModal');
+        const signInModal = document.getElementById('signInModal');
+
+        function showCreateAccountModal() {
+            createAccountModal.classList.remove('hidden');
+            signInModal.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateAccountModal() {
+            createAccountModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('email-error').style.display = 'none';
+        }
+
+        function showSignInModal(event) {
+            event.preventDefault();
+            signInModal.classList.remove('hidden');
+            createAccountModal.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSignInModal() {
+            signInModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchToSignIn(event) {
+            event.preventDefault();
+            createAccountModal.classList.add('hidden');
+            signInModal.classList.remove('hidden');
+        }
+
+        function switchToCreateAccount(event) {
+            event.preventDefault();
+            signInModal.classList.add('hidden');
+            createAccountModal.classList.remove('hidden');
+        }
+
+        // Email validation
+        function validateEmail() {
+            const emailInput = document.getElementById('signup-email');
+            const emailError = document.getElementById('email-error');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailPattern.test(emailInput.value)) {
+                emailError.style.display = 'block';
+            } else {
+                emailError.style.display = 'none';
+            }
+        }
+
+        // Create Account submission
+        async function submitCreateAccount() {
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (!username || !email || !password || !confirmPassword) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password, signupMethod: 'form' }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Account created successfully! Please sign in.');
+                    closeCreateAccountModal();
+                    showSignInModal(new Event('click'));
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+            } catch (err) {
+                alert('Failed to create account. Please try again.');
+            }
+        }
+
+        // Social Sign Up
+        async function socialSignUp(platform) {
+            // Simulate social media sign-up by generating a mock user
+            const mockSocialUser = {
+                username: `user_${platform}_${Date.now()}`,
+                email: `${platform}_user_${Date.now()}@example.com`,
+                password: null,
+                socialId: `${platform}_${Date.now()}`,
+                signupMethod: platform,
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(mockSocialUser),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`Account created successfully with ${platform}! Please sign in.`);
+                    closeCreateAccountModal();
+                    showSignInModal(new Event('click'));
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+            } catch (err) {
+                alert(`Failed to create account with ${platform}. Please try again.`);
+            }
+        }
+
+        // Sign In submission
+        async function submitSignIn() {
+            const usernameEmail = document.getElementById('signin-username-email').value;
+            const password = document.getElementById('signin-password').value;
+
+            if (!usernameEmail || !password) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ usernameEmail, password }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Sign in successful! Welcome to LearnPath.');
+                    closeSignInModal();
+                } else {
+                    alert('Invalid username or password.');
+                }
+            } catch (err) {
+                alert('Failed to sign in. Please try again.');
+            }
+        }
+
+        // Social Sign In
+        async function socialSignIn(platform) {
+            // Simulate social media sign-in by using the mock social ID
+            const mockSocialId = `${platform}_${Date.now()}`; // In reality, this would come from OAuth
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/social-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ socialId: mockSocialId, signupMethod: platform }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`Sign in successful with ${platform}! Welcome to LearnPath.`);
+                    closeSignInModal();
+                } else {
+                    alert('Invalid social account. Please sign up first.');
+                }
+            } catch (err) {
+                alert(`Failed to sign in with ${platform}. Please try again.`);
+            }
+        }
+    </script>
+</body>
+</html>
