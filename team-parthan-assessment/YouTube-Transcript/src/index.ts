@@ -1,31 +1,50 @@
-// Developed by Manjistha Bidkar
-// This script automatically fetches English auto-generated subtitles (if available)
-// from a YouTube video using `yt-dlp`, and parses the `.vtt` file to extract readable transcript text.
 
+// Developed by Manjistha Bidkar
+// Main entry point: Extracts transcript from YouTube video and matches topics from an Excel concept graph
+
+import { loadConceptsFromExcel, identifyConcepts } from './utils/matchTopics';
 import { processTranscript } from './services/transcriptService';
 
-async function main() {
-  const urls = process.argv.slice(2); // Accept multiple YouTube URLs as CLI arguments
-  if (!urls.length) {
-    console.error('❌ Provide at least one YouTube video URL.');
+/**
+ * Extracts the YouTube video ID from the full video URL
+ * @param url YouTube video URL
+ * @returns Extracted video ID or null
+ */
+function extractVideoId(url: string): string | null {
+  const match = url.match(/[?&]v=([^&]+)/);
+  return match ? match[1] : null;
+}
+
+/**
+ * Main function to run topic matching from YouTube transcript
+ * @param url Full YouTube video URL
+ */
+async function runYoutubeTranscriptMatching(url: string) {
+  const videoId = extractVideoId(url);
+  if (!videoId) {
+    console.error('Invalid YouTube URL.');
     return;
   }
 
-  for (const url of urls) {
-    const videoId = url.match(/[?&]v=([^&#]+)/)?.[1];
-    if (!videoId) {
-      console.warn(`⚠️ Could not extract video ID from: ${url}`);
-      continue;
-    }
+  console.log('Extracting transcript for: ${videoId}');
+  const transcriptText = await processTranscript(videoId);
 
-    try {
-      console.log(`📡 Processing: ${videoId}`);
-      const transcript = await processTranscript(videoId);
-      console.log(`\n✅ Transcript for ${videoId}:\n${transcript}\n`);
-    } catch (e) {
-      console.error(`❌ Error for ${videoId}:`, e);
-    }
+  if (!transcriptText.trim()) {
+    console.warn('Transcript could not be extracted or is empty.');
+    return;
+  }
+
+  const conceptList = loadConceptsFromExcel('DSA_Concept_Graph.xlsx');
+  const matchedConcepts = identifyConcepts(transcriptText, conceptList);
+
+  if (matchedConcepts.length === 0) {
+    console.log('\n No topics matched from the existing data dependency graph.');
+  } else {
+    console.log('\n Topics matched from YouTube transcript:');
+    console.log(matchedConcepts);
   }
 }
 
-main();
+// CLI execution: Read URL from command line
+const url = process.argv[2];
+runYoutubeTranscriptMatching(url);
