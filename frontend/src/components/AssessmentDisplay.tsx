@@ -1,4 +1,6 @@
 /* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
+/*UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025*/
+
 import React, { useState, useEffect } from 'react';
 import './AssessmentDisplay.css';
 
@@ -10,10 +12,10 @@ interface Topic {
 
 interface Question {
   id: number;
-  type: 'multiple-choice' | 'true-false' | 'short-answer';
+  type: 'single-choice' | 'multiple-choice' | 'true-false';
   question: string;
   options?: string[];
-  correctAnswer?: string | number;
+  correctAnswer?: string[];
 }
 
 interface AssessmentDisplayProps {
@@ -22,98 +24,108 @@ interface AssessmentDisplayProps {
   onAssessmentGenerated: () => void;
 }
 
-const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({ 
-  selectedTopics, 
+const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
+  selectedTopics,
   shouldGenerateAssessment,
-  onAssessmentGenerated 
+  onAssessmentGenerated,
 }) => {
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [userAnswers, setUserAnswers] = useState<Record<number, string | number>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, string[]>>({});
   const [showResults, setShowResults] = useState(false);
   const [assessmentStarted, setAssessmentStarted] = useState(false);
+  const [targetTopic, setTargetTopic] = useState<string>('');
+  const [hasFetched, setHasFetched] = useState(false);
 
-  // Demo questions generator
-  const generateDemoQuestions = (topics: Topic[]): Question[] => {
-    const allQuestions: Question[] = [];
-    
-    topics.forEach((topic, topicIndex) => {
-      // Questions about concepts
-      allQuestions.push({
-        id: topicIndex * 4 + 1,
-        type: 'multiple-choice',
-        question: `What is the primary purpose of ${topic.name}?`,
-        options: [
-          'Data processing and analysis',
-          'Pattern recognition and prediction',
-          'System optimization and automation',
-          'Resource management and allocation'
-        ],
-        correctAnswer: 1
-      });
-
-      // Questions about applications
-      allQuestions.push({
-        id: topicIndex * 4 + 2,
-        type: 'true-false',
-        question: `${topic.name} requires significant computational resources to implement effectively.`,
-        correctAnswer: 0
-      });
-
-      // Questions about implementation
-      allQuestions.push({
-        id: topicIndex * 4 + 3,
-        type: 'short-answer',
-        question: `Describe a real-world problem that could be solved using ${topic.name} and explain your approach.`
-      });
-
-      // Questions about advantages/disadvantages
-      allQuestions.push({
-        id: topicIndex * 4 + 4,
-        type: 'multiple-choice',
-        question: `Which of the following is NOT a common challenge when implementing ${topic.name}?`,
-        options: [
-          'Data quality and preprocessing',
-          'Model selection and tuning',
-          'Hardware requirements',
-          'User interface design'
-        ],
-        correctAnswer: 3
-      });
-    });
-
-    return allQuestions;
-  };
 
   useEffect(() => {
-    if (shouldGenerateAssessment && selectedTopics.length > 0) {
-      setLoading(true);
-      setShowResults(false);
-      setUserAnswers({});
-      setAssessmentStarted(true);
-      
-      // Generate questions immediately for demo
-      const generatedQuestions = generateDemoQuestions(selectedTopics);
-      setQuestions(generatedQuestions);
-      setLoading(false);
-    } else if (!shouldGenerateAssessment && !assessmentStarted) {
-      setQuestions([]);
-      setUserAnswers({});
-      setShowResults(false);
-    }
-  }, [shouldGenerateAssessment, selectedTopics]);
+  const fetchAssessment = async () => {
+    const topic = selectedTopics[0]?.name;
+    if (!topic || hasFetched) return; // ✅ prevent refetch
 
-  const handleAnswerChange = (questionId: number, answer: string | number) => {
-    setUserAnswers(prev => ({
+    setTargetTopic(topic);
+    setLoading(true);
+    setShowResults(false);
+    setUserAnswers({});
+    setAssessmentStarted(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/assessment/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: topic }),
+      });
+
+      const data = await response.json();
+
+      const parsedQuestions: Question[] = data.questions.map((q: any, index: number) => {
+        let frontendType: Question['type'];
+        switch (q.type) {
+          case 'single-correct-mcq':
+            frontendType = 'single-choice';
+            break;
+          case 'multiple-correct-mcq':
+            frontendType = 'multiple-choice';
+            break;
+          case 'true-false':
+            frontendType = 'true-false';
+            break;
+          default:
+            frontendType = 'short-answer';
+        }
+
+        return {
+          id: index + 1,
+          type: frontendType,
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correct_answer,
+        };
+      });
+
+      setQuestions(parsedQuestions);
+      setHasFetched(true); // ✅ set the flag
+    } catch (error) {
+      console.error('Error generating assessment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (shouldGenerateAssessment && selectedTopics.length > 0 && !hasFetched) {
+    fetchAssessment();
+  } else if (!shouldGenerateAssessment && !assessmentStarted) {
+    setQuestions([]);
+    setUserAnswers({});
+    setShowResults(false);
+    setHasFetched(false); // ✅ reset when new generation is triggered
+  }
+}, [shouldGenerateAssessment, selectedTopics, hasFetched]);
+
+
+  const handleAnswerChange = (questionId: number, answer: string) => {
+    setUserAnswers((prev) => ({
       ...prev,
-      [questionId]: answer
+      [questionId]: [answer],
     }));
+  };
+
+  const handleMultipleChange = (questionId: number, answer: string) => {
+    setUserAnswers((prev) => {
+      const currentAnswers = prev[questionId] || [];
+      return {
+        ...prev,
+        [questionId]: currentAnswers.includes(answer)
+          ? currentAnswers.filter((a) => a !== answer)
+          : [...currentAnswers, answer],
+      };
+    });
   };
 
   const handleSubmit = () => {
     setShowResults(true);
     setAssessmentStarted(false);
-    onAssessmentGenerated(); // Only call this after showing results
+    onAssessmentGenerated();
   };
 
   const handleRetry = () => {
@@ -125,14 +137,19 @@ const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
   const calculateScore = () => {
     let correct = 0;
     let total = 0;
-    questions.forEach(q => {
-      if (q.correctAnswer !== undefined) {
+
+    questions.forEach((q) => {
+      if (q.correctAnswer && userAnswers[q.id]) {
         total++;
-        if (userAnswers[q.id] === q.correctAnswer) {
-          correct++;
-        }
+        const correctSet = new Set(q.correctAnswer);
+        const answerSet = new Set(userAnswers[q.id]);
+        const isCorrect =
+          correctSet.size === answerSet.size &&
+          [...correctSet].every((ans) => answerSet.has(ans));
+        if (isCorrect) correct++;
       }
     });
+
     return total > 0 ? Math.round((correct / total) * 100) : 0;
   };
 
@@ -141,12 +158,10 @@ const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
       <div className="assessment-header">
         <h2>Assessment</h2>
         <p className="selected-topic">
-          {selectedTopics.length > 0 
-            ? `Selected Topics: ${selectedTopics.map(t => t.name).join(', ')}` 
-            : 'No topics selected'}
+          {targetTopic ? `Target Topic: ${targetTopic}` : 'No topic selected'}
         </p>
       </div>
-      
+
       {!shouldGenerateAssessment && !assessmentStarted ? (
         <div className="placeholder-content">
           <div className="placeholder-icon">📝</div>
@@ -167,51 +182,41 @@ const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
               <div key={q.id} className="question-card">
                 <h3>Question {index + 1}</h3>
                 <p>{q.question}</p>
-                
+
+                {(q.type === 'single-choice' || q.type === 'true-false') && (
+                  <div className="options-grid">
+                    {(q.options || ['True', 'False']).map((option, i) => (
+                      <label key={i} className="option-label">
+                        <input
+                          type="radio"
+                          name={`question-${q.id}`}
+                          value={option}
+                          checked={userAnswers[q.id]?.includes(option) || false}
+                          onChange={() => handleAnswerChange(q.id, option)}
+                          disabled={showResults}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                )}
+
                 {q.type === 'multiple-choice' && (
                   <div className="options-grid">
-                    {q.options?.map((option, i) => (
-                      <label key={i} className={`option-label ${showResults && i === q.correctAnswer ? 'correct' : ''} ${showResults && userAnswers[q.id] === i && i !== q.correctAnswer ? 'incorrect' : ''}`}>
+                    {(q.options || []).map((option, i) => (
+                      <label key={i} className="option-label">
                         <input
-                          type="radio"
-                          name={`question-${q.id}`}
-                          value={i}
-                          checked={userAnswers[q.id] === i}
-                          onChange={() => handleAnswerChange(q.id, i)}
+                          type="checkbox"
+                          name={`question-${q.id}-${i}`}
+                          value={option}
+                          checked={userAnswers[q.id]?.includes(option) || false}
+                          onChange={() => handleMultipleChange(q.id, option)}
                           disabled={showResults}
                         />
                         {option}
                       </label>
                     ))}
                   </div>
-                )}
-
-                {q.type === 'true-false' && (
-                  <div className="options-grid">
-                    {['True', 'False'].map((option, i) => (
-                      <label key={i} className={`option-label ${showResults && i === q.correctAnswer ? 'correct' : ''} ${showResults && userAnswers[q.id] === i && i !== q.correctAnswer ? 'incorrect' : ''}`}>
-                        <input
-                          type="radio"
-                          name={`question-${q.id}`}
-                          value={i}
-                          checked={userAnswers[q.id] === i}
-                          onChange={() => handleAnswerChange(q.id, i)}
-                          disabled={showResults}
-                        />
-                        {option}
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                {q.type === 'short-answer' && (
-                  <textarea
-                    className="short-answer-input"
-                    placeholder="Type your answer here..."
-                    value={userAnswers[q.id] as string || ''}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    disabled={showResults}
-                  />
                 )}
               </div>
             ))}
@@ -243,4 +248,5 @@ const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
   );
 };
 
-export default AssessmentDisplay; 
+export default AssessmentDisplay;
+
