@@ -1,4 +1,3 @@
-//developed by :@AlakhMathur
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -7,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const router = express.Router();
-//routing using express router
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   const { email, password } = req.body;

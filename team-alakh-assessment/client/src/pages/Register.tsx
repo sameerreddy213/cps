@@ -1,4 +1,3 @@
-//developed by :@AlakhMathur
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, BookOpen, ArrowLeft, CheckCircle } from 'lucide-react';

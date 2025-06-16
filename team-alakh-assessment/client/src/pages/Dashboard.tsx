@@ -1,4 +1,3 @@
-//developed by :@AlakhMathur
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Trophy, User, LogOut, AlertTriangle, CheckCircle, Play, PenTool } from 'lucide-react';

@@ -44,7 +44,7 @@ const Login: React.FC = () => {
 
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="bg-blue-600 p-3 rounded-2xl w-fit mx-auto mb-4">
+          <div className="bg-red-600 p-3 rounded-2xl w-fit mx-auto mb-4">
             <BookOpen className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
@@ -118,7 +118,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-green-600 to-orange-600 hover:from-yellow-700 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
