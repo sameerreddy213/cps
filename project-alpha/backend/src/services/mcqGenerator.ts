@@ -7,21 +7,27 @@ export interface MCQ {
   options: string[];
   answer: string;
 }
-
+const generatedQuestions: Map<string, Set<string>> = new Map();
 export async function generateMCQs(prerequisites: string[]): Promise<MCQ[]> {
   const results: MCQ[] = [];
 
   for (const topic of prerequisites) {
+    if (!generatedQuestions.has(topic)) {
+      generatedQuestions.set(topic, new Set());
+    }
+    const previousQuestions = generatedQuestions.get(topic)!;
+
     try {
-      const prompt = `Generate one beginner-level multiple-choice question (MCQ) on the topic "${topic}". Return the response in the following JSON format:
+      const prompt = `Generate one unique beginner-level multiple-choice question (MCQ) on the topic "${topic}" that has not been generated before. Do not repeat any of the following questions: ${Array.from(previousQuestions).join('; ')}. Return the response in the following JSON format:
 {
   "question": "...",
   "options": ["...", "...", "...", "..."],
   "answer": "..."
 }
-- The "options" array should contain exactly 4 options.
-- The "answer" should be the exact text of the correct option (e.g., "1/6", not "a. 1/6").
-- Do not include any prefixes (like "a.", "b.", etc.) in the options or answer.`;
+- The "options" array must contain exactly 4 options.
+- The "answer" must be the exact text of the correct option (e.g., "1/6", not "a. 1/6").
+- Do not include any prefixes (like "a.", "b.", etc.) in the options or answer.
+- Ensure the question is distinct from any previously generated questions for this topic.`;
 
       const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
@@ -57,8 +63,10 @@ export async function generateMCQs(prerequisites: string[]): Promise<MCQ[]> {
         mcqData.options.length === 4 &&
         mcqData.options.every((opt: unknown) => typeof opt === 'string') &&
         typeof mcqData.answer === 'string' &&
-        mcqData.options.includes(mcqData.answer)
+        mcqData.options.includes(mcqData.answer) &&
+        !previousQuestions.has(mcqData.question)
       ) {
+        previousQuestions.add(mcqData.question);
         results.push({
           topic,
           question: mcqData.question,
@@ -66,8 +74,8 @@ export async function generateMCQs(prerequisites: string[]): Promise<MCQ[]> {
           answer: mcqData.answer,
         });
       } else {
-        console.error(`Invalid MCQ format for ${topic}:`, mcqData);
-        results.push({ topic, question: `⚠️ Invalid MCQ format for ${topic}`, options: [], answer: '' });
+        console.error(`Invalid or duplicate MCQ format for ${topic}:`, mcqData);
+        results.push({ topic, question: `⚠️ Invalid or duplicate MCQ format for ${topic}`, options: [], answer: '' });
       }
     } catch (error: any) {
       console.error(`Error generating MCQ for ${topic}:`, error?.response?.data || error.message);
