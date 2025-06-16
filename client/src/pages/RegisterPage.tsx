@@ -43,69 +43,76 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="card-base">
-      <h2>Register</h2>
+    <div className="card bg-dark text-white p-4 shadow-lg rounded" style={{ maxWidth: '480px', width: '100%' }}>
+      {/* Heading - Ensure it's clear and stands out */}
+      <h2 className="card-title text-center text-primary mb-4 fs-2">Register</h2> {/* Added fs-2 for larger font-size */}
       <form onSubmit={handleRegister}>
-        <div className="form-group">
-          <label htmlFor="fullName">Full Name:</label>
+        <div className="mb-3">
+          <label htmlFor="fullName" className="form-label text-white">Full Name:</label> {/* Changed to text-white for better contrast */}
           <input
             id="fullName"
             type="text"
+            className="form-control form-control-lg bg-dark text-white border-secondary"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="regUsername">Username:</label>
+        <div className="mb-3">
+          <label htmlFor="regUsername" className="form-label text-white">Username:</label> {/* Changed to text-white */}
           <input
             id="regUsername"
             type="text"
+            className="form-control form-control-lg bg-dark text-white border-secondary"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="regPassword">Password:</label>
+        <div className="mb-3">
+          <label htmlFor="regPassword" className="form-label text-white">Password:</label> {/* Changed to text-white */}
           <input
             id="regPassword"
             type="password"
+            className="form-control form-control-lg bg-dark text-white border-secondary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label text-white">Email:</label> {/* Changed to text-white */}
           <input
             id="email"
             type="email"
+            className="form-control form-control-lg bg-dark text-white border-secondary"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="topicsCovered">Topics Already Covered (comma-separated):</label>
+        <div className="mb-4">
+          <label htmlFor="topicsCovered" className="form-label text-white">Topics Already Covered (comma-separated):</label> {/* Changed to text-white */}
           <textarea
             id="topicsCovered"
+            className="form-control bg-dark text-white border-secondary"
             value={topics}
             onChange={(e) => setTopics(e.target.value)}
             placeholder="e.g. Recursion, Loops, Functions"
-            rows={4} // Slightly more rows for visibility
+            rows={4}
           ></textarea>
         </div>
 
-        <button type="submit" className="btn">Register</button>
+        <button type="submit" className="btn btn-primary btn-lg w-100">Register</button>
       </form>
 
-      {error && <p className="error-message">{error}</p>}
-      <p style={{ marginTop: "2.5rem", textAlign: "center" }}> {/* Adjusted margin */}
-        Already have an account? <Link to="/">Login</Link>
+      {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
+      {/* Backtext/Link - Ensure it's clear and clickable */}
+      <p className="mt-4 text-center text-white"> {/* Changed to text-white for visibility */}
+        Already have an account? <Link to="/login" className="text-info fw-bold">Login</Link> {/* Added fw-bold for emphasis */}
       </p>
     </div>
   );

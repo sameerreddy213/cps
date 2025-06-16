@@ -4,8 +4,7 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Removed specific colors as Bootstrap will handle most of this */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,13 +12,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global body and root styles are now managed more extensively in App.css */
-/* This file can remain minimal for project-wide resets/defaults if necessary,
-   but most of the visual styling is centralized in App.css. */
+/* index.css - minimal, primarily for global overrides or resets not covered by Bootstrap */
 body {
   margin: 0;
-  display: flex;
-  place-items: center; /* This centers content vertically and horizontally, adjusted in App.css body */
   min-width: 320px;
   min-height: 100vh;
 }

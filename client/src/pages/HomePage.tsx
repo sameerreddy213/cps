@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-//import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
 
 const HomePage = () => {
@@ -12,73 +11,85 @@ const HomePage = () => {
   };
 
   const handleExploreNavigation = () => {
+    // Assuming there will be an /explore route in the future
     navigate('/explore');
   };
 
   const handleRecommendationNavigation = () => {
-    navigate(isAuthenticated ? '/recommend' : '/login');
+    navigate(isAuthenticated ? '/dashboard' : '/login'); // Direct to dashboard where path recommendation is
   };
 
   return (
-    <div className="dashboard-container">
-      <h2>Welcome to LearnFlow!</h2>
-      <p style={{ fontSize: '1.1em', color: '#b0b0b0', marginBottom: '2.5rem' }}>
+    <div className="container py-4 bg-dark text-white rounded shadow-lg">
+      <h2 className="text-center mb-4 text-purple">Welcome to LearnFlow!</h2>
+      <p className="text-center text-white mb-5">
         Your personalized learning journey starts here.
       </p>
 
       {/* Get Started Section */}
-      <div className="dashboard-section">
-        <h3>Start Your Learning Journey</h3>
-        <div className="card-grid">
-          <div className="card-base">
-            <h4>New to LearnFlow?</h4>
-            <p style={{ fontSize: '0.95em', color: '#b0b0b0', marginBottom: '1.5rem' }}>
-              Create your free account and embark on a personalized learning adventure tailored just for you.
-            </p>
-            <button onClick={() => navigate('/register')} className="btn btn-secondary">
-              Register Now
-            </button>
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Start Your Learning Journey</h3>
+        <div className="row justify-content-center g-4">
+          <div className="col-md-6 col-lg-5">
+            <div className="card text-center bg-secondary-subtle text-dark border-secondary h-100 shadow">
+              <div className="card-body p-4">
+                <h4 className="card-title text-primary mb-3">New to LearnFlow?</h4>
+                <p className="card-text text-dark mb-4">
+                  Create your free account and embark on a personalized learning adventure tailored just for you.
+                </p>
+                <button onClick={() => navigate('/register')} className="btn btn-success btn-lg">
+                  Register Now
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="card-base">
-            <h4>Already a Member?</h4>
-            <p style={{ fontSize: '0.95em', color: '#b0b0b0', marginBottom: '1.5rem' }}>
-              Welcome back! Log in to pick up where you left off and continue mastering new concepts.
-            </p>
-            <button onClick={() => navigate('/login')} className="btn">
-              Login
-            </button>
+          <div className="col-md-6 col-lg-5">
+            <div className="card text-center bg-secondary-subtle text-dark border-secondary h-100 shadow">
+              <div className="card-body p-4">
+                <h4 className="card-title text-primary mb-3">Already a Member?</h4>
+                <p className="card-text text-dark mb-4">
+                  Welcome back! Log in to pick up where you left off and continue mastering new concepts.
+                </p>
+                <button onClick={() => navigate('/login')} className="btn btn-primary btn-lg">
+                  Login
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="dashboard-section">
-        <h3>Unlock Your Potential with LearnFlow</h3>
-        <ul className="mastery-list" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-          <li>
-            <strong style={{ color: '#a8c8e9' }}>Personalized Paths:</strong> Discover the shortest learning path from your current knowledge to your target concept.
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Unlock Your Potential with LearnFlow</h3>
+        <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
+          <li className="list-group-item bg-dark-subtle text-white border-secondary py-3 text-center"> {/* Added text-white here for the entire list item */}
+            <strong className="text-primary">Personalized Paths:</strong> Discover the shortest learning path from your current knowledge to your target concept.
           </li>
-          <li>
-            <strong style={{ color: '#a8c8e9' }}>Adaptive Quizzes:</strong> Test your understanding and adapt your progress path based on quiz performance.
+          <li className="list-group-item bg-dark-subtle text-white border-secondary py-3 text-center"> {/* Added text-white here */}
+            <strong className="text-primary">Adaptive Quizzes:</strong> Test your understanding and adapt your progress path based on quiz performance.
           </li>
-          <li>
-            <strong style={{ color: '#a8c8e9' }}>Progress Tracking:</strong> Visualize your journey through quizzes, weights, and time recommendations.
+          <li className="list-group-item bg-dark-subtle text-white border-secondary py-3 text-center"> {/* Added text-white here */}
+            <strong className="text-primary">Progress Tracking:</strong> Visualize your journey through quizzes, weights, and time recommendations.
           </li>
-          <li>
-            <strong style={{ color: '#a8c8e9' }}>Knowledge Graph:</strong> Build deep conceptual understanding through connected topic paths.
+          <li className="list-group-item bg-dark-subtle text-white border-secondary py-3 text-center"> {/* Added text-white here */}
+            <strong className="text-primary">Knowledge Graph:</strong> Build deep conceptual understanding through connected topic paths.
           </li>
         </ul>
       </div>
 
       {/* Action Buttons */}
-      <div className="dashboard-section">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Ready to Start?</h3>
-        <div className="actions-group flex flex-col sm:flex-row justify-center items-center gap-4">
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section text-center">
+        <h3 className="mb-4 text-info">Ready to Start?</h3>
+        <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleQuizNavigation}
-            className="btn btn-warning hover:bg-yellow-600 transition-colors duration-200 w-full sm:w-auto px-8 py-3"
+            className="btn btn-warning btn-lg px-5 py-3 w-100 w-sm-auto"
           >
             Take a Quiz
           </motion.button>
@@ -87,7 +98,7 @@ const HomePage = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleExploreNavigation}
-            className="btn btn-info hover:bg-blue-600 transition-colors duration-200 w-full sm:w-auto px-8 py-3"
+            className="btn btn-info btn-lg px-5 py-3 w-100 w-sm-auto"
           >
             Explore Topics
           </motion.button>
@@ -96,14 +107,12 @@ const HomePage = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleRecommendationNavigation}
-            className="btn btn-primary hover:bg-purple-700 transition-colors duration-200 w-full sm:w-auto px-8 py-3"
+            className="btn btn-primary btn-lg px-5 py-3 w-100 w-sm-auto"
           >
             Get Recommendation
           </motion.button>
         </div>
       </div>
-
-      {/* Footer */}
     </div>
   );
 };

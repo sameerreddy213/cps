@@ -87,7 +87,11 @@ const QuizPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (questions.length === 0 || answers.some((a) => !a)) return;
+    // Check if all questions have an answer selected
+    if (questions.length === 0 || answers.some((a) => a === "")) {
+      alert("Please answer all questions before submitting."); // Simple alert for user feedback
+      return;
+    }
 
     try {
       setSubmitted(true);
@@ -119,20 +123,20 @@ const QuizPage = () => {
 
   if (loading) {
     return (
-      <div className="quiz-page-container" style={{ textAlign: 'center' }}>
-        <p className="loading-message" style={{ fontSize: '1.2em', color: '#b0b0b0' }}>Loading quiz questions...</p>
+      <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
+        <p className="fs-5 text-muted">Loading quiz questions...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="quiz-page-container">
-        <h2 style={{ color: '#e74c3c' }}>Error</h2>
-        <p className="error-message">{error}</p>
+      <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
+        <h2 className="text-danger mb-4">Error</h2>
+        <div className="alert alert-danger mb-4">{error}</div>
         <button
           onClick={() => navigate("/dashboard")}
-          className="btn"
+          className="btn btn-primary btn-lg"
         >
           Return to Dashboard
         </button>
@@ -141,28 +145,29 @@ const QuizPage = () => {
   }
 
   return (
-    <div className="quiz-page-container">
-      <h2>Quiz on: {topic}</h2>
+    <div className="container py-4 bg-dark text-white rounded shadow-lg">
+      <h2 className="text-center mb-4 text-primary">Quiz on: {topic}</h2>
 
       {questions.length === 0 ? (
-        <p style={{ fontSize: '1.2em', color: '#b0b0b0', marginTop: '1rem' }}>No questions available for this topic.</p>
+        <p className="text-center fs-5 text-muted mt-3">No questions available for this topic.</p>
       ) : (
         <form onSubmit={(e) => e.preventDefault()}>
           {questions.map((q, i) => (
-            <div key={i} className="quiz-question-card">
-              <p>
+            <div key={i} className="card bg-light text-dark p-4 shadow rounded mb-4"> {/* Changed bg-dark-subtle to bg-light and added text-dark */}
+              <p className="card-text fs-5 fw-bold mb-3 text-dark"> {/* Changed text-dark-contrast to text-dark */}
                 {i + 1}. {q.question}
               </p>
-              <div className="quiz-options-group">
+              <div className="d-flex flex-column gap-3">
                 {q.options.map((option, optionIndex) => (
                   <label
                     key={optionIndex}
-                    className={`quiz-option-label ${
+                    // Adjusted classes for option labels for better contrast
+                    className={`list-group-item list-group-item-action bg-white text-dark border border-secondary rounded py-3 px-4 d-flex align-items-center ${ // Changed bg-dark-subtle to bg-white, text-dark-contrast to text-dark
                       submitted && summary
                         ? summary.correctAnswers?.[i] === option
-                          ? "correct-answer"
+                          ? "border-success bg-success-subtle text-success-emphasis"
                           : (summary.userAnswers?.[i] === option && summary.correctAnswers?.[i] !== option)
-                          ? "incorrect-answer"
+                          ? "border-danger bg-danger-subtle text-danger-emphasis"
                           : ""
                         : ""
                     }`}
@@ -174,6 +179,8 @@ const QuizPage = () => {
                       checked={answers[i] === option}
                       onChange={() => handleOptionSelect(i, option)}
                       disabled={submitted}
+                      className="form-check-input me-3"
+                      style={{ transform: 'scale(1.4)' }}
                     />
                     <span>{option}</span>
                   </label>
@@ -185,8 +192,8 @@ const QuizPage = () => {
           {!submitted && (
             <button
               onClick={handleSubmit}
-              disabled={answers.some((a) => !a)}
-              className="btn"
+              disabled={answers.some((a) => a === "") || answers.length === 0}
+              className="btn btn-primary btn-lg w-100 mt-4"
             >
               Submit Quiz
             </button>
@@ -196,20 +203,20 @@ const QuizPage = () => {
 
       {/* Quiz Results */}
       {summary && (
-        <div className="quiz-result-summary">
-          <h3>Quiz Results</h3>
-          <p>
-            <span className="font-semibold" style={{ color: '#e0e0e0' }}>Score:</span> {summary.score.toFixed(1)}%
+        <div className="card bg-light text-dark p-5 shadow-lg rounded mt-5 text-center"> {/* Changed bg-dark-subtle to bg-light and added text-dark */}
+          <h3 className="card-title text-success mb-3">Quiz Results</h3>
+          <p className="card-text fs-4 mb-2 text-dark"> {/* Changed text-dark-contrast to text-dark */}
+            <span className="fw-semibold">Score:</span> {summary.score.toFixed(1)}%
           </p>
           {summary.masteryUpdate && topic && (
-            <p>
-              <span className="font-semibold" style={{ color: '#e0e0e0' }}>Mastery Level:</span>{" "}
+            <p className="card-text fs-4 mb-4 text-dark"> {/* Changed text-dark-contrast to text-dark */}
+              <span className="fw-semibold">Mastery Level:</span>{" "}
               {((1 - (summary.masteryUpdate[topic] || 0)) * 100).toFixed(1)}%
             </p>
           )}
           <button
             onClick={() => navigate("/dashboard")}
-            className="btn"
+            className="btn btn-primary btn-lg"
           >
             Return to Dashboard
           </button>

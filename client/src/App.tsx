@@ -6,13 +6,14 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import QuizPage from "./pages/QuizPage";
 import QuizSelectPage from "./pages/QuizSelectPage";
 import HomePage from './pages/HomePage';
-import Navbar from './components/Navbar'; // Import the Navbar
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <Router>
-      <Navbar /> {/* Render Navbar at the top level */}
-      <div style={{ paddingTop: '80px', width: '100%', display: 'flex', justifyContent: 'center' }}> {/* Add padding to account for fixed navbar height, and center content */}
+      <Navbar />
+      {/* Add padding top to account for fixed navbar height */}
+      <div className="pt-5 mt-3 d-flex justify-content-center">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />

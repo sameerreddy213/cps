@@ -18,7 +18,7 @@ import {
 interface QuizHistoryEntry {
   topic: string;
   score: number;
-  mastery: number; // This is the 'weight' from your diff
+  mastery: number;
   createdAt: string;
 }
 
@@ -98,27 +98,28 @@ const Dashboard = () => {
   }));
 
   return (
-    <div className="dashboard-container">
-      <h2>Welcome, {username}!</h2>
-      <p style={{ fontSize: '1.1em', color: '#b0b0b0', marginBottom: '2.5rem' }}>This is your personalized dashboard.</p>
+    <div className="container py-4 bg-dark text-white rounded shadow-lg">
+      <h2 className="text-center mb-4 text-purple">Welcome, {username}!</h2>
+      <p className="text-center text-white mb-5">This is your personalized dashboard.</p> {/* Added text-white */}
 
       {/* Mastery Progress Line Chart */}
-      <div className="dashboard-section">
-        <h3>Mastery Over Time</h3>
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Mastery Over Time</h3>
         {chartData.length === 0 ? (
-          <p style={{ fontSize: '1em', color: '#b0b0b0', marginTop: '1rem' }}>No data available yet to show mastery progression.</p>
+          <p className="text-center text-white mt-3">No data available yet to show mastery progression.</p> /* Added text-white */
         ) : (
-          <div className="chart-container">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="chart-container bg-dark-subtle p-3 rounded shadow">
+            <ResponsiveContainer width="100%" height={400}>
               <LineChart
                 data={chartData}
                 margin={{ top: 15, right: 30, left: 20, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#444444" /> {/* Darker grid lines */}
-                <XAxis dataKey="topic" interval={0} angle={-30} textAnchor="end" height={60} stroke="#b0b0b0" /> {/* Darker axis labels */}
-                <YAxis domain={[0, 100]} label={{ value: 'Confidence (%)', angle: -90, position: 'insideLeft', fill: '#b0b0b0' }} stroke="#b0b0b0" /> {/* Darker axis labels */}
-                <Tooltip contentStyle={{ backgroundColor: '#333333', border: '1px solid #555555', color: '#e0e0e0' }} itemStyle={{ color: '#e0e0e0' }} /> {/* Darker tooltip */}
-                <Line type="monotone" dataKey="mastery" stroke="#a872e6" strokeWidth={3} dot={{ r: 5, fill: '#a872e6' }} activeDot={{ r: 8 }} /> {/* Brighter purple line */}
+                <CartesianGrid strokeDasharray="3 3" stroke="#444444" />
+                <XAxis dataKey="topic" interval={0} angle={-30} textAnchor="end" stroke="#b0b0b0" />
+                <YAxis domain={[0, 100]} label={{ value: 'Confidence (%)', angle: -90, position: 'insideLeft', fill: '#b0b0b0' }} stroke="#b0b0b0" />
+                <Tooltip contentStyle={{ backgroundColor: '#333333', border: '1px solid #555555', color: '#e0e0e0' }} itemStyle={{ color: '#e0e0e0' }} />
+                <Line type="monotone" dataKey="mastery" stroke="#a872e6" strokeWidth={3} dot={{ r: 5, fill: '#a872e6' }} activeDot={{ r: 8 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -126,15 +127,16 @@ const Dashboard = () => {
       </div>
 
       {/* Current Mastery Levels */}
-      <div className="dashboard-section">
-        <h3>Current Mastery Levels</h3>
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Current Mastery Levels</h3>
         {Object.keys(mastery).length === 0 ? (
-          <p style={{ fontSize: '1em', color: '#b0b0b0', marginTop: '1rem' }}>No mastery data available. Take some quizzes to get started!</p>
+          <p className="text-center text-white mt-3">No mastery data available. Take some quizzes to get started!</p> /* Added text-white */
         ) : (
-          <ul className="mastery-list">
+          <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
             {Object.entries(mastery).map(([topic, score]) => (
-              <li key={topic}>
-                <strong>{topic}</strong>: <span className="mastery-score">{(1 - score).toFixed(2)} Confidence</span>
+              <li key={topic} className="list-group-item bg-secondary-subtle border-start border-5 border-success rounded mb-3 shadow-sm d-flex justify-content-between align-items-center text-dark"> {/* Added text-dark */}
+                <strong>{topic}</strong> <span className="badge bg-primary text-white fs-6">{(1 - score).toFixed(2)} Confidence</span>
               </li>
             ))}
           </ul>
@@ -142,76 +144,84 @@ const Dashboard = () => {
       </div>
 
       {/* Topics Learned */}
-      <div className="dashboard-section">
-        <h3>Topics Learned</h3>
-        <div className="card-grid">
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Topics Learned</h3>
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
           {progress.length === 0 ? (
-            <p style={{ fontSize: '1em', color: '#b0b0b0', marginTop: '1rem', gridColumn: '1 / -1' }}>No topics marked as completed yet. Keep learning!</p>
+            <p className="text-center text-white mt-3 col-12">No topics marked as completed yet. Keep learning!</p> /* Added text-white */
           ) : (
             progress.map((topic) => (
-              <LearnedConceptCard key={topic} title={topic} />
+              <div className="col" key={topic}>
+                <LearnedConceptCard title={topic} />
+              </div>
             ))
           )}
         </div>
       </div>
 
       {/* Recommended Topics */}
-      <div className="dashboard-section">
-        <h3>Recommended Next Topics</h3>
-        <div className="card-grid">
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Recommended Next Topics</h3>
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
           {recommendations.length === 0 ? (
-            <p style={{ fontSize: '1em', color: '#b0b0b0', marginTop: '1rem', gridColumn: '1 / -1' }}>No current recommendations. Explore new topics!</p>
+            <p className="text-center text-white mt-3 col-12">No current recommendations. Explore new topics!</p> /* Added text-white */
           ) : (
             recommendations.map((topic) => (
-              <QuizCard
-                key={topic}
-                topic={topic}
-                onTakeQuiz={handleTakeQuiz}
-              />
+              <div className="col" key={topic}>
+                <QuizCard
+                  topic={topic}
+                  onTakeQuiz={handleTakeQuiz}
+                />
+              </div>
             ))
           )}
         </div>
       </div>
 
       {/* Get Learning Path Recommendation */}
-      <div className="dashboard-section">
-        <h3>Get Learning Path Recommendation</h3>
-        <div className="path-input-group">
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Get Learning Path Recommendation</h3>
+        <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
           <input
             type="text"
             placeholder="Start Concept (e.g., Variables)"
             value={startConcept}
             onChange={(e) => setStartConcept(e.target.value)}
-            className="path-input"
+            className="form-control form-control-lg bg-dark text-white border-secondary flex-grow-1"
+            style={{ maxWidth: '300px' }}
           />
           <input
             type="text"
             placeholder="Target Concept (e.g., Recursion)"
             value={endConcept}
             onChange={(e) => setEndConcept(e.target.value)}
-            className="path-input"
+            className="form-control form-control-lg bg-dark text-white border-secondary flex-grow-1"
+            style={{ maxWidth: '300px' }}
           />
-          <button onClick={handleGetPath} className="btn">
+          <button onClick={handleGetPath} className="btn btn-primary btn-lg flex-shrink-0">
             Get Path
           </button>
         </div>
 
-        {pathError && <p className="error-message path-error">{pathError}</p>}
+        {pathError && <div className="alert alert-danger text-center mt-3">{pathError}</div>}
 
         {recommendedPath.length > 0 && (
-          <div className="recommended-path-section">
-            <h4>Recommended Path:</h4>
-            <ul className="path-list">
+          <div className="recommended-path-section bg-secondary-subtle p-4 rounded shadow mt-4 text-start text-dark"> {/* Added text-dark */}
+            <h4 className="text-center mb-4 text-info">Recommended Path:</h4>
+            <ul className="list-group list-group-flush">
               {recommendedPath.map((topic, idx) => (
-                <li key={idx} className="path-list-item">
-                  <span className="path-topic">
+                <li key={idx} className="list-group-item bg-dark-subtle border-secondary rounded mb-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 py-3 text-white"> {/* Added text-white */}
+                  <span className="fs-5 text-white">
                     {idx + 1}. <strong>{topic}</strong>
                   </span>
-                  <div className="path-buttons">
-                    <button onClick={() => handleTakeQuiz(topic)} className="btn btn-secondary btn-path">
+                  <div className="d-flex gap-2 flex-wrap justify-content-center justify-content-md-end">
+                    <button onClick={() => handleTakeQuiz(topic)} className="btn btn-success btn-sm">
                       Take Quiz
                     </button>
-                    <button onClick={() => navigate(`/explore/${topic}`)} className="btn btn-info btn-path">
+                    <button onClick={() => navigate(`/explore/${topic}`)} className="btn btn-info btn-sm">
                       Explore
                     </button>
                   </div>
@@ -223,17 +233,18 @@ const Dashboard = () => {
       </div>
 
       {/* Quiz History */}
-      <div className="dashboard-section">
-        <h3>Quiz History</h3>
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="dashboard-section mb-5">
+        <h3 className="text-center mb-4 text-info">Quiz History</h3>
         {quizHistory.length === 0 ? (
-          <p style={{ fontSize: '1em', color: '#b0b0b0', marginTop: '1rem' }}>No quiz attempts recorded yet.</p>
+          <p className="text-center text-white mt-3">No quiz attempts recorded yet.</p> /* Added text-white */
         ) : (
-          <ul className="quiz-history-list">
+          <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
             {quizHistory.map((entry, i) => (
-              <li key={i}>
+              <li key={i} className="list-group-item bg-secondary-subtle border-start border-5 border-primary rounded mb-3 shadow-sm text-start text-dark"> {/* Added text-dark */}
                 <strong>{entry.topic}</strong> — Score: {entry.score}% — Mastery Weight: {entry.mastery}
                 <br />
-                <small>{new Date(entry.createdAt).toLocaleString()}</small>
+                <small className="text-muted">{new Date(entry.createdAt).toLocaleString()}</small>
               </li>
             ))}
           </ul>
@@ -241,9 +252,10 @@ const Dashboard = () => {
       </div>
 
       {/* Actions */}
-      <div className="dashboard-section actions-group">
-        <button onClick={handleLogout} className="btn btn-danger">Logout</button>
-        <button onClick={() => navigate("/quiz-select")} className="btn btn-secondary">
+      <hr className="my-5 border-secondary border-dashed" />
+      <div className="d-flex flex-column flex-md-row justify-content-center gap-4 mt-5">
+        <button onClick={handleLogout} className="btn btn-danger btn-lg">Logout</button>
+        <button onClick={() => navigate("/quiz-select")} className="btn btn-success btn-lg">
           Choose Your Own Quiz Topic
         </button>
       </div>
