@@ -1,4 +1,6 @@
 /* AUTHOR - SHREYAS MENE (CREATED ON 12/06/2025) */
+/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 16/06/2025) */
+
 .topic-selector-container {
   background: var(--background-color);
   padding: 2rem;
@@ -41,6 +43,39 @@
   color: var(--primary-color);
 }
 
+/* ✅ New styling for selected topic display (after selection) */
+.selected-topic-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--hover-color);
+  padding: 0.6rem 1rem;
+  border-radius: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.selected-topic-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.change-topic-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.change-topic-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Existing tag layout - still used for prerequisites */
 .selected-topics {
   display: flex;
   flex-wrap: wrap;
@@ -179,4 +214,4 @@
 .generate-btn:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--hover-color);
-} 
+}

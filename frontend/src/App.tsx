@@ -1,5 +1,7 @@
 /* AUTHOR - SHREYAS MENE (UPDATED WITH LOGIN + REGISTER ROUTES BY RANI) */
 /*Routes modified by Nakshatra on 16/6*/
+/*UPDATED BY NIKITA S RAJ KAPINI(16/06/2025)*/
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './utils/ThemeContext';
@@ -27,10 +29,15 @@ const AppContent = () => {
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
-  const handleTopicSelect = (topics: Topic[]) => {
-    setSelectedTopics(topics);
+  const handleTopicSelect = (topicName: string | null) => {
+    if (topicName) {
+      setSelectedTopics([{ id: 1, name: topicName, category: 'default' }]); // adjust id/category as needed
+    } else {
+      setSelectedTopics([]);
+    }
     setShouldGenerateAssessment(false);
   };
+
 
   const handleGenerateAssessment = () => {
     setShouldGenerateAssessment(true);
