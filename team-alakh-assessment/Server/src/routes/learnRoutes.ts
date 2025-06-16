@@ -1,4 +1,4 @@
-//developed by :@Aditya Chandra Das
+//developed by :@Aditya Chandra Das and Alakh Mathur
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import LearningHistory from '../models/LearningHistory';
