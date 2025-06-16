@@ -1,4 +1,5 @@
 /* AUTHOR - SHREYAS MENE (UPDATED WITH LOGIN + REGISTER ROUTES BY RANI) */
+/*Routes modified by Nakshatra on 16/6*/
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './utils/ThemeContext';
@@ -22,6 +23,8 @@ const AppContent = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard';
+
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   const handleTopicSelect = (topics: Topic[]) => {
@@ -39,7 +42,17 @@ const AppContent = () => {
 
   return (
     <div className="App">
+      <div className="top-right">
       <ThemeToggle />
+        {!isAuthPage && (
+            <div className="logout-wrapper">
+              {isDashboard && (
+              <button className="logout-button" onClick={() => navigate('/')}>
+                Logout
+              </button>)}
+            </div>
+          )}
+      </div>
       <div className="app-container">
         <header className="app-header">
           <div className="header-left">
@@ -57,19 +70,12 @@ const AppContent = () => {
               EduAssess
             </h1>
           </div>
-          {!isAuthPage && (
-            <div className="header-right">
-              <button className="login-button" onClick={() => navigate('/login')}>
-                Login
-              </button>
-            </div>
-          )}
         </header>
 
         <main>
           <Routes>
             <Route
-              path="/"
+              path="/dashboard"
               element={
                 <div className="content-container">
                   <TopicSelector
@@ -84,7 +90,7 @@ const AppContent = () => {
                 </div>
               }
             />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
           </Routes>
         </main>
