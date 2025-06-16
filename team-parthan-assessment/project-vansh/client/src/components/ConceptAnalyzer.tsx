@@ -7,7 +7,8 @@ type Concepts = {
 };
 
 interface Props {
-  file: File | null;
+  file?: File | null;
+  youtubeUrl?: string ;
   typeofinput: string;
   concepts: Concepts | null;
   setConcepts: (c: Concepts | null) => void;
@@ -17,6 +18,7 @@ interface Props {
 
 const ConceptAnalyzer: React.FC<Props> = ({
   file,
+  youtubeUrl,
   typeofinput,
   concepts,
   setConcepts,
@@ -24,10 +26,20 @@ const ConceptAnalyzer: React.FC<Props> = ({
   setLoading,
 }) => {
   const handleAnalyze = async () => {
-    if (!file) return;
+    if (!file && !youtubeUrl) return;
+
+    
     const formData = new FormData();
+
+    if(file){
     formData.append("file", file);
     formData.append("typeofinput", typeofinput);
+    }
+
+    if(youtubeUrl){
+    formData.append("input", youtubeUrl);
+    formData.append("typeofinput", typeofinput);
+    }
 
     setLoading(true);
     try {
@@ -49,7 +61,7 @@ const ConceptAnalyzer: React.FC<Props> = ({
   return (
     <>
       <button
-        disabled={!file || loading}
+        disabled={loading}
         onClick={handleAnalyze}
         className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors mb-4"
       >

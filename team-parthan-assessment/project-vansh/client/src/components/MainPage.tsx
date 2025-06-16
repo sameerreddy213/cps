@@ -831,6 +831,15 @@ const MainPage: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-2">
                     Our AI will analyze the video content and generate relevant DSA questions
                   </p>
+                  {/* Analyzer */}
+              <ConceptAnalyzer
+                youtubeUrl={youtubeUrl}
+                typeofinput={uploadType}
+                concepts={concepts}
+                setConcepts={setConcepts}
+                loading={loadingConcepts}
+                setLoading={setLoadingConcepts}
+              />
                 </div>
               )}
 
@@ -869,12 +878,7 @@ const MainPage: React.FC = () => {
                       Selected file: <span className="font-medium">{uploadedFile.name}</span>
                     </p>
                   )}
-                </div>
-              )}
-
-
-
-              {/* Analyzer */}
+                  {/* Analyzer */}
               <ConceptAnalyzer
                 file={uploadedFile}
                 typeofinput={uploadType}
@@ -883,6 +887,12 @@ const MainPage: React.FC = () => {
                 loading={loadingConcepts}
                 setLoading={setLoadingConcepts}
               />
+                </div>
+              )}
+
+
+
+              
 
 
 

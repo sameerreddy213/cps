@@ -4,28 +4,29 @@ import {Request,Response} from 'express';
 const analyzeController = async (req:Request, res:Response) => {
   try {
     const { typeofinput } = req.body;
-    //console.log(`type is ${typeofinput}`);
+    console.log(`type is ${typeofinput}`);
     let inputData = '';
 
     const file = req.file;
 
-    if (!file || !typeofinput) {
-    return res.status(400).json({ error: 'Missing file or input type' });
-  }
+  //   if (!file || !typeofinput) {
+  //   return res.status(400).json({ error: 'Missing file or input type' });
+  // }
 
-    if (typeofinput === 'link') {
+    if (typeofinput === 'youtube') {
       inputData = req.body.input;
     } else if (typeofinput === 'pdf' || typeofinput === 'image') {
       if (!req.file) {
         return res.status(400).json({ error: 'File not uploaded' });
       }
       inputData = req.file.path;
-      //console.log(`inputdata${inputData}`);
+      console.log(`inputdata${inputData}`);
     } else {
       return res.status(400).json({ error: 'Invalid input type' });
     }
 
     const mainTopic = await getMainTopic(inputData, typeofinput);
+    console.log(mainTopic);
     let mainTopicsArray: string[];
 
     if (typeof mainTopic === 'string') {
