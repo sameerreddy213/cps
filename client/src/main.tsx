@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css' // Keep this
-import './App.css'  // <--- ADD THIS LINE
+import './index.css'
+import './App.css' // Keep this, even if empty, as per your request
 import App from './App.tsx'
 import React from 'react';
 
