@@ -245,7 +245,7 @@ router.post('/complete-module', authenticateToken, async (req: any, res: Respons
     res.status(500).json({ message: 'Failed to mark module as complete' });
   }
 });
-
+//learn module routing fixed
 // GET /api/learn/download/:topic/:moduleId - Download learning material
 router.get('/download/:topic/:moduleId', authenticateToken, async (req: Request, res: Response) => {
   try {
