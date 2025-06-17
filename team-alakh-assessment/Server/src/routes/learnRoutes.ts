@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import LearningHistory from '../models/LearningHistory';
 import dotenv from 'dotenv';
+//providing the .env access
 
 dotenv.config();
 const router = express.Router();
