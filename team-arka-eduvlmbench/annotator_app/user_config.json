@@ -1,0 +1,27 @@
+{
+  "config": {
+    "role": "administrator",
+    "password_hash": "f8aa25d5312210877f24f6652e154514249b0a5f8df49ce8603487c62e189e7f",
+    "question_bank": null
+  },
+  "arka": {
+    "role": "annotator",
+    "question_bank": "Bank 1 (1-50)",
+    "password_encrypted": "Z0FBQUFBQm9VVjVJZXNkSlYwM1hwd00wNWVyZmdTUHozRkdlaFB1Z1lJVXhFSldGSDl1X0syRHA4YVF3UndLUDNrNnRrOEJ4RTd6c1ctSExqbklzWmMyZUxTLS1MNDJSV0E9PQ=="
+  },
+  "abhisekh": {
+    "role": "annotator",
+    "password": null,
+    "question_bank": null
+  },
+  "nilam": {
+    "role": "annotator",
+    "password": null,
+    "question_bank": null
+  },
+  "sriram": {
+    "role": "annotator",
+    "password": null,
+    "question_bank": null
+  }
+}

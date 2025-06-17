@@ -1,0 +1,5 @@
+question_id,human_selected_prerequisite,model_missing_prerequisite,jaccard_similarity,exact_match,precision,recall,f1_score,annotator,question_bank
+0,Multiplication,Multiplication,1.0,1.0,1.0,1.0,1.0,arka,Bank 1 (1-50)
+1,Application Of Unit Rates,Converting Units (Minutes To Hours),0.0,0.0,0.0,0.0,0.0,arka,Bank 1 (1-50)
+2,Application Of Unit Rates,Subtraction,0.0,0.0,0.0,0.0,0.0,arka,Bank 1 (1-50)
+3,Interpreting Word Problems,Subtraction,0.0,0.0,0.0,0.0,0.0,arka,Bank 1 (1-50)

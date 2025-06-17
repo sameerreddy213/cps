@@ -1,0 +1,4 @@
+question_id,human_selected_prerequisite,model_missing_prerequisite,jaccard_similarity,exact_match,precision,recall,f1_score,annotator
+0,Multiplication,Multiplication,1.0,1.0,1.0,1.0,1.0,arka
+1,['Addition,Converting Units (Minutes To Hours),0.0,0.0,0.0,0.0,0.0,arka
+2,Multiplication,Subtraction,0.0,0.0,0.0,0.0,0.0,arka
