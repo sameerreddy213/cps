@@ -48,7 +48,7 @@ export default async function getMainTopic(
       {
 
       const transcript = await processTranscript(videoId);
-      console.log(`\n✅ Transcript :\n${transcript}\n`);
+      //console.log(`\n✅ Transcript :\n${transcript}\n`);
       const matchedConcepts = identifyConcepts(transcript, conceptsList);
       return matchedConcepts;
       }

@@ -1,13 +1,13 @@
 import express, { json, Request, Response, NextFunction } from "express";
 import cors from "cors";
-import apiRoutes from "./routes/api";
+import analyzeRoute from "./routes/analyzeRoute";
 import authRoutes from "./routes/authRoute";
 
 const app = express();
 
 app.use(cors());
 app.use(json());
-app.use("/api", apiRoutes);
+app.use("/api", analyzeRoute);
 app.use("/api/auth", authRoutes);
 
 // Error handling middleware
