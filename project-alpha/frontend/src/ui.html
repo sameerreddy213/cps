@@ -194,6 +194,37 @@
             margin-top: 0.25rem;
             display: none;
         }
+        .profile-pic {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .dropdown {
+            position: absolute;
+            top: 3.5rem;
+            right: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 12rem;
+            z-index: 1000;
+        }
+        .dark .dropdown {
+            background: #334155;
+        }
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .dropdown-item:hover {
+            background: #f0f9ff;
+        }
+        .dark .dropdown-item:hover {
+            background: #475569;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -205,7 +236,17 @@
                 <a href="#home" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Home</a>
                 <a href="#features" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Features</a>
                 <a href="#about" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">About</a>
-                <a href="#sign-in" class="nav-link text-gray-800 hover:text-indigo-600 font-medium" onclick="showSignInModal(event)">Sign In</a>
+                <div id="auth-section">
+                    <a href="#sign-in" id="sign-in-link" class="nav-link text-gray-800 hover:text-indigo-600 font-medium" onclick="showSignInModal(event)">Sign In</a>
+                    <div id="profile-section" class="relative hidden">
+                        <img id="profile-pic" src="" alt="Profile Picture" class="profile-pic" onclick="toggleDropdown()">
+                        <div id="dropdown" class="dropdown hidden">
+                            <div class="dropdown-item" onclick="showProfileModal()">My Profile</div>
+                            <div class="dropdown-item" onclick="viewProgress()">View Progress</div>
+                            <div class="dropdown-item" onclick="signOut()">Sign Out</div>
+                        </div>
+                    </div>
+                </div>
                 <a href="#try" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Try</a>
                 <button id="themeToggle" class="focus:outline-none">
                     <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-800">
@@ -378,7 +419,49 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeProfileModal()">×</button>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">My Profile</h2>
+            <div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Profile Picture</label>
+                    <img id="profile-pic-preview" src="" alt="Profile Picture" class="w-24 h-24 rounded-full mx-auto mb-2 object-cover">
+                    <input type="file" id="profile-pic-upload" accept="image/*" class="w-full p-3 border rounded-lg" onchange="previewProfilePic(event)">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="profile-username">Username</label>
+                    <input type="text" id="profile-username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your username">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="profile-email">Email</label>
+                    <input type="email" id="profile-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your email">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="profile-password">New Password (optional)</label>
+                    <input type="password" id="profile-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter new password">
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="closeProfileModal()" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button onclick="saveProfileChanges()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Default profile picture URL (used if user hasn't uploaded one)
+        const DEFAULT_PROFILE_PIC = 'https://via.placeholder.com/150';
+
+        // Check if user is logged in on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            if (loggedInUser) {
+                updateUIForLoggedInUser(loggedInUser);
+            }
+        });
+
         // Smooth scrolling for navbar links
         document.querySelectorAll('.nav-link').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
@@ -423,10 +506,12 @@
         // Modal functionality
         const createAccountModal = document.getElementById('createAccountModal');
         const signInModal = document.getElementById('signInModal');
+        const profileModal = document.getElementById('profileModal');
 
         function showCreateAccountModal() {
             createAccountModal.classList.remove('hidden');
             signInModal.classList.add('hidden');
+            profileModal.classList.add('hidden');
             document.body.style.overflow = 'hidden';
         }
 
@@ -434,29 +519,49 @@
             createAccountModal.classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('email-error').style.display = 'none';
+            document.getElementById('signup-username').value = '';
+            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-password').value = '';
+            document.getElementById('confirm-password').value = '';
         }
 
         function showSignInModal(event) {
             event.preventDefault();
             signInModal.classList.remove('hidden');
             createAccountModal.classList.add('hidden');
+            profileModal.classList.add('hidden');
             document.body.style.overflow = 'hidden';
         }
 
         function closeSignInModal() {
             signInModal.classList.add('hidden');
             document.body.style.overflow = 'auto';
+            document.getElementById('signin-username-email').value = '';
+            document.getElementById('signin-password').value = '';
+        }
+
+        function showProfileModal() {
+            profileModal.classList.remove('hidden');
+            createAccountModal.classList.add('hidden');
+            signInModal.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            populateProfileForm();
+        }
+
+        function closeProfileModal() {
+            profileModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
         }
 
         function switchToSignIn(event) {
             event.preventDefault();
-            createAccountModal.classList.add('hidden');
+            closeCreateAccountModal();
             signInModal.classList.remove('hidden');
         }
 
         function switchToCreateAccount(event) {
             event.preventDefault();
-            signInModal.classList.add('hidden');
+            closeSignInModal();
             createAccountModal.classList.remove('hidden');
         }
 
@@ -511,19 +616,32 @@
                     closeCreateAccountModal();
                     showSignInModal(new Event('click'));
                 } else {
-                    alert(`Error: ${result.message}`);
+                    console.error('Create account error:', result);
+                    alert(`Failed to create account: ${result.message}`);
                 }
             } catch (err) {
-                alert('Failed to create account. Please try again.');
+                console.error('Network error during create account:', err);
+                alert('Failed to create account. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.');
             }
         }
 
         // Social Sign Up
         async function socialSignUp(platform) {
-            // Simulate social media sign-up by generating a mock user
-            const mockSocialUser = {
-                username: `user_${platform}_${Date.now()}`,
-                email: `${platform}_user_${Date.now()}@example.com`,
+            const email = prompt(`Please enter your ${platform} email address to sign up:`);
+            if (!email) {
+                alert('Email is required to sign up.');
+                return;
+            }
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            const socialUser = {
+                username: email.split('@')[0],
+                email: email,
                 password: null,
                 socialId: `${platform}_${Date.now()}`,
                 signupMethod: platform,
@@ -535,7 +653,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(mockSocialUser),
+                    body: JSON.stringify(socialUser),
                 });
 
                 const result = await response.json();
@@ -544,10 +662,12 @@
                     closeCreateAccountModal();
                     showSignInModal(new Event('click'));
                 } else {
-                    alert(`Error: ${result.message}`);
+                    console.error(`Social sign-up error (${platform}):`, result);
+                    alert(`Failed to create account with ${platform}: ${result.message}`);
                 }
             } catch (err) {
-                alert(`Failed to create account with ${platform}. Please try again.`);
+                console.error(`Network error during social sign-up (${platform}):`, err);
+                alert(`Failed to create account with ${platform}. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.`);
             }
         }
 
@@ -573,19 +693,32 @@
                 const result = await response.json();
                 if (response.ok) {
                     alert('Sign in successful! Welcome to LearnPath.');
+                    localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                    updateUIForLoggedInUser(result.user);
                     closeSignInModal();
                 } else {
+                    console.error('Sign-in error:', result);
                     alert('Invalid username or password.');
                 }
             } catch (err) {
-                alert('Failed to sign in. Please try again.');
+                console.error('Network error during sign-in:', err);
+                alert('Failed to sign in. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.');
             }
         }
 
         // Social Sign In
         async function socialSignIn(platform) {
-            // Simulate social media sign-in by using the mock social ID
-            const mockSocialId = `${platform}_${Date.now()}`; // In reality, this would come from OAuth
+            const email = prompt(`Please enter your ${platform} email address to sign in:`);
+            if (!email) {
+                alert('Email is required to sign in.');
+                return;
+            }
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
 
             try {
                 const response = await fetch('http://localhost:5000/api/users/social-login', {
@@ -593,18 +726,150 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ socialId: mockSocialId, signupMethod: platform }),
+                    body: JSON.stringify({ email, signupMethod: platform }),
                 });
 
                 const result = await response.json();
                 if (response.ok) {
                     alert(`Sign in successful with ${platform}! Welcome to LearnPath.`);
+                    localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                    updateUIForLoggedInUser(result.user);
                     closeSignInModal();
                 } else {
+                    console.error(`Social sign-in error (${platform}):`, result);
                     alert('Invalid social account. Please sign up first.');
                 }
             } catch (err) {
-                alert(`Failed to sign in with ${platform}. Please try again.`);
+                console.error(`Network error during social sign-in (${platform}):`, err);
+                alert(`Failed to sign in with ${platform}. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.`);
+            }
+        }
+
+        // Update UI for logged-in user
+        function updateUIForLoggedInUser(user) {
+            const signInLink = document.getElementById('sign-in-link');
+            const profileSection = document.getElementById('profile-section');
+            const profilePic = document.getElementById('profile-pic');
+
+            signInLink.classList.add('hidden');
+            profileSection.classList.remove('hidden');
+            profilePic.src = user.profilePicture || DEFAULT_PROFILE_PIC;
+        }
+
+        // Toggle dropdown
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Sign out
+        function signOut() {
+            localStorage.removeItem('loggedInUser');
+            const signInLink = document.getElementById('sign-in-link');
+            const profileSection = document.getElementById('profile-section');
+            signInLink.classList.remove('hidden');
+            profileSection.classList.add('hidden');
+            toggleDropdown();
+            alert('Signed out successfully.');
+        }
+
+        // View progress (placeholder)
+        function viewProgress() {
+            alert('View Progress feature coming soon!');
+            toggleDropdown();
+        }
+
+        // Populate profile form
+        async function populateProfileForm() {
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+            if (!user) {
+                alert('Please sign in to view your profile.');
+                closeProfileModal();
+                showSignInModal(new Event('click'));
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/users/${user.id}`);
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('profile-username').value = result.username;
+                    document.getElementById('profile-email').value = result.email;
+                    document.getElementById('profile-password').value = '';
+                    document.getElementById('profile-pic-preview').src = result.profilePicture || DEFAULT_PROFILE_PIC;
+                } else {
+                    console.error('Error fetching user details:', result);
+                    alert('Failed to load profile details.');
+                }
+            } catch (err) {
+                console.error('Network error fetching user details:', err);
+                alert('Failed to load profile details. Please check if the backend server is running.');
+            }
+        }
+
+        // Preview profile picture
+        function previewProfilePic(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-pic-preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Save profile changes
+        async function saveProfileChanges() {
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+            if (!user) {
+                alert('Please sign in to save changes.');
+                closeProfileModal();
+                showSignInModal(new Event('click'));
+                return;
+            }
+
+            const username = document.getElementById('profile-username').value;
+            const email = document.getElementById('profile-email').value;
+            const password = document.getElementById('profile-password').value;
+            const profilePicFile = document.getElementById('profile-pic-upload').files[0];
+            let profilePicture = document.getElementById('profile-pic-preview').src;
+
+            if (profilePicFile) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    profilePicture = e.target.result;
+                    await updateProfile(user.id, username, email, password, profilePicture);
+                };
+                reader.readAsDataURL(profilePicFile);
+            } else {
+                await updateProfile(user.id, username, email, password, profilePicture);
+            }
+        }
+
+        async function updateProfile(userId, username, email, password, profilePicture) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password, profilePicture }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Profile updated successfully!');
+                    localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                    updateUIForLoggedInUser(result.user);
+                    closeProfileModal();
+                } else {
+                    console.error('Error updating profile:', result);
+                    alert(`Failed to update profile: ${result.message}`);
+                }
+            } catch (err) {
+                console.error('Network error updating profile:', err);
+                alert('Failed to update profile. Please check if the backend server is running.');
             }
         }
     </script>
