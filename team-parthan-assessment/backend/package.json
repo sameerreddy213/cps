@@ -13,6 +13,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "execa": "^5.1.1",
     "express": "^5.1.0",
     "fs-extra": "^11.3.0",
@@ -22,7 +23,8 @@
     "multer": "^2.0.1",
     "pdf-parse": "^1.1.1",
     "ts-node": "^10.9.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.64"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

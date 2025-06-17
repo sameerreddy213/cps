@@ -1,20 +1,27 @@
-import express, { json, Request, Response, NextFunction } from "express";
-import cors from "cors";
-import analyzeRoute from "./routes/analyzeRoute";
-import authRoutes from "./routes/authRoute";
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './routes/authRoute';
+
+dotenv.config();
 
 const app = express();
 
+// Middleware
 app.use(cors());
-app.use(json());
-app.use("/api", analyzeRoute);
-app.use("/api/auth", authRoutes);
+app.use(express.json());
 
-// Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
-});
+// Routes
+app.use('/api/auth', authRoutes);
 
+// Database connection
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const MONGO_URI = process.env.MONGO_URI!;
+
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => console.log(err));
