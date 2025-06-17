@@ -35,8 +35,8 @@ To assist learners by:
 * Add the following line to the `.env` file:
 
 ```env
-HF_TOKEN=your_hugging_face_token_here
-MONGO_URI=mongodb://localhost:27017/agenticAI
+MONGO_URI = mongodb://localhost:27017/agenticAI
+OPENROUTER_API_KEY= your_openrouter_api_key
 ```
 
 > Make sure the `.env` file is located inside the `backend/` folder.
@@ -73,12 +73,12 @@ In the current development state:
 
 - The backend generates diagnostic questions, scores responses, stores questions and answers in MongoDB, and identifies weak prerequisite topics.
 
-> The connection between frontend input and backend services is not yet wired together, but both parts function correctly when tested separately.
+> The connection between frontend input and backend services is wired together for specific features, but both parts function correctly when tested separately for all features.
 
 ---
 ## Contributions
 
-- **Nikita S Raj Kapini** : Building the backend for question generation, data storage with MongoDB, and response analysis
+- **Nikita S Raj Kapini** : Building the backend for question generation, data storage with MongoDB, and response analysis; Integration of frontend with backend
 
 - **Shreyas Mene** : Developing the frontend user interface using Vite + React
 
@@ -86,7 +86,7 @@ In the current development state:
 
 - **Manda Rani** : Designing UI components for registration and login pages  
 
-- **Nakshtra Bandary** : Preparing project documentation, including UML diagrams, SRS, and system design documentation
+- **Nakshtra Bandary** : Preparing project documentation, including UML diagrams, SRS, and system design documentation ; Integrating the UI of login and registration with the dashboard and developing backend functionality to ensure seamless authentication and user management.
 
 
 ---
@@ -102,5 +102,5 @@ In the current development state:
 * **Frontend**: React (TypeScript)
 * **Backend**: Node.js + Express
 * **Database**: MongoDB
-* **AI/LLM**: Hugging Face Model (via API)
+* **AI/LLM**: Hugging Face and Open Router Model (via API)
 * **Agent Framework**: LangGraph (planned)
