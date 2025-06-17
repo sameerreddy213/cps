@@ -1,41 +1,40 @@
 import getMainTopic from '../services/getMainTopic';
 import getAllPrerequisites from '../services/getPrerequisite';
-import { Request, Response } from 'express';
-import fs from 'fs';
-
-const analyzeController = async (req: Request, res:Response) => {
+import {Request,Response} from 'express';
+const analyzeController = async (req:Request, res:Response) => {
   try {
     const { typeofinput } = req.body;
-    //console.log(`type is ${typeofinput}`);
     let inputData = '';
 
-    if (typeofinput === 'link') {
+    if (typeofinput === 'youtube') {
       inputData = req.body.input;
     } else if (typeofinput === 'pdf' || typeofinput === 'image') {
       if (!req.file) {
         return res.status(400).json({ error: 'File not uploaded' });
       }
       inputData = req.file.path;
-      //console.log(`inputdata${inputData}`);
     } else {
       return res.status(400).json({ error: 'Invalid input type' });
     }
 
     const mainTopic = await getMainTopic(inputData, typeofinput);
-    //console.log(mainTopic)
-    if (!mainTopic || !Array.isArray(mainTopic)) {
-      return res.status(400).json({ error: 'Could not determine main topic(s)' });
-    }
-    const prerequisites = await getAllPrerequisites(mainTopic);
+    let mainTopicsArray: string[];
 
-    fs.unlinkSync(inputData);
+    if (typeof mainTopic === 'string') {
+      mainTopicsArray = [mainTopic];
+    } else if (Array.isArray(mainTopic)) {
+      mainTopicsArray = mainTopic;
+    } else {
+      return res.status(400).json({ error: 'Invalid main topic returned' });
+    }
+
+    const prerequisites = await getAllPrerequisites(mainTopicsArray);
 
     return res.json({ mainTopic, prerequisites });
   } catch (error) {
-    //console.log(req.body);
     console.error('Error analyzing input:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-};
+};                                        
 
 export default analyzeController;

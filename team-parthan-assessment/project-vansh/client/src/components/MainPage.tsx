@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Brain,Network, Clock, CheckCircle, AlertCircle,User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink} from 'lucide-react';
 import { TOPIC_QUIZ_DATA } from './data/quizData';
@@ -14,6 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
+
+import ConceptAnalyzer from './ConceptAnalyzer';
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -32,7 +35,9 @@ const MainPage: React.FC = () => {
   const [currentQuiz, setCurrentQuiz] = useState<QuizState | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
+
   const [topics, setTopics] = useState<Topic[]>([
+
     {
       id: 'arrays',
       name: 'Arrays',
@@ -270,6 +275,7 @@ const MainPage: React.FC = () => {
 
     const file = files[0];
     const fileType = file.type.includes('pdf') ? 'pdf' : 'image';
+    setUploadedFile(file.type.includes('pdf') ? file : null);
 
     setIsProcessing(true);
     const newContent: CustomContent = {
@@ -282,7 +288,7 @@ const MainPage: React.FC = () => {
     };
 
     setCustomContents(prev => [...prev, newContent]);
-    setShowUploadModal(false);
+    //setShowUploadModal(false);
 
     try {
       const extractedText = await processFileContent(file);
@@ -727,10 +733,13 @@ const MainPage: React.FC = () => {
                         </div>
 
                         {content.status === 'ready' && content.quizGenerated && (
+
                           <button 
                             onClick={() => startCustomQuiz(content.id)}
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors"
                           >
+
+
                             Take AI Generated Quiz
                           </button>
                         )}
@@ -799,6 +808,7 @@ const MainPage: React.FC = () => {
         </div>
       </div>
 
+
        {/* Upload Modal */}
       <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
   <DialogContent className="max-w-md w-full max-h-[90vh] overflow-y-auto p-6 md:p-8">
@@ -850,6 +860,7 @@ const MainPage: React.FC = () => {
           </button>
         </div>
       </div>
+
 
       {/* Content Input */}
       {uploadType === "youtube" && (

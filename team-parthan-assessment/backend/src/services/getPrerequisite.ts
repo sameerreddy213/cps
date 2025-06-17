@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb';
-import { dsaConcepts } from '../../../concept-graph/conceptList';
+import { dsaConcepts } from '../concept-graph/conceptList';
 
 const uri =
   'mongodb+srv://recommendation:RYxDZJWicf0VeglY@cluster0.b8papcu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
@@ -43,8 +43,8 @@ async function getAllPrerequisites(mainConcepts: string[]) {
     for (let concept of concepts) {
       await dfs(concept);
     }
-
-    return Array.from(result);
+    const preReqArray = Array.from(result).filter(concept => !normalizedMainConcepts.includes(concept.toLowerCase()));
+    return preReqArray;
   } catch (err) {
     console.error('Error during prerequisite fetch:', err);
     return [];
