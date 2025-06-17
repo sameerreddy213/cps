@@ -1,5 +1,5 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
-/*Modified by Nakshatra Bhandary (16/6/26)*/
+/*Modified by Nakshatra Bhandary (16/6/26) and (17/6/25) to connect to the backend*/
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -29,12 +29,27 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    if (email === 'user@example.com' && password === 'password123') {
-      alert('Login successful!');
+try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Login failed.');
+        return;
+      }
+
+      // Save token and redirect
+      localStorage.setItem('token', data.token);
       setError('');
+      alert('Login successful!');
       navigate('/dashboard');
-    } else {
-      setError('Invalid credentials. Try again.');
+    } catch (err) {
+      setError('An error occurred. Please try again.');
     }
   };
 

@@ -1,6 +1,7 @@
 /* AUTHOR - SHREYAS MENE (UPDATED WITH LOGIN + REGISTER ROUTES BY RANI) */
 /*Routes modified by Nakshatra on 16/6*/
 /*UPDATED BY NIKITA S RAJ KAPINI(16/06/2025) --> Topic selector component*/
+/*Routes modified by Nakshatra on 17/6 to ensure user can only go to dashboard after logging in*/
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -11,6 +12,7 @@ import TopicSelector from './components/TopicSelector';
 import AssessmentDisplay from './components/AssessmentDisplay';
 import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
+import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
 interface Topic {
@@ -47,6 +49,11 @@ const AppContent = () => {
     setShouldGenerateAssessment(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
     <div className="App">
       <div className="top-right">
@@ -54,7 +61,7 @@ const AppContent = () => {
         {!isAuthPage && (
             <div className="logout-wrapper">
               {isDashboard && (
-              <button className="logout-button" onClick={() => navigate('/')}>
+              <button className="logout-button" onClick={handleLogout}>
                 Logout
               </button>)}
             </div>
@@ -81,9 +88,12 @@ const AppContent = () => {
 
         <main>
           <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/register" element={<RegistrationPage />} />
             <Route
               path="/dashboard"
               element={
+                <PrivateRoute>
                 <div className="content-container">
                   <TopicSelector
                     onTopicSelect={handleTopicSelect}
@@ -95,10 +105,9 @@ const AppContent = () => {
                     onAssessmentGenerated={handleAssessmentGenerated}
                   />
                 </div>
+                </PrivateRoute>
               }
             />
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/register" element={<RegistrationPage />} />
           </Routes>
         </main>
 
