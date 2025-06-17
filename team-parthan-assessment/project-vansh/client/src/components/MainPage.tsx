@@ -1,11 +1,26 @@
-import React, { useState, useRef } from 'react';
-import { Brain,Trophy, BarChart3, Network, Clock, CheckCircle, AlertCircle, Play, User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink, XCircle } from 'lucide-react';
-import type { Topic, UserProfile, CustomContent, Quiz, QuizQuestion } from '../interface/types';
-import type { QuizState } from '../interface/types';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Brain,Network, Clock, CheckCircle, AlertCircle,User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink} from 'lucide-react';
+import { TOPIC_QUIZ_DATA } from './data/quizData';
+import type { Topic, UserProfile, CustomContent, Quiz, QuizQuestion, QuizState } from '../interface/types';
+import TopicCard from './TopicCard';
+import QuizModal from './QuizModal';
+import QuizResults from './QuizResults';
+import UserStats from './UserStats';
+import MobileNav from './MobileNav';
+import UserProfileDropdown from './UserProfileDropdown';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+
 import ConceptAnalyzer from './ConceptAnalyzer';
 
 const MainPage: React.FC = () => {
-  const [selectedTopic, setSelectedTopic] = useState<string>('');
+  // const [selectedTopic, setSelectedTopic] = useState<string>('');
+  // const [showProfile, setShowProfile] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadType, setUploadType] = useState<'youtube' | 'pdf' | 'image'>('youtube');
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -15,43 +30,35 @@ const MainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'topics' | 'custom'>('topics');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-
   const [quizHistory, setQuizHistory] = useState<QuizState[]>([]);
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [currentQuiz, setCurrentQuiz] = useState<QuizState | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
 
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  //const [typeofinput, setTypeofInput] = useState("pdf");
-  const [concepts, setConcepts] = useState<{ mainTopic: string[]; prerequisites: string[] } | null>(null);
-  const [loadingConcepts, setLoadingConcepts] = useState(false);
+  const [topics, setTopics] = useState<Topic[]>([
 
-  
-
-  const userProfile: UserProfile = {
-    name: "Vansh Tuteja",
-    masteredTopics: ["Arrays", "Strings", "Basic Math"],
-    totalScore: 85,
-    streak: 7
-  };
-
-  const topics: Topic[] = [
     {
       id: 'arrays',
       name: 'Arrays',
       prerequisites: [],
       status: 'mastered',
       score: 5,
-      totalQuestions: 5
+      totalQuestions: 5,
+      attempts: 3,
+      bestScore: 100,
+      lastAttempt: new Date('2024-01-15')
     },
     {
       id: 'strings',
       name: 'Strings',
       prerequisites: [],
       status: 'mastered',
-      score: 5,
-      totalQuestions: 5
+      score: 4,
+      totalQuestions: 5,
+      attempts: 2,
+      bestScore: 80,
+      lastAttempt: new Date('2024-01-14')
     },
     {
       id: 'linked-lists',
@@ -59,7 +66,10 @@ const MainPage: React.FC = () => {
       prerequisites: ['arrays'],
       status: 'in-progress',
       score: 2,
-      totalQuestions: 5
+      totalQuestions: 5,
+      attempts: 1,
+      bestScore: 40,
+      lastAttempt: new Date('2024-01-10')
     },
     {
       id: 'stacks',
@@ -91,7 +101,40 @@ const MainPage: React.FC = () => {
       prerequisites: ['arrays', 'recursion'],
       status: 'not-started'
     }
-  ];
+  ]);
+
+  const userProfile: UserProfile = {
+    name: "Vansh Tuteja",
+    masteredTopics: topics.filter(t => t.status === 'mastered').map(t => t.name),
+    totalScore: 85,
+    streak: 7
+  };
+
+  // Timer effect for quiz
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (currentQuiz && !currentQuiz.isCompleted && currentQuiz.timeRemaining > 0) {
+      interval = setInterval(() => {
+        setCurrentQuiz(prev => {
+          if (!prev || prev.isCompleted) return prev;
+          
+          const newTimeRemaining = prev.timeRemaining - 1;
+          
+          if (newTimeRemaining <= 0) {
+            completeQuiz();
+            return { ...prev, timeRemaining: 0 };
+          }
+          
+          return { ...prev, timeRemaining: newTimeRemaining };
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [currentQuiz?.isCompleted, currentQuiz?.timeRemaining]);
 
   const getTopicStatus = (topic: Topic) => {
     const allPrereqsMastered = topic.prerequisites.every(prereq =>
@@ -104,22 +147,87 @@ const MainPage: React.FC = () => {
     return 'locked';
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'mastered': return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'in-progress': return <Clock className="w-5 h-5 text-yellow-500" />;
-      case 'ready': return <Play className="w-5 h-5 text-blue-500" />;
-      default: return <AlertCircle className="w-5 h-5 text-gray-400" />;
+  // Generate quiz questions from extracted text
+  const generateQuestionsFromText = (text: string, fileName: string): QuizQuestion[] => {
+    const questions: QuizQuestion[] = [];
+    
+    if (text.toLowerCase().includes('array')) {
+      questions.push({
+        id: '1',
+        question: 'Based on the content, what is the time complexity of accessing an element in an array?',
+        options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'],
+        correctAnswer: 0,
+        explanation: 'Arrays provide constant time O(1) access because elements are stored in contiguous memory locations.'
+      });
     }
+    
+    if (text.toLowerCase().includes('linked list')) {
+      questions.push({
+        id: '2',
+        question: 'What is the main advantage of linked lists mentioned in the content?',
+        options: ['Faster access', 'Dynamic memory allocation', 'Less memory usage', 'Better cache performance'],
+        correctAnswer: 1,
+        explanation: 'Linked lists provide dynamic memory allocation, allowing the data structure to grow and shrink at runtime.'
+      });
+    }
+    
+    if (text.toLowerCase().includes('stack')) {
+      questions.push({
+        id: '3',
+        question: 'According to the content, which principle do stacks follow?',
+        options: ['FIFO', 'LIFO', 'Random access', 'Priority based'],
+        correctAnswer: 1,
+        explanation: 'Stacks follow the LIFO (Last In First Out) principle where the last element added is the first one to be removed.'
+      });
+    }
+    
+    if (text.toLowerCase().includes('tree')) {
+      questions.push({
+        id: '4',
+        question: 'What type of data structure are trees according to the content?',
+        options: ['Linear', 'Hierarchical', 'Circular', 'Sequential'],
+        correctAnswer: 1,
+        explanation: 'Trees are hierarchical data structures with parent-child relationships between nodes.'
+      });
+    }
+    
+    if (text.toLowerCase().includes('binary search')) {
+      questions.push({
+        id: '5',
+        question: 'What is the time complexity of binary search mentioned in the content?',
+        options: ['O(n)', 'O(log n)', 'O(n²)', 'O(1)'],
+        correctAnswer: 1,
+        explanation: 'Binary search has O(log n) time complexity as it divides the search space in half with each comparison.'
+      });
+    }
+    
+    if (questions.length === 0) {
+      questions.push({
+        id: '1',
+        question: `Based on the uploaded content (${fileName}), which is most important for algorithm analysis?`,
+        options: ['Code length', 'Time complexity', 'Variable names', 'Comments'],
+        correctAnswer: 1,
+        explanation: 'Time complexity is crucial for algorithm analysis as it determines how the algorithm scales with input size.'
+      });
+    }
+    
+    return questions.slice(0, 5);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'mastered': return 'bg-green-50 border-green-200 hover:bg-green-100';
-      case 'in-progress': return 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100';
-      case 'ready': return 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-      default: return 'bg-gray-50 border-gray-200';
-    }
+  const processFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (file.type.includes('pdf')) {
+          resolve(`
+            Data Structures and Algorithms Concepts...
+          `);
+        } else {
+          resolve(`
+            Algorithm Complexity Analysis...
+          `);
+        }
+      }, 2000);
+    });
   };
 
   const handleYouTubeUpload = async () => {
@@ -139,37 +247,22 @@ const MainPage: React.FC = () => {
     setYoutubeUrl('');
     setShowUploadModal(false);
 
-    // Simulate AI processing
     setTimeout(() => {
+      const extractedText = `Data Structures and Algorithms Tutorial...`;
       setCustomContents(prev =>
         prev.map(content =>
           content.id === newContent.id
-            ? { ...content, status: 'ready', quizGenerated: true }
+            ? { ...content, status: 'ready', quizGenerated: true, extractedText }
             : content
         )
       );
 
-      // Generate sample quiz
+      const questions = generateQuestionsFromText(extractedText, 'YouTube Video');
       const sampleQuiz: Quiz = {
         id: `quiz-${newContent.id}`,
         title: 'AI Generated Quiz from YouTube Video',
         contentId: newContent.id,
-        questions: [
-          {
-            id: '1',
-            question: 'What is the time complexity of binary search?',
-            options: ['O(n)', 'O(log n)', 'O(n²)', 'O(1)'],
-            correctAnswer: 1,
-            explanation: 'Binary search divides the search space in half with each comparison, resulting in O(log n) time complexity.'
-          },
-          {
-            id: '2',
-            question: 'Which data structure is best for implementing a recursive algorithm?',
-            options: ['Array', 'Stack', 'Queue', 'Hash Table'],
-            correctAnswer: 1,
-            explanation: 'Stack is ideal for recursion as it follows LIFO principle, matching the recursive call pattern.'
-          }
-        ]
+        questions
       };
 
       setGeneratedQuizzes(prev => [...prev, sampleQuiz]);
@@ -197,34 +290,39 @@ const MainPage: React.FC = () => {
     setCustomContents(prev => [...prev, newContent]);
     //setShowUploadModal(false);
 
-    // Simulate AI processing
-    setTimeout(() => {
+    try {
+      const extractedText = await processFileContent(file);
+      
+      setTimeout(() => {
+        setCustomContents(prev =>
+          prev.map(content =>
+            content.id === newContent.id
+              ? { ...content, status: 'ready', quizGenerated: true, extractedText }
+              : content
+          )
+        );
+
+        const questions = generateQuestionsFromText(extractedText, file.name);
+        const sampleQuiz: Quiz = {
+          id: `quiz-${newContent.id}`,
+          title: `AI Generated Quiz from ${file.name}`,
+          contentId: newContent.id,
+          questions
+        };
+
+        setGeneratedQuizzes(prev => [...prev, sampleQuiz]);
+        setIsProcessing(false);
+      }, 1000);
+    } catch (error) {
       setCustomContents(prev =>
         prev.map(content =>
           content.id === newContent.id
-            ? { ...content, status: 'ready', quizGenerated: true }
+            ? { ...content, status: 'failed' }
             : content
         )
       );
-
-      const sampleQuiz: Quiz = {
-        id: `quiz-${newContent.id}`,
-        title: `AI Generated Quiz from ${file.name}`,
-        contentId: newContent.id,
-        questions: [
-          {
-            id: '1',
-            question: 'Based on the uploaded content, what is a key concept in data structures?',
-            options: ['Memory allocation', 'Data organization', 'Algorithm complexity', 'All of the above'],
-            correctAnswer: 3,
-            explanation: 'Data structures involve all these concepts: how data is organized, stored in memory, and affects algorithm performance.'
-          }
-        ]
-      };
-
-      setGeneratedQuizzes(prev => [...prev, sampleQuiz]);
       setIsProcessing(false);
-    }, 4000);
+    }
   };
 
   const removeCustomContent = (id: string) => {
@@ -241,20 +339,9 @@ const MainPage: React.FC = () => {
     }
   };
 
- const TOPIC_QUIZ_DATA = {
-  'arrays': {
-    questions: [
-      {
-        id: '1',
-        question: 'What is the time complexity of accessing an element in an array by index?',
-        options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
-        correctAnswer: 0,
-        explanation: 'Array elements can be accessed directly using their index in constant time O(1).',
-      }]}}
   const generateQuizForTopic = (topicId: string): QuizQuestion[] => {
     const topicData = TOPIC_QUIZ_DATA[topicId as keyof typeof TOPIC_QUIZ_DATA];
     if (!topicData) {
-      // Fallback for topics without predefined questions
       return [
         {
           id: '1',
@@ -266,7 +353,6 @@ const MainPage: React.FC = () => {
       ];
     }
 
-    // Shuffle questions and return a subset (e.g., 5 random questions)
     const shuffledQuestions = [...topicData.questions].sort(() => Math.random() - 0.5);
     return shuffledQuestions.slice(0, 5);
   };
@@ -275,17 +361,59 @@ const MainPage: React.FC = () => {
     const topic = topics.find(t => t.id === topicId);
     if (!topic) return;
 
+    // Update topic status to in-progress if it's the first time
+    if (topic.status === 'not-started' || (topic.status === 'ready' && !topic.attempts)) {
+      setTopics(prev => prev.map(t => 
+        t.id === topicId 
+          ? { 
+              ...t, 
+              status: 'in-progress',
+              totalQuestions: 5,
+              attempts: 0,
+              bestScore: 0,
+              score: 0
+            }
+          : t
+      ));
+    }
+
     const questions = generateQuizForTopic(topicId);
+    const timeLimit = questions.length * 60;
+    const attemptNumber = (topic.attempts || 0) + 1;
+    
     const newQuiz: QuizState = {
-        topicId,
-        questions,
-        currentQuestionIndex: 0,
-        userAnswers: [],
-        score: 0,
-        isCompleted: false,
-        timeStarted: new Date(),
-        timeLimit: 0,
-        timeRemaining: 0
+      topicId,
+      questions,
+      currentQuestionIndex: 0,
+      userAnswers: new Array(questions.length).fill(undefined),
+      score: 0,
+      isCompleted: false,
+      timeStarted: new Date(),
+      timeLimit,
+      timeRemaining: timeLimit,
+      attempt: attemptNumber
+    };
+
+    setCurrentQuiz(newQuiz);
+    setShowQuizModal(true);
+  };
+
+  const startCustomQuiz = (contentId: string) => {
+    const quiz = generatedQuizzes.find(q => q.contentId === contentId);
+    if (!quiz) return;
+
+    const timeLimit = quiz.questions.length * 60;
+    
+    const newQuiz: QuizState = {
+      contentId,
+      questions: quiz.questions,
+      currentQuestionIndex: 0,
+      userAnswers: new Array(quiz.questions.length).fill(undefined),
+      score: 0,
+      isCompleted: false,
+      timeStarted: new Date(),
+      timeLimit,
+      timeRemaining: timeLimit
     };
 
     setCurrentQuiz(newQuiz);
@@ -298,12 +426,10 @@ const MainPage: React.FC = () => {
     const updatedAnswers = [...currentQuiz.userAnswers];
     updatedAnswers[currentQuiz.currentQuestionIndex] = answerIndex;
 
-    const updatedQuiz = {
+    setCurrentQuiz({
       ...currentQuiz,
       userAnswers: updatedAnswers
-    };
-
-    setCurrentQuiz(updatedQuiz);
+    });
   };
 
   const nextQuizQuestion = () => {
@@ -315,15 +441,22 @@ const MainPage: React.FC = () => {
         currentQuestionIndex: currentQuiz.currentQuestionIndex + 1
       });
     } else {
-      // Quiz completed
       completeQuiz();
     }
+  };
+
+  const previousQuizQuestion = () => {
+    if (!currentQuiz || currentQuiz.currentQuestionIndex === 0) return;
+
+    setCurrentQuiz({
+      ...currentQuiz,
+      currentQuestionIndex: currentQuiz.currentQuestionIndex - 1
+    });
   };
 
   const completeQuiz = () => {
     if (!currentQuiz) return;
 
-    // Calculate score
     let correctAnswers = 0;
     currentQuiz.questions.forEach((question, index) => {
       if (currentQuiz.userAnswers[index] === question.correctAnswer) {
@@ -332,7 +465,6 @@ const MainPage: React.FC = () => {
     });
 
     const score = Math.round((correctAnswers / currentQuiz.questions.length) * 100);
-
     const completedQuiz: QuizState = {
       ...currentQuiz,
       score,
@@ -340,8 +472,29 @@ const MainPage: React.FC = () => {
       timeCompleted: new Date()
     };
 
-    // Update quiz history
     setQuizHistory(prev => [...prev, completedQuiz]);
+
+    // Update topic status and statistics
+    if (completedQuiz.topicId) {
+      setTopics(prev => prev.map(topic => {
+        if (topic.id === completedQuiz.topicId) {
+          const newAttempts = (topic.attempts || 0) + 1;
+          const newBestScore = Math.max(topic.bestScore || 0, score);
+          const newStatus = score >= 70 ? 'mastered' : 'in-progress';
+          
+          return {
+            ...topic,
+            status: newStatus,
+            score: correctAnswers,
+            totalQuestions: 5,
+            attempts: newAttempts,
+            bestScore: newBestScore,
+            lastAttempt: new Date()
+          };
+        }
+        return topic;
+      }));
+    }
 
     setCurrentQuiz(completedQuiz);
   };
@@ -357,37 +510,14 @@ const MainPage: React.FC = () => {
     );
 
     const latestQuiz = topicQuizHistory[topicQuizHistory.length - 1];
-    console.log(latestQuiz)
     if (latestQuiz) {
       setReviewQuiz(latestQuiz);
       setShowReviewModal(true);
-      setCurrentQuiz(latestQuiz);
-      setShowQuizModal(true);
     }
   };
 
-
-
-  const getButtonHandler = (status: string, topicId: string): ((e: React.MouseEvent<HTMLButtonElement>) => void) | undefined => {
-    switch (status) {
-      case 'ready':
-        return (e) => {
-          e.stopPropagation();
-          startQuizForTopic(topicId);
-        };
-      case 'in-progress':
-        return (e) => {
-          e.stopPropagation();
-          startQuizForTopic(topicId);
-        };
-      case 'mastered':
-        return (e) => {
-          e.stopPropagation();
-          showTopicReview(topicId);
-        };
-      default:
-        return undefined;
-    }
+  const retakeQuiz = (topicId: string) => {
+    startQuizForTopic(topicId);
   };
 
   return (
@@ -398,84 +528,85 @@ const MainPage: React.FC = () => {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
-                <Network className="w-8 h-8 text-white" />
+                <Network className="w-6 h-6 md:w-8 md:h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">DSA Assessment Hub</h1>
-                <p className="text-sm text-gray-600">Dependency-Aware Learning System</p>
+                <h1 className="text-lg md:text-2xl font-bold text-gray-900">DSA Assessment Hub</h1>
+                <p className="text-xs md:text-sm text-gray-600">Dependency-Aware Learning System</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105"
-              >
-                <Upload className="w-5 h-5" />
-                <span className="font-medium">Create Custom Quiz</span>
-              </button>
-              <div className="flex items-center space-x-2 bg-indigo-50 px-3 py-2 rounded-lg">
-                <Trophy className="w-5 h-5 text-indigo-600" />
-                <span className="font-semibold text-indigo-700">{userProfile.totalScore}% Avg</span>
+            <div className='ml-auto'>
+              <MobileNav 
+                userProfile={userProfile}
+                onUploadClick={() => setShowUploadModal(true)}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                customContents = {customContents}
+                topics = {topics}
+              />
+            </div>
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <div className="hidden lg:block">
+                <UserProfileDropdown />
               </div>
-              
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 md:space-y-8">
             {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-4 md:p-8 text-white">
               <div className="flex items-center space-x-4 mb-4">
-                <Brain className="w-12 h-12" />
+                <Brain className="w-8 h-8 md:w-12 md:h-12" />
                 <div>
-                  <h2 className="text-3xl font-bold">Master Data Structures & Algorithms</h2>
-                  <p className="text-indigo-100 mt-2">
+                  <h2 className="text-xl md:text-3xl font-bold">Master Data Structures & Algorithms</h2>
+                  <p className="text-indigo-100 mt-2 text-sm md:text-base">
                     Learn step-by-step with our prerequisite-aware assessment system
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-4 mt-6">
-                <div className="bg-white/10 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">{userProfile.masteredTopics.length}</div>
-                  <div className="text-sm text-indigo-100">Topics Mastered</div>
+              {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mt-6">
+                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
+                  <div className="text-lg md:text-2xl font-bold">{userProfile.masteredTopics.length}</div>
+                  <div className="text-xs md:text-sm text-indigo-100">Topics Mastered</div>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">{userProfile.streak}</div>
-                  <div className="text-sm text-indigo-100">Day Streak</div>
+                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
+                  <div className="text-lg md:text-2xl font-bold">{userProfile.streak}</div>
+                  <div className="text-xs md:text-sm text-indigo-100">Day Streak</div>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">{topics.length}</div>
-                  <div className="text-sm text-indigo-100">Standard Topics</div>
+                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
+                  <div className="text-lg md:text-2xl font-bold">{topics.length}</div>
+                  <div className="text-xs md:text-sm text-indigo-100">Standard Topics</div>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">{customContents.length}</div>
-                  <div className="text-sm text-indigo-100">Custom Quizzes</div>
+                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
+                  <div className="text-lg md:text-2xl font-bold">{customContents.length}</div>
+                  <div className="text-xs md:text-sm text-indigo-100">Custom Quizzes</div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Tab Navigation */}
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8">
+              <nav className="-mb-px flex space-x-4 md:space-x-8">
                 <button
                   onClick={() => setActiveTab('topics')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'topics'
+                  className={`py-2 px-1 border-b-2 font-medium text-sm md:text-base transition-colors ${activeTab === 'topics'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+                  }`}
                 >
                   Standard Learning Path
                 </button>
                 <button
                   onClick={() => setActiveTab('custom')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'custom'
+                  className={`py-2 px-1 border-b-2 font-medium text-sm md:text-base transition-colors ${activeTab === 'custom'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+                  }`}
                 >
                   Custom Content Quizzes
                   {customContents.length > 0 && (
@@ -491,83 +622,29 @@ const MainPage: React.FC = () => {
             {activeTab === 'topics' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">Learning Path</h3>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">Learning Path</h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <Network className="w-4 h-4" />
-                    <span>Prerequisite-based progression</span>
+                    <span className="hidden md:inline">Prerequisite-based progression</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {topics.map((topic) => {
                     const status = getTopicStatus(topic);
-                    const isDisabled = status === 'locked';
+                    const hasQuizHistory = quizHistory.some(quiz => quiz.topicId === topic.id && quiz.isCompleted);
 
                     return (
-                      <div
+                      <TopicCard
                         key={topic.id}
-                        className={`p-6 rounded-xl border-2 transition-all cursor-pointer ${isDisabled
-                          ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed'
-                          : getStatusColor(status)
-                          }`}
-                        onClick={() => !isDisabled && setSelectedTopic(topic.id)}
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-3">
-                            {getStatusIcon(status)}
-                            <div>
-                              <h4 className="font-semibold text-gray-900">{topic.name}</h4>
-                              <p className="text-sm text-gray-600 capitalize">{status.replace('-', ' ')}</p>
-                            </div>
-                          </div>
-                          {topic.score && (
-                            <div className="text-right">
-                              <div className="font-bold text-lg">{topic.score}/{topic.totalQuestions}</div>
-                              <div className="text-sm text-gray-600">Score</div>
-                            </div>
-                          )}
-                        </div>
-
-                        {topic.prerequisites.length > 0 && (
-                          <div className="mb-4">
-                            <div className="text-xs text-gray-500 mb-2">Prerequisites:</div>
-                            <div className="flex flex-wrap gap-2">
-                              {topic.prerequisites.map((prereq) => {
-                                const prereqTopic = topics.find(t => t.id === prereq);
-                                const prereqMastered = prereqTopic?.status === 'mastered';
-                                return (
-                                  <span
-                                    key={prereq}
-                                    className={`px-2 py-1 rounded text-xs ${prereqMastered
-                                      ? 'bg-green-100 text-green-800'
-                                      : 'bg-red-100 text-red-800'
-                                      }`}
-                                  >
-                                    {prereqTopic?.name}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-600">
-                            {status === 'ready' && 'Ready to start!'}
-                            {status === 'in-progress' && 'Continue assessment'}
-                            {status === 'mastered' && 'Completed ✓'}
-                            {status === 'locked' && 'Complete prerequisites first'}
-                          </div>
-                          {!isDisabled && (
-                            <button
-                              onClick={getButtonHandler(status, topic.id)}
-                              className="hover:cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                            >
-                              {status === 'ready' ? 'Start Quiz' : status === 'in-progress' ? 'Continue' : 'Review'}
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                        topic={topic}
+                        status={status}
+                        onStartQuiz={startQuizForTopic}
+                        onReview={showTopicReview}
+                        onRetake={retakeQuiz}
+                        hasQuizHistory={hasQuizHistory} 
+                        topics={topics}
+                        />
                     );
                   })}
                 </div>
@@ -577,38 +654,40 @@ const MainPage: React.FC = () => {
             {activeTab === 'custom' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">Custom Content Quizzes</h3>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">Custom Content Quizzes</h3>
                   <button
                     onClick={() => setShowUploadModal(true)}
-                    className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 md:px-4 py-2 rounded-lg transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add Content</span>
+                    <span className="text-sm md:text-base">Add Content</span>
                   </button>
                 </div>
 
                 {customContents.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 rounded-xl">
-                    <Upload className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No custom content yet</h3>
-                    <p className="text-gray-600 mb-4">Upload YouTube videos, PDFs, or images to generate AI-powered quizzes</p>
+                  <div className="text-center py-8 md:py-12 bg-gray-50 rounded-xl">
+                    <Upload className="w-12 h-12 md:w-16 md:h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">No custom content yet</h3>
+                    <p className="text-gray-600 mb-4 text-sm md:text-base px-4">
+                      Upload YouTube videos, PDFs, or images to generate AI-powered quizzes
+                    </p>
                     <button
                       onClick={() => setShowUploadModal(true)}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base"
                     >
                       Upload Your First Content
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {customContents.map((content) => (
-                      <div key={content.id} className="bg-white p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-200 transition-colors">
+                      <div key={content.id} className="bg-white p-4 md:p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-200 transition-colors">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-3">
                             {getContentIcon(content.type)}
                             <div>
-                              <h4 className="font-semibold text-gray-900 truncate">{content.title}</h4>
-                              <p className="text-sm text-gray-600">
+                              <h4 className="font-semibold text-gray-900 truncate text-sm md:text-base">{content.title}</h4>
+                              <p className="text-xs md:text-sm text-gray-600">
                                 {content.type === 'youtube' ? 'YouTube Video' : content.type.toUpperCase()}
                               </p>
                             </div>
@@ -636,10 +715,11 @@ const MainPage: React.FC = () => {
                         )}
 
                         <div className="mb-4">
-                          <div className={`inline-flex items-center px-2 py-1 rounded text-xs ${content.status === 'ready' ? 'bg-green-100 text-green-800' :
+                          <div className={`inline-flex items-center px-2 py-1 rounded text-xs ${
+                            content.status === 'ready' ? 'bg-green-100 text-green-800' :
                             content.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
+                            'bg-red-100 text-red-800'
+                          }`}>
                             {content.status === 'processing' && <Loader className="w-3 h-3 mr-1 animate-spin" />}
                             {content.status === 'ready' && <CheckCircle className="w-3 h-3 mr-1" />}
                             {content.status === 'failed' && <AlertCircle className="w-3 h-3 mr-1" />}
@@ -653,7 +733,13 @@ const MainPage: React.FC = () => {
                         </div>
 
                         {content.status === 'ready' && content.quizGenerated && (
-                          <button  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors" onClick={getButtonHandler('ready','arrays')}>
+
+                          <button 
+                            onClick={() => startCustomQuiz(content.id)}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                          >
+
+
                             Take AI Generated Quiz
                           </button>
                         )}
@@ -666,7 +752,7 @@ const MainPage: React.FC = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="hidden lg:block space-y-6">
             {/* Processing Status */}
             {isProcessing && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
@@ -680,307 +766,412 @@ const MainPage: React.FC = () => {
               </div>
             )}
 
-            {/* Quick Stats */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2 text-indigo-600" />
-                Progress Overview
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Overall Progress</span>
-                    <span>{Math.round((userProfile.masteredTopics.length / topics.length) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-indigo-600 h-2 rounded-full"
-                      style={{ width: `${(userProfile.masteredTopics.length / topics.length) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
-                      {topics.filter(t => t.status === 'mastered').length}
-                    </div>
-                    <div className="text-xs text-green-600">Mastered</div>
-                  </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {customContents.filter(c => c.status === 'ready').length}
-                    </div>
-                    <div className="text-xs text-blue-600">Custom Ready</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* User Stats */}
+            <UserStats customContents={customContents} userProfile={userProfile} topics={topics} />
 
             {/* User Profile Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm border">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center">
                   <User className="w-5 h-5 mr-2 text-indigo-600" />
-                  Your Profile
+                  Recent Activity
                 </h3>
                 <button className="text-gray-400 hover:text-gray-600">
                   <RotateCcw className="w-4 h-4" />
                 </button>
               </div>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Average Score</span>
-                  <span className="font-semibold">{userProfile.totalScore}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Current Streak</span>
-                  <span className="font-semibold">{userProfile.streak} days</span>
-                </div>
-                <div className="pt-3 border-t">
-                  <div className="text-sm text-gray-600 mb-2">Recent Achievements</div>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Mastered Arrays</span>
+                {topics.filter(t => t.lastAttempt).sort((a, b) => 
+                  new Date(b.lastAttempt!).getTime() - new Date(a.lastAttempt!).getTime()
+                ).slice(0, 5).map(topic => (
+                  <div key={topic.id} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-2">
+                      {topic.status === 'mastered' ? 
+                        <CheckCircle className="w-4 h-4 text-green-500" /> :
+                        <Clock className="w-4 h-4 text-yellow-500" />
+                      }
+                      <span className="text-gray-700">{topic.name}</span>
                     </div>
-                    <div className="flex items-center space-x-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Mastered Strings</span>
-                    </div>
-                    {customContents.filter(c => c.status === 'ready').length > 0 && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <CheckCircle className="w-4 h-4 text-blue-500" />
-                        <span>Generated Custom Quiz</span>
+                    <div className="text-right">
+                      <div className="text-xs text-gray-500">
+                        {topic.lastAttempt?.toLocaleDateString()}
                       </div>
-                    )}
+                      <div className="text-xs font-medium text-gray-600">
+                        {topic.bestScore}% best
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Upload Modal */}
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Create Custom Quiz</h2>
+
+       {/* Upload Modal */}
+      <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
+  <DialogContent className="max-w-md w-full max-h-[90vh] overflow-y-auto p-6 md:p-8">
+    <DialogHeader className="mb-6">
+      <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900">
+        Create Custom Quiz
+      </DialogTitle>
+    </DialogHeader>
+
+    <div className="space-y-6">
+      {/* Content Type Selection */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Choose Content Type
+        </label>
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => setUploadType("youtube")}
+            className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
+              uploadType === "youtube"
+                ? "border-red-500 bg-red-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <Youtube className="w-6 h-6 md:w-8 md:h-8 text-red-500 mx-auto mb-2" />
+            <div className="text-xs md:text-sm font-medium">YouTube</div>
+          </button>
+          <button
+            onClick={() => setUploadType("pdf")}
+            className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
+              uploadType === "pdf"
+                ? "border-red-500 bg-red-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <FileText className="w-6 h-6 md:w-8 md:h-8 text-red-500 mx-auto mb-2" />
+            <div className="text-xs md:text-sm font-medium">PDF</div>
+          </button>
+          <button
+            onClick={() => setUploadType("image")}
+            className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
+              uploadType === "image"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <Image className="w-6 h-6 md:w-8 md:h-8 text-blue-500 mx-auto mb-2" />
+            <div className="text-xs md:text-sm font-medium">Image</div>
+          </button>
+        </div>
+      </div>
+
+
+      {/* Content Input */}
+      {uploadType === "youtube" && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            YouTube Video URL
+          </label>
+          <input
+            type="url"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <p className="text-xs text-gray-500 mt-2">
+            Our AI will analyze the video content and generate relevant DSA questions
+          </p>
+        </div>
+      )}
+
+      {(uploadType === "pdf" || uploadType === "image") && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload {uploadType === "pdf" ? "PDF Document" : "Image"}
+          </label>
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+          >
+            <Upload className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</p>
+            <p className="text-xs text-gray-500">
+              {uploadType === "pdf" ? "PDF files up to 10MB" : "PNG, JPG, GIF up to 5MB"}
+            </p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={uploadType === "pdf" ? ".pdf" : "image/*"}
+            onChange={(e) => handleFileUpload(e.target.files)}
+            className="hidden"
+          />
+        </div>
+      )}
+
+      {/* AI Features Info */}
+      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
+        <div className="flex items-start space-x-3">
+          <Brain className="w-6 h-6 text-indigo-600 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-gray-900 mb-1">
+              AI-Powered Quiz Generation
+            </h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Analyzes content to identify key concepts</li>
+              <li>• Generates contextual DSA questions</li>
+              <li>• Creates explanations for each answer</li>
+              <li>• Adapts difficulty based on content complexity</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {/* Action Buttons */}
+      <div className="flex space-x-4 pt-2">
+        <button
+          onClick={() => setShowUploadModal(false)}
+          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            if (uploadType === "youtube") {
+              handleYouTubeUpload();
+            } else {
+              fileInputRef.current?.click();
+            }
+          }}
+          disabled={uploadType === "youtube" && !youtubeUrl.trim()}
+          className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white py-3 rounded-lg font-medium transition-all disabled:cursor-not-allowed"
+        >
+          {uploadType === "youtube" ? "Generate Quiz" : "Upload & Generate"}
+        </button>
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
+
+      {/* Quiz Modal - Active Quiz */}
+      {showQuizModal && currentQuiz && !currentQuiz.isCompleted && (
+        <QuizModal
+          quiz={currentQuiz}
+          onAnswer={handleQuizAnswer}
+          onNext={nextQuizQuestion}
+          onPrevious={previousQuizQuestion}
+          onClose={closeQuizModal}
+          title={currentQuiz.topicId 
+            ? topics.find(t => t.id === currentQuiz.topicId)?.name || 'Quiz'
+            : customContents.find(c => c.id === currentQuiz.contentId)?.title || 'Custom Quiz'}
+        />
+      )}
+
+      {/* Quiz Results Modal */}
+      {showQuizModal && currentQuiz && currentQuiz.isCompleted && (
+        <div className="fixed inset-0 bg-white z-50 flex flex-col">
+          <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900">Quiz Complete!</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {currentQuiz.topicId 
+                    ? topics.find(t => t.id === currentQuiz.topicId)?.name 
+                    : customContents.find(c => c.id === currentQuiz.contentId)?.title} Assessment
+                </p>
+              </div>
               <button
-                onClick={() => setShowUploadModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                onClick={closeQuizModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
-
-            <div className="space-y-6">
-              {/* Content Type Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Choose Content Type
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    onClick={() => setUploadType('youtube')}
-                    className={`p-4 rounded-lg border-2 transition-all ${uploadType === 'youtube'
-                      ? 'border-red-500 bg-red-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <Youtube className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                    <div className="text-sm font-medium">YouTube</div>
-                  </button>
-                  <button
-                    onClick={() => setUploadType('pdf')}
-                    className={`p-4 rounded-lg border-2 transition-all ${uploadType === 'pdf'
-                      ? 'border-red-500 bg-red-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <FileText className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                    <div className="text-sm font-medium">PDF</div>
-                  </button>
-                  <button
-                    onClick={() => setUploadType('image')}
-                    className={`p-4 rounded-lg border-2 transition-all ${uploadType === 'image'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <Image className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Image</div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Content Input */}
-              {uploadType === 'youtube' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    YouTube Video URL
-                  </label>
-                  <input
-                    type="url"
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">
-                    Our AI will analyze the video content and generate relevant DSA questions
-                  </p>
-                  {/* Analyzer */}
-              <ConceptAnalyzer
-                youtubeUrl={youtubeUrl}
-                typeofinput={uploadType}
-                concepts={concepts}
-                setConcepts={setConcepts}
-                loading={loadingConcepts}
-                setLoading={setLoadingConcepts}
+          </div>
+          
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-4xl mx-auto px-4 md:px-8 py-8">
+              <QuizResults
+                quiz={currentQuiz}
+                title={currentQuiz.topicId 
+                  ? topics.find(t => t.id === currentQuiz.topicId)?.name || 'Quiz'
+                  : customContents.find(c => c.id === currentQuiz.contentId)?.title || 'Custom Quiz'}
+                onReview={() => {
+                  setReviewQuiz(currentQuiz);
+                  setShowReviewModal(true);
+                  setShowQuizModal(false);
+                }}
+                onRetake={() => {
+                  if (currentQuiz.topicId) {
+                    startQuizForTopic(currentQuiz.topicId);
+                  } else if (currentQuiz.contentId) {
+                    startCustomQuiz(currentQuiz.contentId);
+                  }
+                }}
+                onClose={closeQuizModal}
+                isTopicMastered={currentQuiz.topicId && currentQuiz.score >= 70}
               />
-                </div>
-              )}
-
-              {(uploadType === 'pdf' || uploadType === 'image') && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload {uploadType === 'pdf' ? 'PDF Document' : 'Image'}
-                  </label>
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
-                  >
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-sm text-gray-600 mb-2">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {uploadType === 'pdf' ? 'PDF files up to 10MB' : 'PNG, JPG, GIF up to 5MB'}
-                    </p>
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={uploadType === 'pdf' ? '.pdf' : 'image/*'}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setUploadedFile(file);
-                        setConcepts(null);
-                      }
-                    }}
-                    className="hidden"
-                  />
-                  {uploadedFile && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      Selected file: <span className="font-medium">{uploadedFile.name}</span>
-                    </p>
-                  )}
-                  {/* Analyzer */}
-              <ConceptAnalyzer
-                file={uploadedFile}
-                typeofinput={uploadType}
-                concepts={concepts}
-                setConcepts={setConcepts}
-                loading={loadingConcepts}
-                setLoading={setLoadingConcepts}
-              />
-                </div>
-              )}
-
-
-
-              
-
-
-
-              {/* AI Features Info */}
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
-                <div className="flex items-start space-x-3">
-                  <Brain className="w-6 h-6 text-indigo-600 mt-0.5" />
-                  <div>
-                    <h3 className="font-medium text-gray-900 mb-1">AI-Powered Quiz Generation</h3>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Analyzes content to identify key concepts</li>
-                      <li>• Generates contextual DSA questions</li>
-                      <li>• Creates explanations for each answer</li>
-                      <li>• Adapts difficulty based on content complexity</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quiz Configuration */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-3">Quiz Settings</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Number of Questions</span>
-                    <select className="px-3 py-1 border border-gray-300 rounded text-sm">
-                      <option>5 questions</option>
-                      <option>10 questions</option>
-                      <option>15 questions</option>
-                      <option>20 questions</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Difficulty Level</span>
-                    <select className="px-3 py-1 border border-gray-300 rounded text-sm">
-                      <option>Auto-detect</option>
-                      <option>Beginner</option>
-                      <option>Intermediate</option>
-                      <option>Advanced</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Focus Area</span>
-                    <select className="px-3 py-1 border border-gray-300 rounded text-sm">
-                      <option>All DSA Topics</option>
-                      <option>Data Structures</option>
-                      <option>Algorithms</option>
-                      <option>Time Complexity</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => setShowUploadModal(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    if (uploadType === 'youtube') {
-                      handleYouTubeUpload();
-                    } else {
-                      fileInputRef.current?.click();
-                    }
-                  }}
-                  disabled={uploadType === 'youtube' && !youtubeUrl.trim()}
-                  className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white py-3 rounded-lg font-medium transition-all disabled:cursor-not-allowed"
-                >
-                  {uploadType === 'youtube' ? 'Generate Quiz' : 'Upload & Generate'}
-                </button>
-              </div>
-
-              {/* Processing Info */}
-              <div className="text-center text-xs text-gray-500">
-                <p>Processing typically takes 30-60 seconds depending on content length</p>
-              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Quiz Results Modal (for when quiz is ready) */}
+      {/* Full Screen Review Modal */}
+      {showReviewModal && reviewQuiz && (
+        <div className="fixed inset-0 bg-white z-50 flex flex-col">
+          {/* Review Header */}
+          <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+                  Review: {reviewQuiz.topicId 
+                    ? topics.find(t => t.id === reviewQuiz.topicId)?.name 
+                    : customContents.find(c => c.id === reviewQuiz.contentId)?.title} Quiz
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Completed on {reviewQuiz.timeCompleted?.toLocaleDateString()} • Score: {reviewQuiz.score}%
+                  {reviewQuiz.attempt && ` • Attempt ${reviewQuiz.attempt}`}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Review Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-4xl mx-auto px-4 md:px-8 py-8">
+              {/* Quiz Summary */}
+              <div className="bg-gray-50 p-6 rounded-xl mb-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Quiz Results Summary</h3>
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                      <span>Questions: {reviewQuiz.questions.length}</span>
+                      <span>Correct: {reviewQuiz.questions.filter((q, i) => reviewQuiz.userAnswers[i] === q.correctAnswer).length}</span>
+                      <span>Time: {reviewQuiz.timeCompleted 
+                        ? Math.round((reviewQuiz.timeCompleted.getTime() - reviewQuiz.timeStarted.getTime()) / 1000)
+                        : reviewQuiz.timeLimit - reviewQuiz.timeRemaining}s</span>
+                    </div>
+                  </div>
+                  <div className={`text-3xl font-bold mt-4 md:mt-0 ${reviewQuiz.score >= 80 ? 'text-green-600' :
+                      reviewQuiz.score >= 60 ? 'text-yellow-600' : 'text-red-600'
+                    }`}>
+                    {reviewQuiz.score}%
+                  </div>
+                </div>
+              </div>
+
+              {/* Question Review */}
+              <div className="space-y-8">
+                {reviewQuiz.questions.map((question, questionIndex) => {
+                  const userAnswer = reviewQuiz.userAnswers[questionIndex];
+                  const isCorrect = userAnswer === question.correctAnswer;
+
+                  return (
+                    <div key={question.id} className="border border-gray-200 rounded-xl p-6 md:p-8">
+                      <div className="flex items-start justify-between mb-6">
+                        <h4 className="text-xl font-semibold text-gray-900 flex-1 leading-relaxed">
+                          {questionIndex + 1}. {question.question}
+                        </h4>
+                        <div className={`flex items-center space-x-2 ml-6 ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                          {isCorrect ? (
+                            <CheckCircle className="w-6 h-6" />
+                          ) : (
+                            <AlertCircle className="w-6 h-6" />
+                          )}
+                          <span className="font-medium text-lg">
+                            {isCorrect ? 'Correct' : 'Incorrect'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 mb-6">
+                        {question.options.map((option, optionIndex) => {
+                          const isUserAnswer = userAnswer === optionIndex;
+                          const isCorrectAnswer = question.correctAnswer === optionIndex;
+
+                          return (
+                            <div
+                              key={optionIndex}
+                              className={`p-4 rounded-lg border-2 ${isCorrectAnswer
+                                  ? 'border-green-500 bg-green-50'
+                                  : isUserAnswer
+                                    ? 'border-red-500 bg-red-50'
+                                    : 'border-gray-200'
+                                }`}
+                            >
+                              <div className="flex items-center space-x-4">
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isCorrectAnswer
+                                    ? 'border-green-500 bg-green-500'
+                                    : isUserAnswer
+                                      ? 'border-red-500 bg-red-500'
+                                      : 'border-gray-300'
+                                  }`}>
+                                  {(isCorrectAnswer || isUserAnswer) && (
+                                    <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
+                                  )}
+                                </div>
+                                <span className="flex-1 text-lg">{option}</span>
+                                {isCorrectAnswer && (
+                                  <span className="text-sm font-medium text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                                    Correct Answer
+                                  </span>
+                                )}
+                                {isUserAnswer && !isCorrectAnswer && (
+                                  <span className="text-sm font-medium text-red-600 bg-red-100 px-3 py-1 rounded-full">
+                                    Your Answer
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Explanation */}
+                      <div className="bg-blue-50 p-6 rounded-xl">
+                        <h5 className="font-medium text-blue-900 mb-3 text-lg">Explanation:</h5>
+                        <p className="text-blue-800">{question.explanation}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Review Footer */}
+          <div className="bg-white border-t border-gray-200 px-4 md:px-8 py-6">
+            <div className="max-w-4xl mx-auto flex justify-center space-x-4">
+              <button
+                onClick={() => {
+                  if (reviewQuiz.topicId) {
+                    startQuizForTopic(reviewQuiz.topicId);
+                    setShowReviewModal(false);
+                  } else if (reviewQuiz.contentId) {
+                    startCustomQuiz(reviewQuiz.contentId);
+                    setShowReviewModal(false);
+                  }
+                }}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 rounded-xl font-medium transition-colors text-lg"
+              >
+                Retake Quiz
+              </button>
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-4 rounded-xl font-medium transition-colors text-lg"
+              >
+                Close Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quiz Ready Notification */}
       {generatedQuizzes.length > 0 && (
-        <div className="fixed bottom-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm">
+        <div className="fixed bottom-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm z-40">
           <div className="flex items-center space-x-3">
             <div className="bg-green-100 p-2 rounded-full">
               <CheckCircle className="w-6 h-6 text-green-600" />
@@ -993,7 +1184,15 @@ const MainPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 flex space-x-2">
-            <button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-3 rounded text-sm font-medium transition-colors">
+            <button 
+              onClick={() => {
+                const latestQuiz = generatedQuizzes[generatedQuizzes.length - 1];
+                if (latestQuiz.contentId) {
+                  startCustomQuiz(latestQuiz.contentId);
+                }
+              }}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-3 rounded text-sm font-medium transition-colors"
+            >
               Take Quiz
             </button>
             <button
@@ -1005,273 +1204,8 @@ const MainPage: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Quiz Modal */}
-      {showQuizModal && currentQuiz && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {topics.find(t => t.id === currentQuiz.topicId)?.name} Quiz
-              </h2>
-              <button
-                onClick={closeQuizModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {!currentQuiz.isCompleted ? (
-              <>
-                {/* Progress Bar */}
-                <div className="mb-6">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Question {currentQuiz.currentQuestionIndex + 1} of {currentQuiz.questions.length}</span>
-                    <span>{Math.round(((currentQuiz.currentQuestionIndex + 1) / currentQuiz.questions.length) * 100)}% Complete</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${((currentQuiz.currentQuestionIndex + 1) / currentQuiz.questions.length) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Question */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                    {currentQuiz.questions[currentQuiz.currentQuestionIndex].question}
-                  </h3>
-                  <div className="space-y-3">
-                    {currentQuiz.questions[currentQuiz.currentQuestionIndex].options.map((option, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleQuizAnswer(index)}
-                        className={`w-full p-4 text-left rounded-lg border-2 transition-all ${currentQuiz.userAnswers[currentQuiz.currentQuestionIndex] === index
-                            ? 'border-indigo-500 bg-indigo-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-4 h-4 rounded-full border-2 ${currentQuiz.userAnswers[currentQuiz.currentQuestionIndex] === index
-                              ? 'border-indigo-500 bg-indigo-500'
-                              : 'border-gray-300'
-                            }`}>
-                            {currentQuiz.userAnswers[currentQuiz.currentQuestionIndex] === index && (
-                              <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"></div>
-                            )}
-                          </div>
-                          <span>{option}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Navigation */}
-                <div className="flex justify-between">
-                  <button
-                    onClick={() => setCurrentQuiz({
-                      ...currentQuiz,
-                      currentQuestionIndex: Math.max(0, currentQuiz.currentQuestionIndex - 1)
-                    })}
-                    disabled={currentQuiz.currentQuestionIndex === 0}
-                    className="bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={nextQuizQuestion}
-                    disabled={currentQuiz.userAnswers[currentQuiz.currentQuestionIndex] === undefined}
-                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    {currentQuiz.currentQuestionIndex === currentQuiz.questions.length - 1 ? 'Finish' : 'Next'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* Quiz Results */
-              <div className="text-center">
-                <div className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${currentQuiz.score >= 80 ? 'bg-green-100' : currentQuiz.score >= 60 ? 'bg-yellow-100' : 'bg-red-100'
-                  }`}>
-                  <div className={`text-3xl font-bold ${currentQuiz.score >= 80 ? 'text-green-600' : currentQuiz.score >= 60 ? 'text-yellow-600' : 'text-red-600'
-                    }`}>
-                    {currentQuiz.score}%
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {currentQuiz.score >= 80 ? 'Excellent!' : currentQuiz.score >= 60 ? 'Good Job!' : 'Keep Practicing!'}
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  You scored {currentQuiz.score}% on {topics.find(t => t.id === currentQuiz.topicId)?.name}
-                </p>
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
-                      {currentQuiz.questions.filter((q, i) => currentQuiz.userAnswers[i] === q.correctAnswer).length}
-                    </div>
-                    <div className="text-sm text-green-600">Correct</div>
-                  </div>
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">
-                      {currentQuiz.questions.filter((q, i) => currentQuiz.userAnswers[i] !== q.correctAnswer).length}
-                    </div>
-                    <div className="text-sm text-red-600">Incorrect</div>
-                  </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {Math.round((currentQuiz.timeCompleted!.getTime() - currentQuiz.timeStarted.getTime()) / 1000)}s
-                    </div>
-                    <div className="text-sm text-blue-600">Time</div>
-                  </div>
-                </div>
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => {
-                      setReviewQuiz(currentQuiz);
-                      setShowReviewModal(true);
-                      setShowQuizModal(false);
-                    }}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
-                  >
-                    Review Answers
-                  </button>
-                  <button
-                    onClick={closeQuizModal}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-colors"
-                  >
-                    Continue Learning
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      {/* Review Modal - Continuation */}
-      {showReviewModal && reviewQuiz && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Review: {topics.find(t => t.id === reviewQuiz.topicId)?.name} Quiz
-              </h2>
-              <button
-                onClick={() => setShowReviewModal(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Quiz Summary */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold text-gray-900">Quiz Results</h3>
-                  <p className="text-sm text-gray-600">
-                    Completed on {reviewQuiz.timeCompleted?.toLocaleDateString()}
-                  </p>
-                </div>
-                <div className={`text-2xl font-bold ${reviewQuiz.score >= 80 ? 'text-green-600' :
-                    reviewQuiz.score >= 60 ? 'text-yellow-600' : 'text-red-600'
-                  }`}>
-                  {reviewQuiz.score}%
-                </div>
-              </div>
-            </div>
-
-            {/* Question Review */}
-            <div className="space-y-6">
-              {reviewQuiz.questions.map((question, questionIndex) => {
-                const userAnswer = reviewQuiz.userAnswers[questionIndex];
-                const isCorrect = userAnswer === question.correctAnswer;
-
-                return (
-                  <div key={question.id} className="border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <h4 className="text-lg font-semibold text-gray-900 flex-1">
-                        {questionIndex + 1}. {question.question}
-                      </h4>
-                      <div className={`flex items-center space-x-2 ml-4 ${isCorrect ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                        {isCorrect ? (
-                          <CheckCircle className="w-5 h-5" />
-                        ) : (
-                          <XCircle className="w-5 h-5" />
-                        )}
-                        <span className="font-medium">
-                          {isCorrect ? 'Correct' : 'Incorrect'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 mb-4">
-                      {question.options.map((option, optionIndex) => {
-                        const isUserAnswer = userAnswer === optionIndex;
-                        const isCorrectAnswer = question.correctAnswer === optionIndex;
-
-                        return (
-                          <div
-                            key={optionIndex}
-                            className={`p-3 rounded-lg border-2 ${isCorrectAnswer
-                                ? 'border-green-500 bg-green-50'
-                                : isUserAnswer
-                                  ? 'border-red-500 bg-red-50'
-                                  : 'border-gray-200'
-                              }`}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className={`w-4 h-4 rounded-full border-2 ${isCorrectAnswer
-                                  ? 'border-green-500 bg-green-500'
-                                  : isUserAnswer
-                                    ? 'border-red-500 bg-red-500'
-                                    : 'border-gray-300'
-                                }`}>
-                                {(isCorrectAnswer || isUserAnswer) && (
-                                  <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"></div>
-                                )}
-                              </div>
-                              <span className="flex-1">{option}</span>
-                              {isCorrectAnswer && (
-                                <span className="text-sm font-medium text-green-600">
-                                  Correct Answer
-                                </span>
-                              )}
-                              {isUserAnswer && !isCorrectAnswer && (
-                                <span className="text-sm font-medium text-red-600">
-                                  Your Answer
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Explanation */}
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-blue-900 mb-2">Explanation:</h5>
-                      <p className="text-blue-800 text-sm">{question.explanation}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={() => setShowReviewModal(false)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
-              >
-                Close Review
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>)
-}
+    </div>
+  );
+};
 
 export default MainPage;

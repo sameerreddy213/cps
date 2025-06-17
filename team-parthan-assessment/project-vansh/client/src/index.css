@@ -120,4 +120,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  input::-ms-reveal,
+  input::-ms-clear,
+  input::-webkit-credentials-auto-fill-button {
+    display: none;
+  }
 }
