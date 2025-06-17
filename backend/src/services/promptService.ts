@@ -1,5 +1,5 @@
 /* AUTHOR - NIKITA S RAJ KAPINI (CREATED ON 10/06/2025) */
-/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 16/06/2025) */
+/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 17/06/2025) */
 export const generatePrompt = (targetTopic: string, prereqs: string[]) => `
 You are an educational assistant tasked with generating diagnostic assessments that evaluate a learner’s readiness to study a particular target topic. Your goal is to create a well-balanced, concept-aligned question set based only on the prerequisite concepts for that target topic.
 
@@ -16,8 +16,8 @@ You must generate diagnostic questions based only on the listed prerequisite con
 - Ensure you do not exceed 15 questions under any circumstances.
 
 Allowed Question Types:
-- **single-correct-mcq**: one correct option from a list
-- **multiple-correct-mcq**: two or more correct options from a list
+- **single-correct-mcq**: one correct option from a list of 4 options
+- **multiple-correct-mcq**: **two or more** correct options from a list of 4 options
 - **true-false** (special case of MCQ): options must be exactly ["True", "False"] with one correct answer
 
 ❌ Do NOT include:

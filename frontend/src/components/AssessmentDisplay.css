@@ -1,4 +1,6 @@
 /* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
+/* UPDATED BY NIKITA S RAJ KAPINI ON 17/06/2025 */
+
 .assessment-display {
   background: var(--background-color);
   border-radius: 16px;
@@ -145,13 +147,11 @@
 .option-label.correct {
   background: rgba(40, 167, 69, 0.1);
   border-color: #28a745;
-  color: var(--text-color);
 }
 
 .option-label.incorrect {
   background: rgba(220, 53, 69, 0.1);
   border-color: #dc3545;
-  color: var(--text-color);
 }
 
 .short-answer-input {
@@ -190,45 +190,93 @@
 }
 
 .results-container {
-  text-align: center;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 32px;
+  margin-top: 16px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.results-container h3 {
+  font-size: 24px;
+  color: var(--text-color);
+  margin-bottom: 24px;
+}
+
+.question-result {
+  background: var(--hover-color);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.question-result p {
+  font-size: 16px;
+  color: var(--text-color);
+  margin-bottom: 6px;
+}
+
+.question-result hr {
+  margin: 16px 0;
+  border: none;
+  height: 1px;
+  background-color: var(--border-color);
 }
 
 .score-display {
-  margin: 24px 0;
+  margin-top: 24px;
+  text-align: center;
 }
 
-.score-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
+.score-display h4 {
+  font-size: 20px;
+  color: var(--text-color);
 }
 
-.score-number {
-  color: white;
-  font-size: 32px;
-  font-weight: bold;
+.revisit-topics {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(255, 0, 0, 0.05);
+  border-left: 4px solid red;
+  border-radius: 8px;
 }
 
-.retry-button {
+.revisit-topics h4 {
+  margin-bottom: 8px;
+  font-size: 18px;
+  color: red;
+}
+
+.revisit-topics ul {
+  padding-left: 20px;
+}
+
+.revisit-topics li {
+  color: var(--text-color);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.retry-button, .download-button {
   background: var(--hover-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 12px 24px;
+  padding: 10px 20px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.retry-button:hover {
-  background: var(--hover-color);
+.retry-button:hover,
+.download-button:hover {
+  background: var(--primary-color);
+  color: white;
   border-color: var(--primary-color);
 }
 
@@ -249,4 +297,24 @@
 
 .questions-container::-webkit-scrollbar-thumb:hover {
   background: var(--primary-color);
+}
+
+
+/* Prevent page break inside question result */
+.question-card {
+  page-break-inside: avoid;
+  break-inside: avoid; /* For modern browsers */
+}
+
+/* Optional: Prevent breaking option rows */
+.options-grid {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.option-label,
+.option-label.correct,
+.option-label.incorrect {
+  page-break-inside: avoid;
+  break-inside: avoid;
 }

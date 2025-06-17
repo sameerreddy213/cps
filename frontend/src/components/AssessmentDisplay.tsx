@@ -1,8 +1,9 @@
-/* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
-/*UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025*/
+// /* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
+// /* UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025 AND 17/06/2025 */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
+import html2pdf from 'html2pdf.js';
 
 interface Topic {
   id: number;
@@ -12,239 +13,329 @@ interface Topic {
 
 interface Question {
   id: number;
-  type: 'single-choice' | 'multiple-choice' | 'true-false' | 'short-answer';
   question: string;
+  type: string;
   options?: string[];
   correctAnswer?: string[];
+  topic_tested?: string;
+  concept_area?: string;
+  difficulty?: string;
 }
 
-interface AssessmentDisplayProps {
+interface BackendQuestion {
+  question: string;
+  options?: string[];
+  correct_answer: string[];
+  type: string;
+  topic_tested: string;
+  concept_area: string;
+  difficulty: string;
+}
+
+interface AssessmentResponse {
+  _id: string;
+  targetTopic: string;
+  prerequisites: string[];
+  questions: BackendQuestion[];
+}
+
+interface ResponseWithCorrectness {
+  question: Question;
+  userAnswer: string[];
+  isCorrect: boolean;
+}
+
+const AssessmentDisplay: React.FC<{
   selectedTopics: Topic[];
   shouldGenerateAssessment: boolean;
   onAssessmentGenerated: () => void;
-}
-
-const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
-  selectedTopics,
-  shouldGenerateAssessment,
-  onAssessmentGenerated,
-}) => {
-  const [loading, setLoading] = useState(false);
+}> = ({ selectedTopics, shouldGenerateAssessment, onAssessmentGenerated }) => {
+  const [assessmentId, setAssessmentId] = useState<string>('');
+  const [targetTopic, setTargetTopic] = useState<string>('');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<number, string[]>>({});
+  const [responsesWithCorrectness, setResponsesWithCorrectness] = useState<ResponseWithCorrectness[]>([]);
+  const [revisitTopics, setRevisitTopics] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [assessmentStarted, setAssessmentStarted] = useState(false);
-  const [targetTopic, setTargetTopic] = useState<string>('');
+
+  const userId = 'user123';
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = () => {
+    if (reportRef.current) {
+      html2pdf()
+        .set({
+          margin: 0.5,
+          filename: `assessment_report_${userId}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .from(reportRef.current)
+        .save();
+    }
+  };
+
+  const handleRetry = () => {
+    setShowResults(false);
+    setUserAnswers({});
+    setResponsesWithCorrectness([]);
+    setAssessmentStarted(true);
+  };
 
   useEffect(() => {
-    const fetchAssessment = async () => {
+    const generateAssessment = async () => {
       const topic = selectedTopics[0]?.name;
       if (!topic) return;
 
       setTargetTopic(topic);
-      setLoading(true);
-      setShowResults(false);
       setUserAnswers({});
-      setAssessmentStarted(true);
+      setLoading(true);
 
       try {
-        const response = await fetch('http://localhost:5000/api/assessment/generate', {
+        const res = await fetch('http://localhost:5000/api/assessment/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ target: topic }), // ✅ match backend format
+          body: JSON.stringify({ target: topic })
         });
 
-        const data = await response.json();
+        const data: AssessmentResponse = await res.json();
+        setAssessmentId(data._id);
 
-        const parsedQuestions: Question[] = data.questions.map((q: any, index: number) => {
-          let frontendType: Question['type'];
-          switch (q.type) {
-            case 'single-correct-mcq':
-              frontendType = 'single-choice';
-              break;
-            case 'multiple-correct-mcq':
-              frontendType = 'multiple-choice';
-              break;
-            case 'true-false':
-              frontendType = 'true-false';
-              break;
-            default:
-              frontendType = 'short-answer';
-          }
+        const transformed: Question[] = data.questions.map((q, idx) => ({
+          id: idx + 1,
+          question: q.question,
+          type: q.type === 'single-correct-mcq' ? 'single-choice'
+            : q.type === 'multiple-correct-mcq' ? 'multiple-choice'
+              : q.type === 'true-false' ? 'true-false'
+                : 'short-answer',
+          options: q.options,
+          correctAnswer: q.correct_answer,
+          topic_tested: q.topic_tested,
+          concept_area: q.concept_area,
+          difficulty: q.difficulty
+        }));
 
-          return {
-            id: index + 1,
-            type: frontendType,
-            question: q.question,
-            options: q.options,
-            correctAnswer: q.correct_answer,
-          };
-        });
-
-        setQuestions(parsedQuestions);
-      } catch (error) {
-        console.error('Error generating assessment:', error);
+        setQuestions(transformed);
+        setAssessmentStarted(true);
+      } catch (err) {
+        console.error('Error generating assessment:', err);
       } finally {
         setLoading(false);
       }
     };
 
     if (shouldGenerateAssessment && selectedTopics.length > 0) {
-      fetchAssessment();
-    } else if (!shouldGenerateAssessment && !assessmentStarted) {
-      setQuestions([]);
-      setUserAnswers({});
-      setShowResults(false);
+      generateAssessment();
     }
   }, [shouldGenerateAssessment, selectedTopics]);
 
-  const handleAnswerChange = (questionId: number, answer: string) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionId]: [answer],
-    }));
+  const handleAnswerChange = (qid: number, value: string) => {
+    setUserAnswers(prev => ({ ...prev, [qid]: [value] }));
   };
 
-  const handleMultipleChange = (questionId: number, answer: string) => {
-    setUserAnswers((prev) => {
-      const currentAnswers = prev[questionId] || [];
-      return {
-        ...prev,
-        [questionId]: currentAnswers.includes(answer)
-          ? currentAnswers.filter((a) => a !== answer)
-          : [...currentAnswers, answer],
-      };
-    });
+  const handleMultipleSelectChange = (qid: number, value: string) => {
+    const prev = userAnswers[qid] || [];
+    if (prev.includes(value)) {
+      setUserAnswers((prevState) => ({
+        ...prevState,
+        [qid]: prev.filter((v) => v !== value)
+      }));
+    } else {
+      setUserAnswers((prevState) => ({
+        ...prevState,
+        [qid]: [...prev, value]
+      }));
+    }
   };
 
-  const handleSubmit = () => {
-    setShowResults(true);
-    setAssessmentStarted(false);
-    onAssessmentGenerated();
-  };
-
-  const handleRetry = () => {
+  const handleSubmit = async () => {
     setShowResults(false);
-    setUserAnswers({});
-    setAssessmentStarted(true);
+    setLoading(true);
+
+    try {
+      const payload = {
+        assessmentId,
+        userId,
+        answers: questions.map((_, idx) => ({
+          userAnswer: userAnswers[idx + 1] || [],
+        }))
+      };
+
+      const response = await fetch('http://localhost:5000/api/response/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      const scored = result.result.responses;
+
+      const enriched: ResponseWithCorrectness[] = questions.map((q, idx) => ({
+        question: q,
+        userAnswer: scored[idx].userAnswer,
+        isCorrect: scored[idx].isCorrect
+      }));
+
+      setResponsesWithCorrectness(enriched);
+
+      const analysisRes = await fetch(`http://localhost:5000/api/response/analysis/${userId}/${assessmentId}`);
+      const analysisData = await analysisRes.json();
+
+      setRevisitTopics(analysisData.weakTopics);
+      setShowResults(true);
+    } catch (err) {
+      console.error('Error submitting assessment:', err);
+    } finally {
+      setLoading(false);
+      onAssessmentGenerated();
+    }
   };
 
   const calculateScore = () => {
-    let correct = 0;
-    let total = 0;
+    return responsesWithCorrectness.filter(r => r.isCorrect).length;
+  };
 
-    questions.forEach((q) => {
-      if (q.correctAnswer && userAnswers[q.id]) {
-        total++;
-        const correctSet = new Set(q.correctAnswer);
-        const answerSet = new Set(userAnswers[q.id]);
-        const isCorrect =
-          correctSet.size === answerSet.size &&
-          [...correctSet].every((ans) => answerSet.has(ans));
-        if (isCorrect) correct++;
-      }
-    });
-
-    return total > 0 ? Math.round((correct / total) * 100) : 0;
+  const getOptionClass = (option: string, userAns: string[], correctAns: string[]) => {
+    if (userAns.includes(option) && correctAns.includes(option)) return 'option-label correct';
+    if (userAns.includes(option) && !correctAns.includes(option)) return 'option-label incorrect';
+    if (!userAns.includes(option) && correctAns.includes(option)) return 'option-label correct ghost';
+    return 'option-label';
   };
 
   return (
     <div className="assessment-display">
       <div className="assessment-header">
         <h2>Assessment</h2>
-        <p className="selected-topic">
-          {targetTopic ? `Target Topic: ${targetTopic}` : 'No topic selected'}
-        </p>
+        <p className="selected-topic">{targetTopic ? `Target Topic: ${targetTopic}` : 'No topic selected'}</p>
       </div>
 
-      {!shouldGenerateAssessment && !assessmentStarted ? (
+      {!assessmentStarted && !loading ? (
         <div className="placeholder-content">
           <div className="placeholder-icon">📝</div>
           <h3>Assessment will appear here</h3>
           <p>Select your topics and click "Generate Assessment" to begin.</p>
         </div>
       ) : loading ? (
-        <div className="assessment-content">
-          <div className="loading-indicator">
-            <div className="spinner"></div>
-            <p>Generating your assessment...</p>
-          </div>
+        <div className="loading-indicator">
+          <div className="spinner"></div>
+          <p>Generating your assessment...</p>
         </div>
       ) : (
         <div className="assessment-content">
-          <div className="questions-container">
-            {questions.map((q, index) => (
-              <div key={q.id} className="question-card">
-                <h3>Question {index + 1}</h3>
-                <p>{q.question}</p>
+          {!showResults ? (
+            <div className="questions-container">
+              {questions.map((q, index) => (
+                <div key={q.id} className="question-card">
+                  <h3>Question {index + 1}</h3>
+                  <p>{q.question}</p>
 
-                {(q.type === 'single-choice' || q.type === 'true-false') && (
-                  <div className="options-grid">
-                    {(q.options || ['True', 'False']).map((option, i) => (
-                      <label key={i} className="option-label">
-                        <input
-                          type="radio"
-                          name={`question-${q.id}`}
-                          value={option}
-                          checked={userAnswers[q.id]?.includes(option) || false}
-                          onChange={() => handleAnswerChange(q.id, option)}
-                          disabled={showResults}
-                        />
-                        {option}
-                      </label>
-                    ))}
-                  </div>
-                )}
+                  {(q.type === 'single-choice' || q.type === 'true-false') && (
+                    <div className="options-grid">
+                      {(q.options || []).map((option, i) => (
+                        <label key={i} className="option-label">
+                          <input
+                            type="radio"
+                            name={`q-${q.id}`}
+                            value={option}
+                            checked={userAnswers[q.id]?.includes(option) || false}
+                            onChange={() => handleAnswerChange(q.id, option)}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
 
-                {q.type === 'multiple-choice' && (
-                  <div className="options-grid">
-                    {(q.options || []).map((option, i) => (
-                      <label key={i} className="option-label">
-                        <input
-                          type="checkbox"
-                          name={`question-${q.id}-${i}`}
-                          value={option}
-                          checked={userAnswers[q.id]?.includes(option) || false}
-                          onChange={() => handleMultipleChange(q.id, option)}
-                          disabled={showResults}
-                        />
-                        {option}
-                      </label>
-                    ))}
-                  </div>
-                )}
+                  {q.type === 'multiple-choice' && (
+                    <div className="options-grid">
+                      {(q.options || []).map((option, i) => (
+                        <label key={i} className="option-label">
+                          <input
+                            type="checkbox"
+                            value={option}
+                            checked={userAnswers[q.id]?.includes(option) || false}
+                            onChange={() => handleMultipleSelectChange(q.id, option)}
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
+                  )}
 
-                {q.type === 'short-answer' && (
-                  <textarea
-                    className="short-answer-input"
-                    placeholder="Type your answer here..."
-                    value={userAnswers[q.id]?.[0] || ''}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    disabled={showResults}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-
-          {questions.length > 0 && !showResults && (
-            <button className="submit-button" onClick={handleSubmit}>
-              Submit Assessment
-            </button>
-          )}
-
-          {showResults && (
-            <div className="results-container">
-              <h3>Assessment Results</h3>
-              <div className="score-display">
-                <div className="score-circle">
-                  <span className="score-number">{calculateScore()}%</span>
+                  {q.type === 'short-answer' && (
+                    <textarea
+                      className="short-answer-input"
+                      placeholder="Type your answer here..."
+                      value={userAnswers[q.id]?.[0] || ''}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    />
+                  )}
                 </div>
-                <p>Score</p>
+              ))}
+              <button className="submit-button" onClick={handleSubmit}>Submit Assessment</button>
+            </div>
+          ) : (
+            <div className="results-container" ref={reportRef}>
+              <h3>📊 Assessment Report</h3>
+
+              {responsesWithCorrectness.map((r, i) => (
+                <div key={i} className="question-card">
+                  <h3>Question {i + 1}</h3>
+                  <p>{r.question.question}</p>
+                  <p className="meta-info">
+                    <strong>Topic:</strong> {r.question.topic_tested} | <strong>Concept:</strong> {r.question.concept_area} | <strong>Difficulty:</strong> {r.question.difficulty}
+                  </p>
+
+                  {(r.question.type === 'single-choice' || r.question.type === 'true-false' || r.question.type === 'multiple-choice') && (
+                    <div className="options-grid">
+                      {r.question.options?.map((option, idx) => (
+                        <div key={idx} className={getOptionClass(option, r.userAnswer, r.question.correctAnswer || [])}>
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {r.question.type === 'short-answer' && (
+                    <>
+                      <p><strong>Your Answer:</strong> {r.userAnswer[0] || '—'}</p>
+                      <p><strong>Correct Answer:</strong> {r.question.correctAnswer?.join(', ') || '—'}</p>
+                    </>
+                  )}
+
+                  <p className={`font-semibold ${r.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                    Score: {r.isCorrect ? '1/1' : '0/1'}
+                  </p>
+                </div>
+              ))}
+
+              <div className="score-display mt-4">
+                <h4>Total Score: {calculateScore()} / {questions.length}</h4>
               </div>
-              <button className="retry-button" onClick={handleRetry}>
-                Try Again
-              </button>
+
+              <div className="revisit-topics mt-4">
+                <h4 className="text-red-600">Topics to Revisit</h4>
+                {revisitTopics.length > 0 ? (
+                  <>
+                    <ul className="list-disc list-inside">
+                      {revisitTopics.map((topic, i) => (
+                        <li key={i}>{topic}</li>
+                      ))}
+                    </ul>
+                    <p>Please revisit the above topics before proceeding further with "{targetTopic}".</p>
+                  </>
+                ) : (
+                  <p className="text-green-700">You're all set to proceed to "{targetTopic}"! 🎉</p>
+                )}
+              </div>
+
+              <div className="mt-6 flex gap-4">
+                <button className="retry-button" onClick={handleRetry}>🔁 Try Again</button>
+                <button className="download-button" onClick={handleDownloadPDF}>📄 Download Report</button>
+              </div>
             </div>
           )}
         </div>
@@ -254,4 +345,3 @@ const AssessmentDisplay: React.FC<AssessmentDisplayProps> = ({
 };
 
 export default AssessmentDisplay;
-
