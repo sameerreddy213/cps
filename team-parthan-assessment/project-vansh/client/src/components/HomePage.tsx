@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen,CheckCircle,Play,Settings,Menu } from 'lucide-react';
-import AuthComponent from '../auth/AuthComponent';
+import { BookOpen,CheckCircle,Play,Settings, X, Menu } from 'lucide-react';
 import { features, steps } from './data/homePageData';
 import {
   Sheet,
@@ -9,6 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../components/ui/sheet"
+import AuthWrapper from '../auth/AuthWrapper';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -70,7 +70,8 @@ const HomePage: React.FC = () => {
         <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
         <a href="#how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors w-24">How It Works</a>
         <a href="#demo" className="text-gray-600 hover:text-blue-600 transition-colors">Demo</a>
-        <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} />
+        <AuthWrapper/>  
+        {/* <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} /> */}
       </div>
 
       {/* Mobile menu button with Sheet */}
@@ -122,7 +123,8 @@ const HomePage: React.FC = () => {
                   <span className="font-medium">Demo</span>
                 </a>
                 <div className=" p-3 mt-auto ">
-                <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} />
+                  <AuthWrapper/>
+                {/* <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} /> */}
                 </div>
               </nav>
             </div>

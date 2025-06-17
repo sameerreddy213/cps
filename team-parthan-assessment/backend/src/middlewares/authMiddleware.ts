@@ -1,35 +1,31 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import User from "../models/User";
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
+  userId?: string;
   user?: any;
-  token?: string;
 }
 
-const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.header("Authorization");
-    if (!authHeader) throw new Error();
-    const token = authHeader.replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-      _id: string;
-    };
-    const user = await User.findOne({
-      _id: decoded._id,
-      "tokens.token": token,
-    });
-
-    if (!user) {
-      throw new Error();
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
-    req.token = token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const user = await User.findById(decoded.userId).select('-password');
+
+    if (!user) {
+      return res.status(401).json({ message: 'Token is not valid' });
+    }
+
+    req.userId = decoded.userId;
     req.user = user;
     next();
-  } catch (error) {
-    res.status(401).send({ error: "Please authenticate" });
+  } catch (err) {
+    res.status(401).json({ message: 'Token is not valid' });
   }
 };
-
-export default auth;
