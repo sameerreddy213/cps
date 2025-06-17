@@ -22,11 +22,17 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [isAcknowledged, setIsAcknowledged] = useState(false);
   const [quizLoading, setQuizLoading] = useState(false);
+  const [selectedConcept, setSelectedConcept] = useState('');
+  const [conceptSummary, setConceptSummary] = useState('');
+  const [showGraph, setShowGraph] = useState(true);
 
   const handleSubmit = async () => {
     if (!topic.trim()) return;
     setLoading(true);
     setMcqs(null);
+    setSelectedConcept('');
+    setConceptSummary('');
+    setShowGraph(true);
     try {
       const res = await axios.post('http://localhost:5000/api/prerequisites', { topic });
       setData(res.data);
@@ -49,6 +55,22 @@ function App() {
       console.error('Error fetching MCQs', err);
     } finally {
       setQuizLoading(false);
+    }
+  };
+
+  const handleConceptClick = async (concept: string) => {
+    setSelectedConcept(concept);
+    setConceptSummary('⏳ Loading...');
+    setShowGraph(false);
+    try {
+      const res = await axios.post('http://localhost:5000/api/topic-summary', {
+        topic: concept,
+        mainTopic: data?.topic || '',
+      });
+      setConceptSummary(res.data.summary);
+    } catch (err) {
+      console.error('Error fetching summary', err);
+      setConceptSummary('⚠️ Failed to load summary.');
     }
   };
 
@@ -86,12 +108,7 @@ function App() {
       }}>
         {/* LEFT SIDE */}
         <div style={{ flex: 1, minWidth: '300px' }}>
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: 700,
-            marginBottom: '20px',
-            color: '#1f2937'
-          }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '20px', color: '#1f2937' }}>
             Enter a Topic
           </h2>
 
@@ -110,8 +127,7 @@ function App() {
                     color: '#3730a3',
                     borderRadius: '20px',
                     cursor: 'pointer',
-                    fontSize: '14px',
-                    transition: '0.2s ease-in-out'
+                    fontSize: '14px'
                   }}
                 >
                   {t}
@@ -152,14 +168,6 @@ function App() {
             </button>
           </div>
 
-          {/* LOADER */}
-          {loading && (
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <div className="loader"></div>
-              <p>Generating personalized recommendations...</p>
-            </div>
-          )}
-
           {/* PREREQUISITES LIST */}
           {data && (
             <>
@@ -167,12 +175,36 @@ function App() {
                 Prerequisites for <span style={{ color: '#6366f1' }}>{data.topic}</span>
               </h3>
               <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-                {data.prerequisites.map((item, i) => (
-                  <li key={i} style={{ color: '#374151' }}>{item}</li>
-                ))}
-              </ul>
+  {data.prerequisites.map((item, i) => (
+    <li
+      key={i}
+      onClick={() => handleConceptClick(item)}
+      title="Click to explore this topic"
+      style={{
+        color: '#1f2937',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        marginBottom: '6px',
+        textDecoration: selectedConcept === item ? 'underline' : 'none',
+        fontWeight: selectedConcept === item ? 'bold' : 'normal',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.textDecoration = 'underline';
+        e.currentTarget.style.color = '#4f46e5';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.textDecoration =
+          selectedConcept === item ? 'underline' : 'none';
+        e.currentTarget.style.color = '#1f2937';
+      }}
+    >
+      {item}
+    </li>
+  ))}
+</ul>
 
-              {/* CHECKBOX AND START QUIZ BUTTON */}
+
+              {/* CHECKBOX + START QUIZ */}
               {!mcqs && (
                 <>
                   <label style={{ display: 'flex', alignItems: 'center', marginTop: '20px', color: '#374151' }}>
@@ -217,32 +249,34 @@ function App() {
           )}
         </div>
 
-        {/* RIGHT SIDE - GRAPH */}
+        {/* RIGHT SIDE – Graph or Concept Summary */}
         <div style={{ flex: 1.5, minWidth: '400px', minHeight: '500px' }}>
-          {data && (
-            <>
-              <h2 style={{ textAlign: 'center', fontSize: '22px', fontWeight: 600, marginBottom: '20px' }}>
-                Visual Graph of <span style={{ color: '#6366f1' }}>{data.topic}</span>
+          {showGraph && data?.topic && data?.prerequisites && (
+            <div style={{
+              backgroundColor: '#eef2ff',
+              border: '2px dashed #6366f1',
+              borderRadius: '12px',
+              padding: '20px'
+            }}>
+              <h2 style={{ fontSize: '20px', color: '#4f46e5', marginBottom: '12px' }}>
+                📈 Prerequisite Graph for {data.topic}
               </h2>
               <Graph topic={data.topic} prerequisites={data.prerequisites} />
-            </>
+            </div>
           )}
 
-          {/* AI Summary */}
-          {data && (
+          {!showGraph && selectedConcept && (
             <div style={{
-              marginTop: '30px',
-              padding: '20px',
-              backgroundColor: '#f0fdf4',
-              border: '1px solid #10b981',
-              borderRadius: '12px'
+              backgroundColor: '#fef3c7',
+              border: '1px solid #f59e0b',
+              borderRadius: '12px',
+              padding: '20px'
             }}>
-              <h4 style={{ marginBottom: '10px', color: '#047857' }}>
-                📌 AI Insight
-              </h4>
-              <p>
-                Based on the topic <strong>{data.topic}</strong>, the above prerequisites are essential for building a solid foundation.
-                Start with the basics and build your learning path step-by-step.
+              <h2 style={{ fontSize: '20px', color: '#92400e', marginBottom: '12px' }}>
+                📘 Main Concepts of {selectedConcept}
+              </h2>
+              <p style={{ color: '#374151', whiteSpace: 'pre-wrap' }}>
+                {conceptSummary}
               </p>
             </div>
           )}
@@ -253,23 +287,6 @@ function App() {
       <div style={{ marginTop: '40px' }}>
         {mcqs && <Quiz mcqs={mcqs} />}
       </div>
-
-      {/* CSS Spinner */}
-      <style>{`
-        .loader {
-          border: 5px solid #e0e7ff;
-          border-top: 5px solid #6366f1;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 10px;
-        }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
