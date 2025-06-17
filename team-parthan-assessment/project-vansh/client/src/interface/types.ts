@@ -2,9 +2,12 @@ export interface Topic {
   id: string;
   name: string;
   prerequisites: string[];
-  status: 'not-started' | 'in-progress' | 'mastered';
+  status: 'not-started' | 'in-progress' | 'mastered' | 'ready';
   score?: number;
   totalQuestions?: number;
+  attempts?: number;
+  bestScore?: number;
+  lastAttempt?: Date;
 }
 
 export interface UserProfile {
@@ -29,8 +32,7 @@ export interface CustomContent {
 export interface Quiz {
   id: string;
   title: string;
-  contentId?: string;
-  topicId?: string;
+  contentId: string;
   questions: QuizQuestion[];
 }
 
@@ -52,6 +54,7 @@ export interface QuizState {
   isCompleted: boolean;
   timeStarted: Date;
   timeCompleted?: Date;
-  timeLimit: number; 
-  timeRemaining: number; 
+  timeLimit: number;
+  timeRemaining: number;
+  attempt?: number;
 }
