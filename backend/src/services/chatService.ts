@@ -1,4 +1,5 @@
 //Author:Yeddula Pushkala          Date:13-06-25
+//Modified by Nakshatra Bhandary on 17/6/25 to change the model to an opensource one. Modified API call accordingly
 import axios from 'axios';
 import { getPrerequisites } from './prereqService';
 import dotenv from 'dotenv';
@@ -6,8 +7,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export class LLMChatService {
-  private readonly apiUrl = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3';
-  private readonly model = 'mistralai/Mistral-7B-Instruct-v0.3'; // Updated to v0.3
+  private readonly apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+  private readonly model = 'mistralai/mistral-7b-instruct:free'; // Updated to v0.3
 
   async generateChatResponse(userInput: string, context?: any): Promise<string> {
     try {
@@ -23,23 +24,26 @@ export class LLMChatService {
 
       const response = await axios.post(
         this.apiUrl,
-        {
-          inputs: systemPrompt + "\n\nUser: " + userInput,
-          parameters: {
-            max_new_tokens: 500,
-            temperature: 0.7,
-            return_full_text: false
-          }
-        },
+      {
+        model: 'mistralai/mistral-7b-instruct:free',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userInput }
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+        return_full_text: false
+      },
         {
           headers: {
-            Authorization: `Bearer ${String(process.env.HF_TOKEN).trim()}`,
+            Authorization: `Bearer ${String(process.env.OPENROUTER_API_KEY).trim()}`,
             'Content-Type': 'application/json',
           },
         }
       );
 
-      return response.data[0]?.generated_text || "I'm here to help with your ML learning journey!";
+      return response.data.choices?.[0]?.message?.content?.trim() || 
+       "I'm here to help with your ML learning journey!";
     } catch (error) {
       console.error('LLM Chat Error:', error);
       return "I'm experiencing technical difficulties, but I'm here to help with EduAssess features and ML concepts!";
