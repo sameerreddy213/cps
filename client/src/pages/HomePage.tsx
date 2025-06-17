@@ -65,7 +65,7 @@ const HomePage = () => {
       <div className="dashboard-section mb-5">
         <h3 className="text-center mb-4 text-info">Unlock Your Potential with LearnFlow</h3>
         <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
-          <li className="list-group-item bg-dark-subtle text-white border-secondary py-3 text-center"> {/* Added text-white here for the entire list item */}
+          <li className="list-group-item bg-dark-subtle text-black border-secondary py-3 text-center"> {/* Added text-white here for the entire list item */}
             <strong className="text-primary">Personalized Paths:</strong> Discover the shortest learning path from your current knowledge to your target concept.
           </li>
           <li className="list-group-item bg-dark-subtle text-white border-secondary py-3 text-center"> {/* Added text-white here */}
