@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const router = express.Router();
-
+//fixed the bugs in userRoutes
 // GET /api/user/passed
 router.get('/passed', async (req, res) => {
   const authHeader = req.headers.authorization;
