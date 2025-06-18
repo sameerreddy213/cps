@@ -7,21 +7,21 @@
   "arka": {
     "role": "annotator",
     "question_bank": "Bank 1 (1-50)",
-    "password_encrypted": "Z0FBQUFBQm9VVjVJZXNkSlYwM1hwd00wNWVyZmdTUHozRkdlaFB1Z1lJVXhFSldGSDl1X0syRHA4YVF3UndLUDNrNnRrOEJ4RTd6c1ctSExqbklzWmMyZUxTLS1MNDJSV0E9PQ=="
+    "password_encrypted": "Z0FBQUFBQm9VeGVmbHFpWDg3dDFhTFFYel9EY2VoNkQ5d1RRUzdyaVhxSmtRajQ3N0ctVENSWEU1dWt1OWhrY2llUC1qNlVLVUltMlF2Ty1OYldIQVNPbXpKaXloTUFkYlE9PQ=="
   },
   "abhisekh": {
     "role": "annotator",
-    "password": null,
-    "question_bank": null
+    "question_bank": "Bank 2 (51-100)",
+    "password_encrypted": "Z0FBQUFBQm9VeGVmUXdtSmY4SGduZlNoa183OEl4TlI1S0NKTnJ2RWJuOEI0YmRlUkVuM0lVZm95ZzkzNzRpMk92Rk51R3NObVZySDRieXJpOFhCaV9OM3hJdkRoZTVPc0E9PQ=="
   },
   "nilam": {
     "role": "annotator",
-    "password": null,
-    "question_bank": null
+    "question_bank": "Bank 3 (101-150)",
+    "password_encrypted": "Z0FBQUFBQm9VeGVmc2pjMWg4ZkZQYXdxdElhTkJZbThhUmJwX05JN2FVeTQ3M25NUmJ2aGg1MDJ1YVI4MTZMVHR2Y3ZSczJjTjRJX1VBd0NmaU5ESERLSmU5Tk5BcVlVbGc9PQ=="
   },
   "sriram": {
     "role": "annotator",
-    "password": null,
-    "question_bank": null
+    "question_bank": "Bank 4 (151-200)",
+    "password_encrypted": "Z0FBQUFBQm9VeGVmcUhyY1h3YlYyNWdhLS1zc1hKUFVGR3ZGOXJLTEl0bENpN0hrQ3kzUHc1alFLWGFOdHVsdENCcFkzMXMybk5MckxPbHdqaVNCQ1dXR256ZGRDeURqbWc9PQ=="
   }
 }

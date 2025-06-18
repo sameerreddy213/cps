@@ -13,9 +13,9 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-DATA_FILE = "annotator_app/gsm8k_wrong_answers_with_missing_prerequisites_enhanced.csv"
-CONFIG_FILE = "annotator_app/user_config.json"
-OUTPUT_DIR = "annotator_app/annotations_output"  # Shared directory for all CSV files
+DATA_FILE = "gsm8k_wrong_answers_with_missing_prerequisites.csv"
+CONFIG_FILE = "user_config.json"
+OUTPUT_DIR = "annotations_output"  # Shared directory for all CSV files
 
 # Create output directory if it doesn't exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -72,8 +72,7 @@ class AnnotatorApp:
         self.question_bank = None
         self.df = None
         self.done_ids = set()
-        self.prereq_var = None  # Single variable for radio button selection
-        self.prereq_options = []  # List to store prerequisite options
+        self.prereq_vars = []
         
         # Initialize security manager
         self.security = SecurityManager()
@@ -99,11 +98,11 @@ class AnnotatorApp:
         self.button_text = "#ffffff"
         self.card_bg = "#ffffff"
         
-        # Create main window with wider dimensions
+        # Create main window
         self.root = tk.Tk()
         self.root.configure(bg=self.bg_color)
-        self.root.geometry('1300x750')  # Increased width from 1100 to 1300, height from 700 to 750
-        self.root.minsize(1200, 650)    # Increased minimum width from 1000 to 1200
+        self.root.geometry('1100x700')
+        self.root.minsize(1000, 600)
         self.root.title("Missing Prerequisite Annotator")
         self.root.eval('tk::PlaceWindow . center')
         
@@ -404,7 +403,7 @@ class AnnotatorApp:
         self.load_data()
         
     def load_admin_interface(self):
-        """Load administrator interface with merge and evaluation functionality"""
+        """Load administrator interface with merge functionality"""
         # Clear existing widgets
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -454,11 +453,11 @@ class AnnotatorApp:
         button_frame = tk.Frame(admin_frame, bg=self.bg_color)
         button_frame.pack(pady=(20, 0))
         
-        # Merge and Evaluate button
-        merge_button = tk.Button(button_frame, text="Merge CSVs & Generate Report", 
+        # Merge CSVs button
+        merge_button = tk.Button(button_frame, text="Merge All CSV Files", 
                                font=('Arial', 12, 'bold'), bg="#28a745", fg="white",
                                relief='flat', padx=30, pady=10, cursor='hand2',
-                               command=self.merge_and_evaluate)
+                               command=self.merge_csvs)
         merge_button.pack(pady=(0, 10))
         
         # Refresh status button
@@ -590,7 +589,7 @@ class AnnotatorApp:
         self.correct_canvas.create_window((0, 0), window=correct_scroll_frame, anchor="nw")
         self.correct_canvas.configure(yscrollcommand=correct_scrollbar.set)
 
-        self.correct_label = tk.Label(correct_scroll_frame, text="", wraplength=250, justify="left",
+        self.correct_label = tk.Label(correct_scroll_frame, text="", wraplength=220, justify="left",
                                 font=('Arial', 9), bg=self.correct_bg, fg="#155724")
         self.correct_label.pack(anchor='w')
 
@@ -618,22 +617,22 @@ class AnnotatorApp:
         self.wrong_canvas.create_window((0, 0), window=wrong_scroll_frame, anchor="nw")
         self.wrong_canvas.configure(yscrollcommand=wrong_scrollbar.set)
 
-        self.wrong_label = tk.Label(wrong_scroll_frame, text="", wraplength=250, justify="left",
+        self.wrong_label = tk.Label(wrong_scroll_frame, text="", wraplength=220, justify="left",
                               font=('Arial', 9), bg=self.wrong_bg, fg="#721c24")
         self.wrong_label.pack(anchor='w')
 
         self.wrong_canvas.pack(side="left", fill="both", expand=True)
         wrong_scrollbar.pack(side="right", fill="y")
 
-        # Right side - Prerequisites (increased width)
-        right_frame = tk.Frame(content_frame, bg=self.bg_color, width=450)  # Increased from 400 to 450
+        # Right side - Prerequisites
+        right_frame = tk.Frame(content_frame, bg=self.bg_color, width=400)
         right_frame.pack(side='right', fill='both', expand=False)
         right_frame.pack_propagate(False)
 
         prereq_frame = tk.Frame(right_frame, bg=self.card_bg, relief='solid', bd=1)
         prereq_frame.pack(fill='both', expand=True)
 
-        tk.Label(prereq_frame, text="Select Missing Prerequisite (Choose One)", font=('Arial', 12, 'bold'), 
+        tk.Label(prereq_frame, text="Select Missing Prerequisites", font=('Arial', 12, 'bold'), 
                  bg=self.card_bg, fg=self.header_color).pack(anchor='w', padx=15, pady=(12, 8))
 
         prereq_container = tk.Frame(prereq_frame, bg=self.card_bg)
@@ -679,102 +678,33 @@ class AnnotatorApp:
 
         self.load_first_question()
         
-    def calculate_agreement_metrics(self, merged_df):
-        """Calculate comprehensive agreement metrics for all annotations"""
-        # Collect all human and model selections
-        all_human_selections = set()
-        all_model_selections = set()
+    def calculate_agreement_metrics(self, human_selected, model_text, all_prereqs):
+        """Calculate agreement metrics between human selections and model predictions"""
+        human_set = set([p.strip() for p in human_selected.split(',') if p.strip()])
         
-        exact_matches = 0
-        per_question_jaccard = []
-        per_question_precision = []
-        per_question_recall = []
-        per_question_f1 = []
+        model_set = set()
+        model_text_lower = model_text.lower()
         
-        for _, row in merged_df.iterrows():
-            # Parse human selections - handle both single strings and comma-separated lists
-            human_text = str(row.get("human_selected_prerequisite", "")).strip()
-            if human_text and human_text.lower() != 'nan':
-                # Check if it contains commas (multiple selections)
-                if ',' in human_text:
-                    human_set = set([p.strip() for p in human_text.split(',') if p.strip()])
-                else:
-                    # Single selection
-                    human_set = {human_text.strip()}
-            else:
-                human_set = set()
-            
-            # Parse model selections - handle both single strings and comma-separated lists
-            model_text = str(row.get("model_missing_prerequisite", "")).strip()
-            if model_text and model_text.lower() != 'nan':
-                # Check if it contains commas (multiple selections)
-                if ',' in model_text:
-                    model_set = set([p.strip() for p in model_text.split(',') if p.strip()])
-                else:
-                    # Single selection
-                    model_set = {model_text.strip()}
-            else:
-                model_set = set()
-            
-            # Add to global sets
-            all_human_selections.update(human_set)
-            all_model_selections.update(model_set)
-            
-            # Calculate per-question metrics
-            intersection = human_set.intersection(model_set)
-            union = human_set.union(model_set)
-            
-            # Jaccard similarity
-            jaccard = len(intersection) / len(union) if union else 1.0
-            per_question_jaccard.append(jaccard)
-            
-            # Exact match (sets are identical)
-            if human_set == model_set:
-                exact_matches += 1
-            
-            # Precision, Recall, F1
-            precision = len(intersection) / len(model_set) if model_set else 0.0
-            recall = len(intersection) / len(human_set) if human_set else 0.0
-            f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
-            
-            per_question_precision.append(precision)
-            per_question_recall.append(recall)
-            per_question_f1.append(f1)
+        for prereq in all_prereqs:
+            prereq_lower = prereq.lower()
+            if prereq_lower in model_text_lower:
+                model_set.add(prereq)
         
-        # Calculate global metrics
-        global_intersection = all_human_selections.intersection(all_model_selections)
-        global_union = all_human_selections.union(all_model_selections)
+        intersection = human_set.intersection(model_set)
+        union = human_set.union(model_set)
         
-        global_jaccard = len(global_intersection) / len(global_union) if global_union else 1.0
-        global_precision = len(global_intersection) / len(all_model_selections) if all_model_selections else 0.0
-        global_recall = len(global_intersection) / len(all_human_selections) if all_human_selections else 0.0
-        global_f1 = 2 * (global_precision * global_recall) / (global_precision + global_recall) if (global_precision + global_recall) > 0 else 0.0
-        
-        # Calculate averages
-        avg_jaccard = sum(per_question_jaccard) / len(per_question_jaccard) if per_question_jaccard else 0.0
-        avg_precision = sum(per_question_precision) / len(per_question_precision) if per_question_precision else 0.0
-        avg_recall = sum(per_question_recall) / len(per_question_recall) if per_question_recall else 0.0
-        avg_f1 = sum(per_question_f1) / len(per_question_f1) if per_question_f1 else 0.0
-        
-        exact_match_rate = exact_matches / len(merged_df) if len(merged_df) > 0 else 0.0
+        jaccard = len(intersection) / len(union) if union else 1.0
+        exact_match = 1.0 if human_set == model_set else 0.0
+        precision = len(intersection) / len(model_set) if model_set else 0.0
+        recall = len(intersection) / len(human_set) if human_set else 0.0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
         
         return {
-            'total_annotations': len(merged_df),
-            'exact_matches': exact_matches,
-            'exact_match_rate': round(exact_match_rate, 3),
-            'avg_jaccard_similarity': round(avg_jaccard, 3),
-            'avg_precision': round(avg_precision, 3),
-            'avg_recall': round(avg_recall, 3),
-            'avg_f1_score': round(avg_f1, 3),
-            'global_jaccard_similarity': round(global_jaccard, 3),
-            'global_precision': round(global_precision, 3),
-            'global_recall': round(global_recall, 3),
-            'global_f1_score': round(global_f1, 3),
-            'total_unique_human_selections': len(all_human_selections),
-            'total_unique_model_selections': len(all_model_selections),
-            'common_selections': len(global_intersection),
-            'human_only_selections': len(all_human_selections - all_model_selections),
-            'model_only_selections': len(all_model_selections - all_human_selections)
+            'jaccard': round(jaccard, 3),
+            'exact_match': exact_match,
+            'precision': round(precision, 3),
+            'recall': round(recall, 3),
+            'f1_score': round(f1, 3)
         }
 
     def update_progress(self):
@@ -790,14 +720,9 @@ class AnnotatorApp:
         return None
 
     def load_question(self, index):
-        # Clear previous radio buttons
         for widget in self.prereq_scroll_frame.winfo_children():
             widget.destroy()
-        
-        # Initialize radio button variable
-        self.prereq_var = tk.StringVar()
-        self.prereq_var.set("")  # No selection initially
-        self.prereq_options = []
+        self.prereq_vars.clear()
 
         row = self.df.iloc[index]
         
@@ -810,68 +735,52 @@ class AnnotatorApp:
         self.correct_label.config(text=correct_text)
         self.wrong_label.config(text=wrong_text)
 
-        # Handle both list format "['item1', 'item2']" and comma-separated "item1, item2"
-        all_prereqs_text = str(row["all_prerequisites"]).strip()
-        try:
-            import ast
-            # Try to parse as Python literal (list)
-            all_prereqs = ast.literal_eval(all_prereqs_text)
-            if isinstance(all_prereqs, list):
-                all_prereqs = [str(p).strip().strip('"').strip("'") for p in all_prereqs]
-            else:
-                all_prereqs = [str(all_prereqs).strip()]
-        except:
-            # Fall back to comma-separated parsing
-            all_prereqs = [p.strip().strip('"').strip("'") for p in all_prereqs_text.split(',') if p.strip()]
+        all_prereqs = [p.strip().strip('"').strip("'") for p in row["all_prerequisites"].split(',') if p.strip()]
         
-        # Add "None" option for cases where no prerequisite is missing
-        self.prereq_options = ["None (No missing prerequisite)"] + all_prereqs
-        
-        # Create radio buttons for each prerequisite
-        for i, prereq in enumerate(self.prereq_options):
-            rb = tk.Radiobutton(self.prereq_scroll_frame, text=prereq, variable=self.prereq_var, 
-                               value=prereq, anchor="w", justify="left", wraplength=400,
+        for i, prereq in enumerate(all_prereqs):
+            var = tk.BooleanVar()
+            
+            cb = tk.Checkbutton(self.prereq_scroll_frame, text=prereq, variable=var, 
+                               anchor="w", justify="left", wraplength=350,
                                font=('Arial', 9), bg=self.card_bg, fg=self.text_color,
                                selectcolor=self.card_bg, cursor='hand2',
                                activebackground=self.card_bg, activeforeground=self.text_color)
-            rb.pack(anchor='w', pady=2, padx=5, fill='x')
+            cb.pack(anchor='w', pady=1, padx=5)
+            
+            self.prereq_vars.append((prereq, var))
 
         self.submit_button.config(command=lambda: self.save_response(index, row))
         self.update_progress()
 
     def save_response(self, index, row):
-        selected = self.prereq_var.get()
+        selected = [pr for pr, var in self.prereq_vars if var.get()]
         if not selected:
-            messagebox.showerror("Error", "Please select a prerequisite option.")
-            return
+            if not messagebox.askyesno("Confirm", "No prerequisite selected. Submit anyway?"):
+                return
 
-        # Handle the "None" option
-        if selected.startswith("None"):
-            human_text = "None"
-        else:
-            human_text = selected
-            
+        human_text = ", ".join(selected)
         model_text = str(row["missing_prerequisite"]).strip().strip('"').strip("'")
         
-        # Simplified entry without individual metrics - with proper newline handling
+        all_prereqs = [p.strip().strip('"').strip("'") for p in row["all_prerequisites"].split(',') if p.strip()]
+        
+        agreement_metrics = self.calculate_agreement_metrics(human_text, model_text, all_prereqs)
+
         entry = {
             "question_id": row["question_id"],
-            "question": str(row["question"]).strip().strip('"').strip("'").replace('\n', '\\n').replace('\r', '\\r'),
-            "correct_answer": str(row["correct_answer"]).strip().strip('"').strip("'").replace('\n', '\\n').replace('\r', '\\r'),
-            "wrong_answer": str(row["wrong_answer"]).strip().strip('"').strip("'").replace('\n', '\\n').replace('\r', '\\r'),
-            "all_prerequisites": str(row["all_prerequisites"]).strip().strip('"').strip("'").replace('\n', '\\n').replace('\r', '\\r'),
-            "human_selected_prerequisite": human_text.replace('\n', '\\n').replace('\r', '\\r'),
-            "model_missing_prerequisite": model_text.replace('\n', '\\n').replace('\r', '\\r'),
+            "human_selected_prerequisite": human_text,
+            "model_missing_prerequisite": model_text,
+            "jaccard_similarity": agreement_metrics['jaccard'],
+            "exact_match": agreement_metrics['exact_match'],
+            "precision": agreement_metrics['precision'],
+            "recall": agreement_metrics['recall'],
+            "f1_score": agreement_metrics['f1_score'],
             "annotator": self.username,
             "question_bank": self.question_bank
         }
 
         save_file = os.path.join(OUTPUT_DIR, f"annotations_{self.username}.csv")
         new_df = pd.DataFrame([entry])
-        
-        # Use proper CSV quoting to handle multi-line text
-        new_df.to_csv(save_file, mode='a', header=not os.path.exists(save_file), index=False, 
-                     quoting=1, escapechar='\\')  # quoting=1 is csv.QUOTE_ALL
+        new_df.to_csv(save_file, mode='a', header=not os.path.exists(save_file), index=False)
         self.done_ids.add(row["question_id"])
 
         next_idx = self.next_index()
@@ -920,7 +829,7 @@ class AnnotatorApp:
         instructions = [
             "1. Locate the file above on your computer",
             "2. Send it via WhatsApp to the configurator",
-            "3. The configurator will merge all annotation files and generate evaluation report"
+            "3. The configurator will merge all annotation files"
         ]
         
         for instruction in instructions:
@@ -951,8 +860,8 @@ class AnnotatorApp:
             self.question_label.config(text="All questions in your bank are already annotated!")
             self.submit_button.config(state='disabled')
 
-    def merge_and_evaluate(self):
-        """Merge CSV files and generate comprehensive evaluation report"""
+    def merge_csvs(self):
+        """Administrator function to merge CSV files from WhatsApp transfers"""
         # Look for CSV files in the OUTPUT_DIR
         csv_files = glob.glob(os.path.join(OUTPUT_DIR, "annotations_*.csv"))
         
@@ -991,135 +900,52 @@ class AnnotatorApp:
             preview_text += f"\n\nTotal annotations: {len(merged_df)}"
             
             if not messagebox.askyesno("Confirm Merge", 
-                                     f"{preview_text}\n\nProceed with merging and evaluation?"):
+                                     f"{preview_text}\n\nProceed with merging these files?"):
                 return
-            
-            # Calculate comprehensive evaluation metrics
-            eval_metrics = self.calculate_agreement_metrics(merged_df)
             
             # Ask where to save merged file
             save_path = filedialog.asksaveasfilename(
                 defaultextension=".csv",
                 title="Save Merged Annotations As",
-                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+                initialname="merged_annotations_all_annotators.csv"
             )
             
             if save_path:
-                # Save merged CSV
                 merged_df.to_csv(save_path, index=False)
                 
-                # Save evaluation report as JSON
-                eval_report_path = save_path.replace('.csv', '_evaluation_report.json')
-                with open(eval_report_path, 'w') as f:
-                    json.dump(eval_metrics, f, indent=2)
+                # Generate summary report
+                summary = self.generate_merge_summary(merged_df, file_info)
                 
-                # Show comprehensive evaluation report in GUI
-                self.show_evaluation_report(eval_metrics, save_path, eval_report_path, file_info)
+                messagebox.showinfo("Merge Complete!", 
+                                  f"Successfully merged {len(csv_files)} files!\n\n"
+                                  f"Saved to: {save_path}\n\n"
+                                  f"Summary:\n{summary}")
                 
         except Exception as e:
             messagebox.showerror("Merge Error", f"Failed to merge files:\n{e}")
 
-    def show_evaluation_report(self, eval_metrics, csv_path, json_path, file_info):
-        """Display comprehensive evaluation report in a new window"""
-        report_window = tk.Toplevel(self.root)
-        report_window.title("Evaluation Report")
-        report_window.geometry("800x600")
-        report_window.configure(bg=self.bg_color)
-        
-        # Make window modal
-        report_window.transient(self.root)
-        report_window.grab_set()
-        
-        # Create scrollable frame
-        main_frame = tk.Frame(report_window, bg=self.bg_color)
-        main_frame.pack(fill='both', expand=True, padx=20, pady=20)
-        
-        # Title
-        title_label = tk.Label(main_frame, text="📊 Evaluation Report", 
-                              font=('Arial', 18, 'bold'), bg=self.bg_color, fg=self.header_color)
-        title_label.pack(pady=(0, 20))
-        
-        # Create scrollable text widget for report
-        text_frame = tk.Frame(main_frame, bg=self.bg_color)
-        text_frame.pack(fill='both', expand=True)
-        
-        scrollbar = ttk.Scrollbar(text_frame)
-        scrollbar.pack(side='right', fill='y')
-        
-        text_widget = tk.Text(text_frame, wrap='word', yscrollcommand=scrollbar.set,
-                             font=('Consolas', 10), bg='white', fg=self.text_color,
-                             relief='solid', bd=1)
-        text_widget.pack(side='left', fill='both', expand=True)
-        scrollbar.config(command=text_widget.yview)
-        
-        # Generate report content - handle both old and new JSON formats
-        agreement_percentage = eval_metrics.get('agreement_percentage', eval_metrics.get('exact_match_rate', 0) * 100)
-        avg_jaccard = eval_metrics.get('avg_jaccard_similarity', 0)
-        
-        report_content = f"""ANNOTATION EVALUATION REPORT
-{'='*50}
-
-FILES PROCESSED:
-{chr(10).join(file_info)}
-
-OVERVIEW:
-• Total Annotations: {eval_metrics['total_annotations']}
-• Exact Matches: {eval_metrics['exact_matches']} ({agreement_percentage:.1f}%)
-• Unique Human Selections: {eval_metrics['total_unique_human_selections']}
-• Unique Model Selections: {eval_metrics['total_unique_model_selections']}
-• Common Prerequisites: {eval_metrics['common_selections']}
-• Human-Only Prerequisites: {eval_metrics.get('human_only_selections', 'N/A')}
-• Model-Only Prerequisites: {eval_metrics.get('model_only_selections', 'N/A')}
-
-AGREEMENT ANALYSIS:
-• Human-Model Agreement Rate: {agreement_percentage:.1f}%
-• Average Jaccard Similarity: {avg_jaccard:.3f}
-• Global Jaccard Similarity: {eval_metrics['global_jaccard_similarity']:.3f}
-• Global Precision: {eval_metrics['global_precision']:.3f}
-• Global Recall: {eval_metrics['global_recall']:.3f}
-• Global F1 Score: {eval_metrics['global_f1_score']:.3f}
-
-INTERPRETATION:
-• Agreement Rate: Percentage of annotations where human and model selected the same prerequisite
-• Average Jaccard: Mean of per-question similarities (1.0 for match, 0.0 for no match) = Agreement Rate
-• Global Jaccard: Overlap between the complete sets of human vs model selected prerequisites  
-• Global Precision: Of all prerequisites the model selected, how many were also selected by humans
-• Global Recall: Of all prerequisites humans selected, how many were also selected by the model
-• Global F1 Score: Harmonic mean of global precision and recall
-
-ANALYSIS:
-With {eval_metrics['exact_matches']} exact matches out of {eval_metrics['total_annotations']} annotations, 
-the human-model agreement rate is {agreement_percentage:.1f}%. The global metrics show how the 
-overall sets of prerequisites overlap: {eval_metrics['common_selections']} prerequisites were 
-selected by both humans and model, while {eval_metrics.get('human_only_selections', 'N/A')} were 
-selected only by humans and {eval_metrics.get('model_only_selections', 'N/A')} only by the model.
-
-FILES SAVED:
-• Merged CSV: {csv_path}
-• Evaluation Report: {json_path}
-
-Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
-"""
-        
-        # Insert content into text widget
-        text_widget.insert('1.0', report_content)
-        text_widget.config(state='disabled')  # Make read-only
-        
-        # Button frame
-        button_frame = tk.Frame(main_frame, bg=self.bg_color)
-        button_frame.pack(pady=(20, 0))
-        
-        # Close button
-        close_button = tk.Button(button_frame, text="Close", 
-                               font=('Arial', 11, 'bold'), bg=self.button_bg, fg=self.button_text,
-                               relief='flat', padx=30, pady=8, cursor='hand2',
-                               command=report_window.destroy)
-        close_button.pack()
-        
-        # Show success message
-        messagebox.showinfo("Evaluation Complete!", 
-                          f"Successfully merged {len(file_info)} files and generated evaluation report!\n\n"
-                          f"Files saved:\n• {csv_path}\n• {json_path}")
+    def generate_merge_summary(self, merged_df, file_info):
+        """Generate a summary report of the merged data"""
+        try:
+            total_annotations = len(merged_df)
+            unique_annotators = merged_df['annotator'].nunique() if 'annotator' in merged_df.columns else 0
+            
+            # Calculate average metrics
+            avg_jaccard = merged_df['jaccard_similarity'].mean() if 'jaccard_similarity' in merged_df.columns else 0
+            avg_f1 = merged_df['f1_score'].mean() if 'f1_score' in merged_df.columns else 0
+            exact_matches = merged_df['exact_match'].sum() if 'exact_match' in merged_df.columns else 0
+            
+            summary = f"""Total Annotations: {total_annotations}
+Annotators: {unique_annotators}
+Average Jaccard Similarity: {avg_jaccard:.3f}
+Average F1 Score: {avg_f1:.3f}
+Exact Matches: {exact_matches}/{total_annotations} ({exact_matches/total_annotations*100:.1f}%)"""
+            
+            return summary
+            
+        except Exception as e:
+            return f"Summary generation failed: {e}"
 
     def exit_app(self):
         self.root.destroy()
