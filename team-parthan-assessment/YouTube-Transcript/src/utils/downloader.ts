@@ -58,3 +58,4 @@ export async function downloadSubtitles(videoId: string, outputDir: string): Pro
 
   throw new Error(`No subtitles found for video: ${videoId}`);
 }
+
