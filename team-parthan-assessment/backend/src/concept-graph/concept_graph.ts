@@ -18,26 +18,26 @@ export const concept_graph = [
       "variables"
     ]
   },
-//   {
-//     "_id": "loops",
-//     "name": "Loops",
-//     "prerequisites": [
-//       "conditionals"
-//     ]
-//   },
-//   {
-//     "_id": "arrays",
-//     "name": "Arrays",
-//     "prerequisites": [
-//       "variables",
-//       "loops"
-//     ]
-//   },
-//   {
-//     "_id": "memory_layout",
-//     "name": "Memory Layout",
-//     "prerequisites": ["arrays"]
-//   },
+  {
+    id: "loops",
+    name: "Loops",
+    prerequisites: [
+      "conditionals"
+    ]
+  },
+  {
+    id: "arrays",
+    name: "Arrays",
+    prerequisites: [
+      "variables",
+      "loops"
+    ]
+  },
+  {
+    id: "memory_layout",
+    name: "Memory Layout",
+    prerequisites: ["arrays"]
+  },
 //   {
 //     "_id": "insert",
 //     "name": "Insert",

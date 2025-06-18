@@ -9,6 +9,8 @@ import QuizResults from './QuizResults';
 import UserStats from './UserStats';
 import MobileNav from './MobileNav';
 import UserProfileDropdown from './UserProfileDropdown';
+import { submitQuiz } from '../services/progressUpdate';
+
 import {
   Dialog,
   DialogContent,
@@ -36,73 +38,116 @@ const MainPage: React.FC = () => {
   const [currentQuiz, setCurrentQuiz] = useState<QuizState | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
+  const[userId,setUserId] = useState('')
 
-  const [topics, setTopics] = useState<Topic[]>([
+  
 
-    {
-      id: 'arrays',
-      name: 'Arrays',
-      prerequisites: [],
-      status: 'mastered',
-      score: 5,
-      totalQuestions: 5,
-      attempts: 3,
-      bestScore: 100,
-      lastAttempt: new Date('2024-01-15')
-    },
-    {
-      id: 'strings',
-      name: 'Strings',
-      prerequisites: [],
-      status: 'mastered',
-      score: 4,
-      totalQuestions: 5,
-      attempts: 2,
-      bestScore: 80,
-      lastAttempt: new Date('2024-01-14')
-    },
-    {
-      id: 'linked-lists',
-      name: 'Linked Lists',
-      prerequisites: ['arrays'],
-      status: 'in-progress',
-      score: 2,
-      totalQuestions: 5,
-      attempts: 1,
-      bestScore: 40,
-      lastAttempt: new Date('2024-01-10')
-    },
-    {
-      id: 'stacks',
-      name: 'Stacks',
-      prerequisites: ['arrays', 'linked-lists'],
-      status: 'not-started'
-    },
-    {
-      id: 'queues',
-      name: 'Queues',
-      prerequisites: ['arrays', 'linked-lists'],
-      status: 'not-started'
-    },
-    {
-      id: 'trees',
-      name: 'Binary Trees',
-      prerequisites: ['linked-lists', 'recursion'],
-      status: 'not-started'
-    },
-    {
-      id: 'recursion',
-      name: 'Recursion',
-      prerequisites: ['arrays', 'strings'],
-      status: 'not-started'
-    },
-    {
-      id: 'sorting',
-      name: 'Sorting Algorithms',
-      prerequisites: ['arrays', 'recursion'],
-      status: 'not-started'
+  const [topics, setTopics] = useState<Topic[]>([])
+
+  useEffect(()=>{
+      const fetchDetails= async()=>{
+        try{
+          const details=await getDetails();
+          setUserId(details._id);
+          console.log(`abcd${details._id}`);
+        }
+        catch (err) {
+          console.error("Error fetching user details:", err);
+        } 
+      };
+      fetchDetails();
+    },[])
+
+  useEffect(() => {
+  const fetchTopics = async () => {
+    try {
+      const res = await fetch(`/api/user-progress/${userId}`);
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setTopics(data);
+      } else {
+        console.error("Expected array but got:", data);
+        setTopics([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch topics:", err);
+      setTopics([]);
     }
-  ]);
+  };
+
+  if (userId) fetchTopics();
+}, [userId]);
+
+
+
+  
+  
+
+  //   {
+  //     id: 'arrays',
+  //     name: 'Arrays',
+  //     prerequisites: [],
+  //     status: 'mastered',
+  //     score: 5,
+  //     totalQuestions: 5,
+  //     attempts: 3,
+  //     bestScore: 100,
+  //     lastAttempt: new Date('2024-01-15')
+  //   },
+  //   {
+  //     id: 'strings',
+  //     name: 'Strings',
+  //     prerequisites: [],
+  //     status: 'mastered',
+  //     score: 4,
+  //     totalQuestions: 5,
+  //     attempts: 2,
+  //     bestScore: 80,
+  //     lastAttempt: new Date('2024-01-14')
+  //   },
+  //   {
+  //     id: 'linked-lists',
+  //     name: 'Linked Lists',
+  //     prerequisites: ['arrays'],
+  //     status: 'in-progress',
+  //     score: 2,
+  //     totalQuestions: 5,
+  //     attempts: 1,
+  //     bestScore: 40,
+  //     lastAttempt: new Date('2024-01-10')
+  //   },
+  //   {
+  //     id: 'stacks',
+  //     name: 'Stacks',
+  //     prerequisites: ['arrays', 'linked-lists'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'queues',
+  //     name: 'Queues',
+  //     prerequisites: ['arrays', 'linked-lists'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'trees',
+  //     name: 'Binary Trees',
+  //     prerequisites: ['linked-lists', 'recursion'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'recursion',
+  //     name: 'Recursion',
+  //     prerequisites: ['arrays', 'strings'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'sorting',
+  //     name: 'Sorting Algorithms',
+  //     prerequisites: ['arrays', 'recursion'],
+  //     status: 'not-started'
+  //   }
+  // ]);
 
   const userProfile: UserProfile = {
     name:"Vansh Tuteja",
@@ -276,7 +321,7 @@ const MainPage: React.FC = () => {
 
     const file = files[0];
     const fileType = file.type.includes('pdf') ? 'pdf' : 'image';
-    setUploadedFile(file.type.includes('pdf') ? file : null);
+    //setUploadedFile(file.type.includes('pdf') ? file : null);
 
     setIsProcessing(true);
     const newContent: CustomContent = {
@@ -495,6 +540,8 @@ const MainPage: React.FC = () => {
         }
         return topic;
       }));
+       const passed = score >= 70;
+    submitQuiz(userId,completedQuiz.topicId, passed);
     }
 
     setCurrentQuiz(completedQuiz);
