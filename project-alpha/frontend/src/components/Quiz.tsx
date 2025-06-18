@@ -20,6 +20,9 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
   const [showEnterFullScreenModal, setShowEnterFullScreenModal] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [overallTimeLeft, setOverallTimeLeft] = useState(mcqs.length * 60); // 1 minute per question
+  const [warningsLeft, setWarningsLeft] = useState(3); // Start with 3 warnings
+  const [keyPressWarningShown, setKeyPressWarningShown] = useState(false); // Track key press warning
+  const [showKeyPressAlert, setShowKeyPressAlert] = useState(false); // Show key press alert
   const quizRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
 
@@ -43,6 +46,94 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
       }
     };
   }, [isFullScreen, submitted]);
+
+  // Handle full-screen exits and tab switches
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      const isCurrentlyFullScreen = !!document.fullscreenElement;
+      setIsFullScreen(isCurrentlyFullScreen);
+      if (!isCurrentlyFullScreen && !submitted) {
+        setWarningsLeft((prev) => {
+          if (prev <= 1) {
+            setSubmitted(true); // Auto-submit silently
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+            }
+            console.log(`Auto-submit: Full-screen exit at ${new Date().toISOString()}. Last warning exhausted.`);
+            return 0;
+          }
+          const newWarnings = prev - 1;
+          setShowWarning(true);
+          console.log(`Warning: User exited full-screen mode at ${new Date().toISOString()}. Warnings left: ${newWarnings}`);
+          return newWarnings;
+        });
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && isFullScreen && !submitted) {
+        setWarningsLeft((prev) => {
+          if (prev <= 1) {
+            setSubmitted(true); // Auto-submit silently
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+            }
+            console.log(`Auto-submit: Tab switch at ${new Date().toISOString()}. Last warning exhausted.`);
+            return 0;
+          }
+          const newWarnings = prev - 1;
+          setShowWarning(true);
+          console.log(`Warning: Tab switch detected at ${new Date().toISOString()}. Warnings left: ${newWarnings}`);
+          return newWarnings;
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullScreenChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, [submitted]);
+
+  // Handle warning keys (Ctrl, Tab, Shift, Alt)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isFullScreen && !submitted && ['Control', 'Tab', 'Shift', 'Alt'].includes(event.key)) {
+        if (!keyPressWarningShown) {
+          setShowKeyPressAlert(true); // Show alert on first key press
+          setKeyPressWarningShown(true);
+          console.log(`Alert: Key ${event.key} pressed at ${new Date().toISOString()}. First warning issued.`);
+        } else {
+          setWarningsLeft((prev) => {
+            if (prev <= 1) {
+              setSubmitted(true); // Auto-submit silently
+              if (timerRef.current) {
+                clearInterval(timerRef.current);
+              }
+              console.log(`Auto-submit: Key ${event.key} pressed at ${new Date().toISOString()}. Last warning exhausted.`);
+              return 0;
+            }
+            const newWarnings = prev - 1;
+            setShowWarning(true);
+            console.log(`Warning: Key ${event.key} pressed at ${new Date().toISOString()}. Warnings left: ${newWarnings}`);
+            return newWarnings;
+          });
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullScreen, submitted, keyPressWarningShown]);
 
   const handleOptionChange = (index: number, value: string) => {
     if (!submitted && isFullScreen) {
@@ -104,35 +195,21 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
         setIsFullScreen(false);
       }).catch((err) => {
         console.error('Error exiting full-screen mode:', err);
+        setShowWarning(true);
       });
     }
   };
-
-  useEffect(() => {
-    const handleFullScreenChange = () => {
-      const isCurrentlyFullScreen = !!document.fullscreenElement;
-      setIsFullScreen(isCurrentlyFullScreen);
-      if (!isCurrentlyFullScreen && !submitted) {
-        setShowWarning(true);
-        console.log('Warning: User exited full-screen mode during the quiz. Possible tab-switching detected.');
-      }
-    };
-
-    document.addEventListener('fullscreenchange', handleFullScreenChange);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullScreenChange);
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
-    };
-  }, [submitted]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Display warnings left as power symbols
+  const renderWarningsLeft = () => {
+    return '⚡'.repeat(warningsLeft);
   };
 
   return (
@@ -180,14 +257,14 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
               📝 Enter Full-Screen Mode
             </h3>
             <p style={{ marginBottom: '20px', color: '#374151' }}>
-              Please enter full-screen mode to start the quiz. You have {mcqs.length} minute(s) for {mcqs.length} question(s).
+              Please enter full-screen mode to start the quiz. You have {mcqs.length} minute(s) for {mcqs.length} question(s). Pressing Ctrl, Tab, Shift, or Alt for the first time will show a warning alert. Exiting full-screen, switching tabs, or pressing these keys again will count as a warning. You have 3 warnings (⚡⚡⚡); the quiz will auto-submit silently if the last warning is exhausted.
             </p>
             <button
               onClick={enterFullScreen}
               style={{
                 padding: '12px 20px',
                 backgroundColor: '#6366f1',
-                color: '#fff',
+                color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -229,14 +306,14 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
               ⚠️ Full-Screen Mode Required
             </h3>
             <p style={{ marginBottom: '20px', color: '#374151' }}>
-              This quiz must be taken in full-screen mode. Exiting full-screen mode has been flagged. Please re-enter to continue.
+              This quiz must be taken in full-screen mode. You have {warningsLeft} warning(s) left ({renderWarningsLeft()}). Exiting full-screen, switching tabs, or pressing Ctrl, Tab, Shift, or Alt again counts as a warning. The quiz will auto-submit silently if the last warning is exhausted.
             </p>
             <button
               onClick={enterFullScreen}
               style={{
                 padding: '12px 20px',
                 backgroundColor: '#6366f1',
-                color: '#fff',
+                color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -245,6 +322,42 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
               Re-enter Full Screen
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Key Press Alert Notification */}
+      {showKeyPressAlert && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: '#fef3c7',
+            padding: '15px',
+            borderRadius: '8px',
+            border: '1px solid #f59e0b',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+            zIndex: 1100,
+            maxWidth: '300px',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ color: '#b45309', marginBottom: '10px' }}>
+            ⚠️ Warning: Pressing Ctrl, Tab, Shift, or Alt is prohibited. Next occurrence will reduce your warnings ({renderWarningsLeft()}).
+          </p>
+          <button
+            onClick={() => setShowKeyPressAlert(false)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            OK
+          </button>
         </div>
       )}
 
@@ -257,12 +370,15 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
             <div style={{ fontWeight: 'bold', color: overallTimeLeft <= 30 ? 'red' : '#374151' }}>
               Time Left: {formatTime(overallTimeLeft)}
             </div>
+            <div style={{ fontWeight: 'bold', color: warningsLeft <= 1 ? 'red' : '#374151' }}>
+              Warnings Left: {renderWarningsLeft()}
+            </div>
             <button
               onClick={exitFullScreen}
               style={{
                 padding: '8px 16px',
                 backgroundColor: '#ef4444',
-                color: '#fff',
+                color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -381,7 +497,7 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
               style={{
                 padding: '12px 20px',
                 backgroundColor: currentQuestionIndex === 0 || submitted || !isFullScreen ? '#d1d5db' : '#6366f1',
-                color: '#fff',
+                color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor:
@@ -396,7 +512,7 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
               style={{
                 padding: '12px 20px',
                 backgroundColor: submitted || !isFullScreen ? '#d1d5db' : '#6366f1',
-                color: '#fff',
+                color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: submitted || !isFullScreen ? 'not-allowed' : 'pointer',
@@ -411,6 +527,11 @@ const Quiz: React.FC<Props> = ({ mcqs }) => {
       {submitted && (
         <div style={{ marginTop: '20px', fontWeight: 'bold', textAlign: 'center' }}>
           🏁 Your Score: {getScore()} / {mcqs.length}
+          {warningsLeft <= 0 && (
+            <p style={{ color: '#ef4444', marginTop: '10px' }}>
+              ⚠️ Quiz auto-submitted due to exhausting all warnings (exiting full-screen, switching tabs, or pressing Ctrl, Tab, Shift, or Alt).
+            </p>
+          )}
         </div>
       )}
     </div>
