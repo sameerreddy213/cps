@@ -24,7 +24,7 @@
     "pdf-parse": "^1.1.1",
     "ts-node": "^10.9.2",
     "xlsx": "^0.18.5",
-    "zod": "^3.25.64"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",

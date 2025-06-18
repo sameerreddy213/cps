@@ -9,6 +9,7 @@ import QuizResults from './QuizResults';
 import UserStats from './UserStats';
 import MobileNav from './MobileNav';
 import UserProfileDropdown from './UserProfileDropdown';
+
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import {
 } from "../components/ui/dialog";
 
 import ConceptAnalyzer from './ConceptAnalyzer';
+import { getConcepts } from './data/topics';
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -36,7 +38,12 @@ const MainPage: React.FC = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
 
+  
+
   const [topics, setTopics] = useState<Topic[]>([
+
+  
+  
 
     {
       id: 'arrays',
@@ -275,7 +282,7 @@ const MainPage: React.FC = () => {
 
     const file = files[0];
     const fileType = file.type.includes('pdf') ? 'pdf' : 'image';
-    setUploadedFile(file.type.includes('pdf') ? file : null);
+    //setUploadedFile(file.type.includes('pdf') ? file : null);
 
     setIsProcessing(true);
     const newContent: CustomContent = {
