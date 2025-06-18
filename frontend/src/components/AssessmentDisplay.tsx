@@ -4,6 +4,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
 import html2pdf from 'html2pdf.js';
+import { getUserEmailFromToken } from '../utils/userId';
 
 interface Topic {
   id: number;
@@ -60,7 +61,7 @@ const AssessmentDisplay: React.FC<{
   const [loading, setLoading] = useState(false);
   const [assessmentStarted, setAssessmentStarted] = useState(false);
 
-  const userId = 'user123';
+  const userId = getUserEmailFromToken();
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPDF = () => {
@@ -152,13 +153,19 @@ const AssessmentDisplay: React.FC<{
   };
 
   const handleSubmit = async () => {
+  const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Please login to continue.");
+      return;
+    }
+
     setShowResults(false);
     setLoading(true);
 
     try {
       const payload = {
         assessmentId,
-        userId,
+        userId, // ✅ include user email from decoded token
         answers: questions.map((_, idx) => ({
           userAnswer: userAnswers[idx + 1] || [],
         }))
@@ -166,11 +173,19 @@ const AssessmentDisplay: React.FC<{
 
       const response = await fetch('http://localhost:5000/api/response/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload) // ✅ now sends userId too
       });
 
       const result = await response.json();
+      if (!result?.result?.responses) {
+        console.error('Malformed response:', result);
+        return;
+      }
+
       const scored = result.result.responses;
 
       const enriched: ResponseWithCorrectness[] = questions.map((q, idx) => ({
@@ -181,9 +196,14 @@ const AssessmentDisplay: React.FC<{
 
       setResponsesWithCorrectness(enriched);
 
-      const analysisRes = await fetch(`http://localhost:5000/api/response/analysis/${userId}/${assessmentId}`);
-      const analysisData = await analysisRes.json();
+      const analysisRes = await fetch(`http://localhost:5000/api/response/analysis/${assessmentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
+      const analysisData = await analysisRes.json();
       setRevisitTopics(analysisData.weakTopics);
       setShowResults(true);
     } catch (err) {
@@ -193,6 +213,7 @@ const AssessmentDisplay: React.FC<{
       onAssessmentGenerated();
     }
   };
+
 
   const calculateScore = () => {
     return responsesWithCorrectness.filter(r => r.isCorrect).length;

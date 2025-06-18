@@ -37,7 +37,7 @@ To assist learners by:
 ```env
 MONGO_URI = mongodb://localhost:27017/agenticAI
 OPENROUTER_API_KEY= your_openrouter_api_key
-JWT_SECRET=your_backend_secret_key
+JWT_SECRET=your_backend_secret_key(Please generate it from web)
 ```
 
 > Make sure the `.env` file is located inside the `backend/` folder.

@@ -14,6 +14,7 @@ const UserResponseSchema = new mongoose.Schema({
       topic_tested: { type: String, required: true },
     }
   ],
+  percentage_score: Number,
   createdAt: { type: Date, default: Date.now }
 });
 

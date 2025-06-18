@@ -18,7 +18,7 @@ You must generate diagnostic questions based only on the listed prerequisite con
 Allowed Question Types:
 - **single-correct-mcq**: one correct option from a list of 4 options
 - **multiple-correct-mcq**: **two or more** correct options from a list of 4 options
-- **true-false** (special case of MCQ): options must be exactly ["True", "False"] with one correct answer
+- **true-false** (special case of MCQ): options must be exactly **["True", "False"]** with one correct answer
 
 ❌ Do NOT include:
 - Any numerical questions
