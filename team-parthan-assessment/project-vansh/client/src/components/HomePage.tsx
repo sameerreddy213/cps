@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookOpen,CheckCircle,Play,Settings, X, Menu } from 'lucide-react';
 import { features, steps } from './data/homePageData';
+import {User} from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -9,6 +10,8 @@ import {
   SheetTrigger,
 } from "../components/ui/sheet"
 import AuthWrapper from '../auth/AuthWrapper';
+import { getDetails } from '../services/detailService';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -48,6 +51,20 @@ const Step: React.FC<StepProps> = ({ number, title, description }) => (
 const HomePage: React.FC = () => {
   const [activeDemo, setActiveDemo] = useState('concept');
   const [isOpen, setIsOpen] = useState(false);
+   const [name, setName] = useState('');
+  useEffect(()=>{
+    const item = localStorage.getItem('id');
+    if (!item) {
+      setIsOpen(true); // show AuthWrapper only if no id
+    } else {
+      getDetails().then((details) => {
+        setName(details.name);
+      }).catch(err => {
+        console.error('Failed to fetch details:', err);
+      });
+    }
+  },[]);
+  const navigate= useNavigate();
 
 
   return (
@@ -70,8 +87,15 @@ const HomePage: React.FC = () => {
         <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
         <a href="#how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors w-24">How It Works</a>
         <a href="#demo" className="text-gray-600 hover:text-blue-600 transition-colors">Demo</a>
-        <AuthWrapper/>  
-        {/* <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} /> */}
+        <div className=" p-3 mt-auto ">
+                  {isOpen && <AuthWrapper isOpen={isOpen} setIsOpen={setIsOpen}/>}
+                  {name && 
+                  <button className='flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all hover:cursor-pointer' onClick={()=>{navigate('/home')}}>
+          <User className="w-4 h-4 m-1.5" />
+          {name}
+        </button>}
+                {/* <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} /> */}
+                </div>
       </div>
 
       {/* Mobile menu button with Sheet */}
@@ -123,7 +147,12 @@ const HomePage: React.FC = () => {
                   <span className="font-medium">Demo</span>
                 </a>
                 <div className=" p-3 mt-auto ">
-                  <AuthWrapper/>
+                  {isOpen && <AuthWrapper isOpen={isOpen} setIsOpen={setIsOpen}/>}
+                  {name && 
+                  <button className='flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all hover:cursor-pointer' onClick={()=>{navigate('/home')}}>
+          <User className="w-4 h-4 m-1.5" />
+          {name}
+        </button>}
                 {/* <AuthComponent isOpen={isOpen} setIsOpen={setIsOpen} /> */}
                 </div>
               </nav>
