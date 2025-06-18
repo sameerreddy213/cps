@@ -1,5 +1,6 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
 /*Modified by Nakshatra Bhandary on 16/6/25 to update UI and routes/navigation */
+/*Modified by Nakshatra Bhandary on (17/6/25) to connect to the backend*/
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +22,7 @@ const RegistrationPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password || !confirmPassword) {
@@ -33,10 +34,27 @@ const RegistrationPage: React.FC = () => {
       setError('Passwords do not match.');
       return;
     }
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Registration failed.');
+        return;
+      }
 
     alert('Registration successful!');
     setError('');
     navigate('/');
+  }
+  catch (err) {
+      setError('An error occurred. Please try again.');
+    }
   };
 
   return (
