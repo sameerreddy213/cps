@@ -36,7 +36,7 @@ const MainPage: React.FC = () => {
   const [currentQuiz, setCurrentQuiz] = useState<QuizState | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
-
+const [searchQuery, setSearchQuery] = useState('');
   const [topics, setTopics] = useState<Topic[]>([
 
     {
@@ -520,7 +520,9 @@ const MainPage: React.FC = () => {
   const retakeQuiz = (topicId: string) => {
     startQuizForTopic(topicId);
   };
-
+   const filteredTopics = topics.filter(topic =>
+    topic.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
@@ -570,24 +572,18 @@ const MainPage: React.FC = () => {
                   </p>
                 </div>
               </div>
-              {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mt-6">
-                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
-                  <div className="text-lg md:text-2xl font-bold">{userProfile.masteredTopics.length}</div>
-                  <div className="text-xs md:text-sm text-indigo-100">Topics Mastered</div>
+              <div className="space-y-6">
+                <div className="relative group">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for topics like Arrays, Linked Lists, Trees..."
+                    className="w-full pl-12 pr-4 py-2 border bg-white placeholder:text-gray-400 text-black border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-lg"
+                  />
                 </div>
-                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
-                  <div className="text-lg md:text-2xl font-bold">{userProfile.streak}</div>
-                  <div className="text-xs md:text-sm text-indigo-100">Day Streak</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
-                  <div className="text-lg md:text-2xl font-bold">{topics.length}</div>
-                  <div className="text-xs md:text-sm text-indigo-100">Standard Topics</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 md:p-4 text-center">
-                  <div className="text-lg md:text-2xl font-bold">{customContents.length}</div>
-                  <div className="text-xs md:text-sm text-indigo-100">Custom Quizzes</div>
-                </div>
-              </div> */}
+              </div>
             </div>
 
             {/* Tab Navigation */}
@@ -631,10 +627,9 @@ const MainPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  {topics.map((topic) => {
+                  {filteredTopics.map((topic) => {
                     const status = getTopicStatus(topic);
                     const hasQuizHistory = quizHistory.some(quiz => quiz.topicId === topic.id && quiz.isCompleted);
-
                     return (
                       <TopicCard
                         key={topic.id}
@@ -643,9 +638,9 @@ const MainPage: React.FC = () => {
                         onStartQuiz={startQuizForTopic}
                         onReview={showTopicReview}
                         onRetake={retakeQuiz}
-                        hasQuizHistory={hasQuizHistory} 
+                        hasQuizHistory={hasQuizHistory}
                         topics={topics}
-                        />
+                      />
                     );
                   })}
                 </div>
