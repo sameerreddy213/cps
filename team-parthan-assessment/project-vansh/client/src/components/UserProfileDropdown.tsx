@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   User, 
   Settings, 
@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { useNavigate } from 'react-router-dom';
+import { getDetails } from '../services/detailService';
 
 interface UserProfile {
   name: string;
@@ -68,6 +69,8 @@ const UserProfileDropdown: React.FC = () => {
   });
 
   const handleSignOut = (): void => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
     navigate("/");
     setIsOpen(false);
   };
@@ -105,6 +108,24 @@ const UserProfileDropdown: React.FC = () => {
     }));
     setShowPhotoUpload(false);
   };
+
+  useEffect(()=>{
+    const fetchDetails= async()=>{
+      try{
+        const details=await getDetails();
+        setUserProfile(prev => ({
+          ...prev,
+          name: details.name,
+          email: details.email,// optional
+        }
+      ));
+      }
+      catch (err) {
+        console.error("Error fetching user details:", err);
+      } 
+    };
+    fetchDetails();
+  },[])
 
   return (
     <>

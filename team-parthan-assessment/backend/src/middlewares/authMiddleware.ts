@@ -12,14 +12,15 @@ export const auth = async (req: AuthRequest, res: Response, next: NextFunction) 
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (!token) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
+      res.status(401).json({ message: 'No token, authorization denied' });
+      return;
     }
-
+    
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await User.findById(decoded.userId).select('-password').select('-__v');
 
     if (!user) {
-      return res.status(401).json({ message: 'Token is not valid' });
+      res.status(401).json({ message: 'Token is not valid'});
     }
 
     req.userId = decoded.userId;
