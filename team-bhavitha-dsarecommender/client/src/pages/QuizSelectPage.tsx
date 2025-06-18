@@ -14,14 +14,14 @@ const QuizSelectPage = () => {
 
   return (
     <div className="container py-5 bg-dark text-white rounded shadow-lg text-center" style={{ maxWidth: '650px' }}>
-      <h2 className="mb-4 text-primary fs-2">Select a Topic for Quiz</h2> {/* Added fs-2 for larger heading */}
+      <h2 className="mb-4 text-primary fs-2">Select a Topic for Quiz</h2>
       <div className="input-group mb-3">
         <input
           list="topics"
           value={selectedTopic}
           onChange={(e) => setSelectedTopic(e.target.value)}
           placeholder="Start typing a topic..."
-          className="form-control form-control-lg bg-dark text-white border-secondary" // Ensure input background is dark and text is white
+          className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
         />
         <datalist id="topics">
           {validTopics.map((topic: string, i: number) => (

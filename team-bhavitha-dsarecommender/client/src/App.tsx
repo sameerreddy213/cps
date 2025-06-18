@@ -12,8 +12,8 @@ function App() {
   return (
     <Router>
       <Navbar />
-      {/* Add padding top to account for fixed navbar height */}
-      <div className="pt-5 mt-3 d-flex justify-content-center">
+      {/* Add padding top to account for fixed navbar height, and center content vertically and horizontally */}
+      <div className="pt-5 mt-3 d-flex flex-grow-1 justify-content-center align-items-center" style={{ minHeight: 'calc(100vh - 80px)' }}> {/* Adjusted styling here */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
