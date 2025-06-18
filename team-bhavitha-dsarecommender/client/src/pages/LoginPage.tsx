@@ -36,26 +36,25 @@ const LoginPage = () => {
 
   return (
     <div className="card bg-dark text-white p-4 shadow-lg rounded" style={{ maxWidth: '480px', width: '100%' }}>
-      {/* Heading - Ensure it's clear and stands out */}
-      <h2 className="card-title text-center text-primary mb-4 fs-2">Login</h2> {/* Added fs-2 for larger font-size */}
+      <h2 className="card-title text-center text-primary mb-4 fs-2">Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-3">
-          <label htmlFor="username" className="form-label text-white">Username:</label> {/* Changed to text-white for better contrast */}
+          <label htmlFor="username" className="form-label text-white">Username:</label>
           <input
             id="username"
             type="text"
-            className="form-control form-control-lg bg-dark text-white border-secondary"
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="password" className="form-label text-white">Password:</label> {/* Changed to text-white */}
+          <label htmlFor="password" className="form-label text-white">Password:</label>
           <input
             id="password"
             type="password"
-            className="form-control form-control-lg bg-dark text-white border-secondary"
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -65,9 +64,8 @@ const LoginPage = () => {
       </form>
 
       {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
-      {/* Backtext/Link - Ensure it's clear and clickable */}
-      <p className="mt-4 text-center text-white"> {/* Changed to text-white for visibility */}
-        Don't have an account? <Link to="/register" className="text-info fw-bold">Register here</Link> {/* Added fw-bold for emphasis */}
+      <p className="mt-4 text-center text-white">
+        Don't have an account? <Link to="/register" className="text-info fw-bold">Register here</Link>
       </p>
     </div>
   );

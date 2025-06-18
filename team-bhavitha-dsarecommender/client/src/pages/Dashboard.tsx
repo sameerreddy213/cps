@@ -38,7 +38,7 @@ const Dashboard = () => {
   const [recommendedPath, setRecommendedPath] = useState<string[]>([]);
   const [pathError, setPathError] = useState<string | null>(null);
 
-  // Logout
+  // Logout - this function is now unused on the Dashboard itself, but kept for clarity if needed elsewhere
   const handleLogout = () => {
     logout();
     clearProfile();
@@ -100,14 +100,14 @@ const Dashboard = () => {
   return (
     <div className="container py-4 bg-dark text-white rounded shadow-lg">
       <h2 className="text-center mb-4 text-purple">Welcome, {username}!</h2>
-      <p className="text-center text-white mb-5">This is your personalized dashboard.</p> {/* Added text-white */}
+      <p className="text-center text-white mb-5">This is your personalized dashboard.</p>
 
-      {/* Mastery Progress Line Chart */}
       <hr className="my-5 border-secondary border-dashed" />
-      <div className="dashboard-section mb-5">
+      {/* Mastery Progress Line Chart */}
+      <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Mastery Over Time</h3>
         {chartData.length === 0 ? (
-          <p className="text-center text-white mt-3">No data available yet to show mastery progression.</p> /* Added text-white */
+          <p className="text-center text-white mt-3">No data available yet to show mastery progression.</p>
         ) : (
           <div className="chart-container bg-dark-subtle p-3 rounded shadow">
             <ResponsiveContainer width="100%" height={400}>
@@ -126,16 +126,16 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Current Mastery Levels */}
       <hr className="my-5 border-secondary border-dashed" />
-      <div className="dashboard-section mb-5">
+      {/* Current Mastery Levels */}
+      <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Current Mastery Levels</h3>
         {Object.keys(mastery).length === 0 ? (
-          <p className="text-center text-white mt-3">No mastery data available. Take some quizzes to get started!</p> /* Added text-white */
+          <p className="text-center text-white mt-3">No mastery data available. Take some quizzes to get started!</p>
         ) : (
           <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
             {Object.entries(mastery).map(([topic, score]) => (
-              <li key={topic} className="list-group-item bg-secondary-subtle border-start border-5 border-success rounded mb-3 shadow-sm d-flex justify-content-between align-items-center text-dark"> {/* Added text-dark */}
+              <li key={topic} className="list-group-item bg-secondary-subtle border-start border-5 border-success rounded mb-3 shadow-sm d-flex justify-content-between align-items-center text-dark">
                 <strong>{topic}</strong> <span className="badge bg-primary text-white fs-6">{(1 - score).toFixed(2)} Confidence</span>
               </li>
             ))}
@@ -143,13 +143,13 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Topics Learned */}
       <hr className="my-5 border-secondary border-dashed" />
-      <div className="dashboard-section mb-5">
+      {/* Topics Learned */}
+      <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Topics Learned</h3>
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
           {progress.length === 0 ? (
-            <p className="text-center text-white mt-3 col-12">No topics marked as completed yet. Keep learning!</p> /* Added text-white */
+            <p className="text-center text-white mt-3 col-12">No topics marked as completed yet. Keep learning!</p>
           ) : (
             progress.map((topic) => (
               <div className="col" key={topic}>
@@ -160,13 +160,13 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recommended Topics */}
       <hr className="my-5 border-secondary border-dashed" />
-      <div className="dashboard-section mb-5">
+      {/* Recommended Topics */}
+      <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Recommended Next Topics</h3>
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
           {recommendations.length === 0 ? (
-            <p className="text-center text-white mt-3 col-12">No current recommendations. Explore new topics!</p> /* Added text-white */
+            <p className="text-center text-white mt-3 col-12">No current recommendations. Explore new topics!</p>
           ) : (
             recommendations.map((topic) => (
               <div className="col" key={topic}>
@@ -180,17 +180,17 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Get Learning Path Recommendation */}
       <hr className="my-5 border-secondary border-dashed" />
-      <div className="dashboard-section mb-5">
+      {/* Get Learning Path Recommendation */}
+      <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Get Learning Path Recommendation</h3>
-        <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
+        <div className="d-flex flex-column flex-md-row justify-content-center gap-3 mb-4 align-items-center">
           <input
             type="text"
             placeholder="Start Concept (e.g., Variables)"
             value={startConcept}
             onChange={(e) => setStartConcept(e.target.value)}
-            className="form-control form-control-lg bg-dark text-white border-secondary flex-grow-1"
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Changed bg-dark to bg-dark-subtle and added text-dark-contrast
             style={{ maxWidth: '300px' }}
           />
           <input
@@ -198,7 +198,7 @@ const Dashboard = () => {
             placeholder="Target Concept (e.g., Recursion)"
             value={endConcept}
             onChange={(e) => setEndConcept(e.target.value)}
-            className="form-control form-control-lg bg-dark text-white border-secondary flex-grow-1"
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Changed bg-dark to bg-dark-subtle and added text-dark-contrast
             style={{ maxWidth: '300px' }}
           />
           <button onClick={handleGetPath} className="btn btn-primary btn-lg flex-shrink-0">
@@ -209,11 +209,11 @@ const Dashboard = () => {
         {pathError && <div className="alert alert-danger text-center mt-3">{pathError}</div>}
 
         {recommendedPath.length > 0 && (
-          <div className="recommended-path-section bg-secondary-subtle p-4 rounded shadow mt-4 text-start text-dark"> {/* Added text-dark */}
+          <div className="recommended-path-section bg-secondary-subtle p-4 rounded shadow mt-4 text-start text-dark">
             <h4 className="text-center mb-4 text-info">Recommended Path:</h4>
             <ul className="list-group list-group-flush">
               {recommendedPath.map((topic, idx) => (
-                <li key={idx} className="list-group-item bg-dark-subtle border-secondary rounded mb-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 py-3 text-white"> {/* Added text-white */}
+                <li key={idx} className="list-group-item bg-dark-subtle border-secondary rounded mb-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 py-3 text-white">
                   <span className="fs-5 text-white">
                     {idx + 1}. <strong>{topic}</strong>
                   </span>
@@ -232,16 +232,16 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Quiz History */}
       <hr className="my-5 border-secondary border-dashed" />
-      <div className="dashboard-section mb-5">
+      {/* Quiz History */}
+      <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Quiz History</h3>
         {quizHistory.length === 0 ? (
-          <p className="text-center text-white mt-3">No quiz attempts recorded yet.</p> /* Added text-white */
+          <p className="text-center text-white mt-3">No quiz attempts recorded yet.</p>
         ) : (
           <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
             {quizHistory.map((entry, i) => (
-              <li key={i} className="list-group-item bg-secondary-subtle border-start border-5 border-primary rounded mb-3 shadow-sm text-start text-dark"> {/* Added text-dark */}
+              <li key={i} className="list-group-item bg-secondary-subtle border-start border-5 border-primary rounded mb-3 shadow-sm text-start text-dark">
                 <strong>{entry.topic}</strong> — Score: {entry.score}% — Mastery Weight: {entry.mastery}
                 <br />
                 <small className="text-muted">{new Date(entry.createdAt).toLocaleString()}</small>
@@ -251,14 +251,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Actions */}
-      <hr className="my-5 border-secondary border-dashed" />
-      <div className="d-flex flex-column flex-md-row justify-content-center gap-4 mt-5">
-        <button onClick={handleLogout} className="btn btn-danger btn-lg">Logout</button>
-        <button onClick={() => navigate("/quiz-select")} className="btn btn-success btn-lg">
-          Choose Your Own Quiz Topic
-        </button>
-      </div>
+      {/* Removed Actions Section with Logout and Choose Your Own Quiz Topic buttons */}
     </div>
   );
 };
