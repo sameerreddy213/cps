@@ -22,15 +22,9 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
         }
-        .dark .navbar {
-            background: rgba(30, 41, 59, 0.95);
-        }
-        .navbar:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-        .dark .navbar:hover {
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
-        }
+        .dark .navbar { background: rgba(30, 41, 59, 0.95); }
+        .navbar:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); }
+        .dark .navbar:hover { box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1); }
         .nav-link {
             position: relative;
             padding-bottom: 4px;
@@ -46,16 +40,12 @@
             transition: all 0.3s ease;
             transform: translateX(-50%);
         }
-        .nav-link:hover::after {
-            width: 70%;
-        }
+        .nav-link:hover::after { width: 70%; }
         .card {
             transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
             background: #ffffff;
         }
-        .dark .card {
-            background: #334155;
-        }
+        .dark .card { background: #334155; }
         .card:hover {
             transform: translateY(-12px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
@@ -95,61 +85,29 @@
             background: #334155;
             border-color: #475569;
         }
-        .faq-item:hover {
-            background: #f0f9ff;
-        }
-        .dark .faq-item:hover {
-            background: #475569;
-        }
+        .faq-item:hover { background: #f0f9ff; }
+        .dark .faq-item:hover { background: #475569; }
         .faq-answer {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
         }
-        .faq-answer.open {
-            max-height: 200px;
-        }
+        .faq-answer.open { max-height: 200px; }
         .faq-toggle::after {
             content: '▼';
             display: inline-block;
             margin-left: 8px;
             transition: transform 0.3s ease;
         }
-        .faq-toggle.open::after {
-            transform: rotate(180deg);
-        }
-        .dark .bg-white {
-            background: #1e293b;
-        }
-        .dark .bg-gray-50 {
-            background: #334155;
-        }
-        .dark .text-gray-800 {
-            color: #e2e8f0;
-        }
-        .dark .text-gray-600 {
-            color: #94a3b8;
-        }
-        .dark .text-indigo-600 {
-            color: #2dd4bf;
-        }
-        .dark .border {
-            border-color: #475569;
-        }
-        .modal {
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-        .modal-content {
-            position: relative;
-            background: white;
-            padding: 1.25rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            max-width: 28rem;
-            width: 100%;
-        }
-        .sign-in-modal-content {
+        .faq-toggle.open::after { transform: rotate(180deg); }
+        .dark .bg-white { background: #1e293b; }
+        .dark .bg-gray-50 { background: #334155; }
+        .dark .text-gray-800 { color: #e2e8f0; }
+        .dark .text-gray-600 { color: #94a3b8; }
+        .dark .text-indigo-600 { color: #2dd4bf; }
+        .dark .border { border-color: #475569; }
+        .modal { transition: opacity 0.3s ease; z-index: 1000; }
+        .modal-content, .sign-in-modal-content {
             position: relative;
             background: white;
             padding: 1.5rem;
@@ -158,8 +116,9 @@
             max-width: 24rem;
             width: 100%;
         }
+        .modal-content { max-width: 28rem; }
         .dark .modal-content, .dark .sign-in-modal-content {
-            background: #334155;
+            background: #1e293b;
         }
         .close-btn {
             position: absolute;
@@ -170,30 +129,65 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: #6b7280;
-        }
-        .close-btn:hover {
-            color: #1f2937;
+            transition: color 0.3s ease;
         }
         .dark .close-btn {
-            color: #94a3b8;
+            color: #ffffff;
         }
-        .dark .close-btn:hover {
-            color: #e2e8f0;
+        .close-btn:hover { color: #1f2937; }
+        .dark .close-btn:hover { color: #f0f9ff; }
+        .cancel-btn {
+            padding: 0.5rem 1rem;
+            background: #e5e7eb;
+            color: #1f2937;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .dark .cancel-btn {
+            background: #6b7280;
+            color: #ffffff;
+            border: 1px solid #9ca3af;
+        }
+        .cancel-btn:hover {
+            background: #d1d5db;
+        }
+        .dark .cancel-btn:hover {
+            background: #9ca3af;
+            color: #1f2937;
         }
         .social-btn {
             transition: background 0.3s ease;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
         }
-        .social-btn:hover {
-            background: #e5e7eb;
-        }
-        .dark .social-btn:hover {
-            background: #475569;
-        }
+        .social-btn:hover { background: #e5e7eb; }
+        .dark .social-btn:hover { background: #475569; }
         .error-message {
             color: #ef4444;
             font-size: 0.875rem;
             margin-top: 0.25rem;
             display: none;
+        }
+        input {
+            color: #1f2937;
+            background: #ffffff;
+        }
+        .dark input {
+            color: #ffffff;
+            background: #2d3748;
+            border: 1px solid #4a5568;
+        }
+        .dark input[type="password"] {
+            -webkit-text-security: circle;
+            -moz-text-security: circle;
+            text-security: circle;
+            color: #e2e8f0;
+        }
+        .dark label {
+            color: #e2e8f0;
         }
         .profile-pic {
             width: 2.5rem;
@@ -201,6 +195,10 @@
             border-radius: 50%;
             object-fit: cover;
             cursor: pointer;
+            border: 2px solid #4b5563;
+        }
+        .dark .profile-pic {
+            border-color: #e2e8f0;
         }
         .dropdown {
             position: absolute;
@@ -212,19 +210,80 @@
             min-width: 12rem;
             z-index: 1000;
         }
-        .dark .dropdown {
-            background: #334155;
-        }
+        .dark .dropdown { background: #334155; }
         .dropdown-item {
             padding: 0.75rem 1rem;
             cursor: pointer;
             transition: background 0.2s ease;
         }
-        .dropdown-item:hover {
-            background: #f0f9ff;
+        .dropdown-item:hover { background: #f0f9ff; }
+        .dark .dropdown-item:hover { background: #475569; }
+        .default-profile-pic {
+            background: linear-gradient(135deg, #4b5563, #9ca3af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: bold;
+            border: 2px solid #4b5563;
         }
-        .dark .dropdown-item:hover {
+        .dark .default-profile-pic {
+            background: linear-gradient(135deg, #475569, #1e293b);
+            color: #ffffff;
+            border: 2px solid #e2e8f0;
+        }
+        .streak-logo {
+            width: 1.75rem;
+            height: 1.75rem;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #000000;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #4b5563;
+        }
+        .dark .streak-logo {
             background: #475569;
+            color: #ffffff;
+            border-color: #e2e8f0;
+        }
+        .streak-popup {
+            display: none;
+            position: absolute;
+            bottom: -2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+        .dark .streak-popup {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        .streak-logo:hover .streak-popup {
+            display: block;
+        }
+        .course-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+        .dark .course-input {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
         }
     </style>
 </head>
@@ -240,7 +299,13 @@
                 <div id="auth-section">
                     <a href="#sign-in" id="sign-in-link" class="nav-link text-gray-800 hover:text-indigo-600 font-medium" onclick="showSignInModal(event)">Sign In</a>
                     <div id="profile-section" class="relative hidden">
-                        <img id="profile-pic" src="" alt="Profile Picture" class="profile-pic" onclick="toggleDropdown()">
+                        <div class="flex items-center space-x-2">
+                            <img id="profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-user'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E" alt="Profile Picture" class="profile-pic" onclick="toggleDropdown()">
+                            <div id="streak-logo" class="streak-logo hidden">
+                                <span>🔥0</span>
+                                <span class="streak-popup" id="streak-popup">Login Streak: 0 days</span>
+                            </div>
+                        </div>
                         <div id="dropdown" class="dropdown hidden">
                             <div class="dropdown-item" onclick="showProfileModal()">My Profile</div>
                             <div class="dropdown-item" onclick="viewProgress()">View Progress</div>
@@ -248,7 +313,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="#try" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Try</a>
+                <a href="#try" id="try-link" class="nav-link text-gray-800 hover:text-indigo-600 font-medium">Try LearnPath Now</a>
                 <button id="themeToggle" class="focus:outline-none">
                     <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-800">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -332,6 +397,26 @@
         </div>
     </section>
 
+    <!-- Try Section (Updated) -->
+    <section id="try" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Try LearnPath Now</h2>
+            <div class="max-w-md mx-auto">
+                <div class="card p-6 rounded-xl shadow-lg">
+                    <div class="mb-4">
+                        <input type="text" id="course-input" class="course-input" placeholder="Enter a course name" required>
+                    </div>
+                    <button id="generate-path-btn" class="btn-primary text-white px-6 py-2 rounded-lg w-full" onclick="generatePath()">Generate Path</button>
+                </div>
+                <div id="path-message" class="text-center mt-4 text-gray-600 hidden">
+                    <span role="img" aria-label="target">🎯</span>
+                    <p>Ready to visualize your path?</p>
+                    <p>Enter a course name above and click "Generate Path"!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="bg-indigo-600 text-white py-10">
         <div class="container mx-auto text-center">
@@ -347,39 +432,39 @@
     <div id="createAccountModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="modal-content">
             <button class="close-btn" onclick="closeCreateAccountModal()">×</button>
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Create Account</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 dark:text-white">Create Account</h2>
             <div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="signup-username">Username</label>
-                    <input type="text" id="signup-username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your username" required>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="signup-username">Username</label>
+                    <input type="text" id="signup-username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your username" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="signup-email">Email</label>
-                    <input type="email" id="signup-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your email" required oninput="validateEmail()">
-                    <p id="email-error" class="error-message">Please enter a valid email (e.g., user@example.com).</p>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="signup-email">Email</label>
+                    <input type="email" id="signup-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your email" required oninput="validateEmail()">
+                    <p id="email-error" class="error-message">Please enter a valid email (e.g., [email protected]).</p>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="signup-password">Password</label>
-                    <input type="password" id="signup-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your password" required>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="signup-password">Password</label>
+                    <input type="password" id="signup-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your password" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Confirm your password" required>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Confirm your password" required>
                 </div>
                 <div class="flex justify-center space-x-4">
-                    <button onclick="closeCreateAccountModal()" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button onclick="submitCreateAccount()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Sign Up</button>
+                    <button class="cancel-btn" onclick="closeCreateAccountModal()">Cancel</button>
+                    <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" onclick="submitCreateAccount()">Sign Up</button>
                 </div>
-                <p class="text-center mt-4">
-                    Already have an account? <a href="#" class="text-indigo-600 hover:underline" onclick="switchToSignIn(event)">Sign In</a>
+                <p class="text-center mt-4 dark:text-gray-300">
+                    Already have an account? <a href="#" class="text-indigo-600 hover:underline dark:text-teal-400" onclick="switchToSignIn(event)">Sign In</a>
                 </p>
                 <div class="mt-6">
-                    <p class="text-center text-gray-600 mb-4">Or sign up with</p>
+                    <p class="text-center text-gray-600 mb-4 dark:text-gray-300">Or sign up with</p>
                     <div class="flex justify-center space-x-4">
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('facebook')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="w-6 h-6"></button>
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('google')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google" class="w-6 h-6"></button>
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('x')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" alt="X" class="w-6 h-6"></button>
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignUp('github')"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignUp('facebook')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignUp('google')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignUp('x')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" alt="X" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignUp('github')"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" class="w-6 h-6"></button>
                     </div>
                 </div>
             </div>
@@ -390,30 +475,30 @@
     <div id="signInModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="sign-in-modal-content">
             <button class="close-btn" onclick="closeSignInModal()">×</button>
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Sign In</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 dark:text-white">Sign In</h2>
             <div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="signin-username-email">Username or Email</label>
-                    <input type="text" id="signin-username-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your username or email" required>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="signin-username-email">Username or Email</label>
+                    <input type="text" id="signin-username-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your username or email" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="signin-password">Password</label>
-                    <input type="password" id="signin-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your password" required>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="signin-password">Password</label>
+                    <input type="password" id="signin-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your password" required>
                 </div>
                 <div class="flex justify-center space-x-4">
-                    <button onclick="closeSignInModal()" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button onclick="submitSignIn()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Sign In</button>
+                    <button class="cancel-btn" onclick="closeSignInModal()">Cancel</button>
+                    <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" onclick="submitSignIn()">Sign In</button>
                 </div>
-                <p class="text-center mt-4">
-                    Don't have an account? <a href="#" class="text-indigo-600 hover:underline" onclick="switchToCreateAccount(event)">Create Account</a>
+                <p class="text-center mt-4 dark:text-gray-300">
+                    Don't have an account? <a href="#" class="text-indigo-600 hover:underline dark:text-teal-400" onclick="switchToCreateAccount(event)">Create Account</a>
                 </p>
                 <div class="mt-6">
-                    <p class="text-center text-gray-600 mb-4">Or sign in with</p>
+                    <p class="text-center text-gray-600 mb-4 dark:text-gray-300">Or sign in with</p>
                     <div class="flex justify-center space-x-4">
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('facebook')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="w-6 h-6"></button>
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('google')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google" class="w-6 h-6"></button>
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('x')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" alt="X" class="w-6 h-6"></button>
-                        <button class="social-btn p-2 border rounded-full" onclick="socialSignIn('github')"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignIn('facebook')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignIn('google')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignIn('x')"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg" alt="X" class="w-6 h-6"></button>
+                        <button class="social-btn" onclick="socialSignIn('github')"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" class="w-6 h-6"></button>
                     </div>
                 </div>
             </div>
@@ -424,46 +509,52 @@
     <div id="profileModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="modal-content">
             <button class="close-btn" onclick="closeProfileModal()">×</button>
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">My Profile</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 dark:text-white">My Profile</h2>
             <div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Profile Picture</label>
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="profile-pic-upload">Profile Picture</label>
                     <img id="profile-pic-preview" src="" alt="Profile Picture" class="w-24 h-24 rounded-full mx-auto mb-2 object-cover">
-                    <input type="file" id="profile-pic-upload" accept="image/*" class="w-full p-3 border rounded-lg" onchange="previewProfilePic(event)">
+                    <input type="file" id="profile-pic-upload" accept="image/*" class="w-full p-3 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600" onchange="previewProfilePic(event)">
+                    <button id="remove-dp-btn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" onclick="removeProfilePic()">Remove Profile Picture</button>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="profile-username">Username</label>
-                    <input type="text" id="profile-username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your username">
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="profile-username">Username</label>
+                    <input type="text" id="profile-username" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your username">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="profile-email">Email</label>
-                    <input type="email" id="profile-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter your email">
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="profile-email">Email</label>
+                    <input type="email" id="profile-email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter your email">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2" for="profile-password">New Password (optional)</label>
-                    <input type="password" id="profile-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600" placeholder="Enter new password">
+                    <label class="block text-gray-700 mb-2 dark:text-gray-300" for="profile-password">New Password (optional)</label>
+                    <input type="password" id="profile-password" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Enter new password">
                 </div>
                 <div class="flex justify-center space-x-4">
-                    <button onclick="closeProfileModal()" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
-                    <button onclick="saveProfileChanges()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save Changes</button>
+                    <button class="cancel-btn" onclick="closeProfileModal()">Cancel</button>
+                    <button id="save-changes-btn" onclick="saveProfileChanges()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Save Changes</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Default profile picture URL (used if user hasn't uploaded one)
-        const DEFAULT_PROFILE_PIC = 'https://via.placeholder.com/150';
+        const DEFAULT_PROFILE_PIC = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%234b5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"%3E%3Cpath d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"%3E%3C/path%3E%3Ccircle cx="12" cy="7" r="4"%3E%3C/circle%3E%3C/svg%3E';
+        const ADMIN_IDS = ['admin1', 'admin2', 'admin3', 'admin4'];
 
-        // Check if user is logged in on page load
         document.addEventListener('DOMContentLoaded', () => {
             const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
             if (loggedInUser) {
                 updateUIForLoggedInUser(loggedInUser);
+                updateStreak(loggedInUser.id);
             }
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
+            }
+            console.log('Initial Load - LoggedInUser:', loggedInUser);
         });
 
-        // Smooth scrolling for navbar links
         document.querySelectorAll('.nav-link').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 if (!this.getAttribute('onclick')) {
@@ -475,7 +566,6 @@
             });
         });
 
-        // FAQ toggle functionality
         function toggleFAQ(element) {
             const answer = element.querySelector('.faq-answer');
             const toggle = element.querySelector('.faq-toggle');
@@ -483,19 +573,11 @@
             toggle.classList.toggle('open');
         }
 
-        // Dark mode toggle
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
-        const body = document.body;
-
-        if (localStorage.getItem('theme') === 'dark') {
-            body.classList.add('dark');
-            themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
-        }
-
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark');
-            if (body.classList.contains('dark')) {
+            document.body.classList.toggle('dark');
+            if (document.body.classList.contains('dark')) {
                 themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
                 localStorage.setItem('theme', 'dark');
             } else {
@@ -504,20 +586,15 @@
             }
         });
 
-        // Modal functionality
-        const createAccountModal = document.getElementById('createAccountModal');
-        const signInModal = document.getElementById('signInModal');
-        const profileModal = document.getElementById('profileModal');
-
         function showCreateAccountModal() {
-            createAccountModal.classList.remove('hidden');
-            signInModal.classList.add('hidden');
-            profileModal.classList.add('hidden');
+            document.getElementById('createAccountModal').classList.remove('hidden');
+            document.getElementById('signInModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.add('hidden');
             document.body.style.overflow = 'hidden';
         }
 
         function closeCreateAccountModal() {
-            createAccountModal.classList.add('hidden');
+            document.getElementById('createAccountModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('email-error').style.display = 'none';
             document.getElementById('signup-username').value = '';
@@ -528,121 +605,88 @@
 
         function showSignInModal(event) {
             event.preventDefault();
-            signInModal.classList.remove('hidden');
-            createAccountModal.classList.add('hidden');
-            profileModal.classList.add('hidden');
+            document.getElementById('signInModal').classList.remove('hidden');
+            document.getElementById('createAccountModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.add('hidden');
             document.body.style.overflow = 'hidden';
         }
 
         function closeSignInModal() {
-            signInModal.classList.add('hidden');
+            document.getElementById('signInModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('signin-username-email').value = '';
             document.getElementById('signin-password').value = '';
         }
 
         function showProfileModal() {
-            profileModal.classList.remove('hidden');
-            createAccountModal.classList.add('hidden');
-            signInModal.classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('createAccountModal').classList.add('hidden');
+            document.getElementById('signInModal').classList.add('hidden');
             document.body.style.overflow = 'hidden';
             populateProfileForm();
         }
 
         function closeProfileModal() {
-            profileModal.classList.add('hidden');
+            document.getElementById('profileModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
         function switchToSignIn(event) {
             event.preventDefault();
             closeCreateAccountModal();
-            signInModal.classList.remove('hidden');
+            showSignInModal(event);
         }
 
         function switchToCreateAccount(event) {
             event.preventDefault();
             closeSignInModal();
-            createAccountModal.classList.remove('hidden');
+            showCreateAccountModal();
         }
 
-        // Email validation
         function validateEmail() {
             const emailInput = document.getElementById('signup-email');
             const emailError = document.getElementById('email-error');
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailPattern.test(emailInput.value)) {
-                emailError.style.display = 'block';
-            } else {
-                emailError.style.display = 'none';
-            }
+            emailError.style.display = emailPattern.test(emailInput.value) ? 'none' : 'block';
         }
 
-        // Create Account submission
         async function submitCreateAccount() {
             const username = document.getElementById('signup-username').value;
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
-            if (!username || !email || !password || !confirmPassword) {
-                alert('Please fill in all fields.');
-                return;
-            }
-
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                alert('Passwords do not match.');
-                return;
-            }
+            if (!username || !email || !password || !confirmPassword) return alert('Please fill in all fields.');
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Please enter a valid email address.');
+            if (password !== confirmPassword) return alert('Passwords do not match.');
 
             try {
                 const response = await fetch('http://localhost:5000/api/users/register', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, email, password, signupMethod: 'form' }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, socialId: null, signupMethod: 'form' }),
                 });
-
                 const result = await response.json();
                 if (response.ok) {
                     alert('Account created successfully! Please sign in.');
                     closeCreateAccountModal();
                     showSignInModal(new Event('click'));
                 } else {
-                    console.error('Create account error:', result);
                     alert(`Failed to create account: ${result.message}`);
                 }
             } catch (err) {
-                console.error('Network error during create account:', err);
                 alert('Failed to create account. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.');
             }
         }
 
-        // Social Sign Up
         async function socialSignUp(platform) {
             const email = prompt(`Please enter your ${platform} email address to sign up:`);
-            if (!email) {
-                alert('Email is required to sign up.');
-                return;
-            }
-
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
+            if (!email) return alert('Email is required to sign up.');
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Please enter a valid email address.');
 
             const socialUser = {
                 username: email.split('@')[0],
-                email: email,
+                email,
                 password: null,
                 socialId: `${platform}_${Date.now()}`,
                 signupMethod: platform,
@@ -651,28 +695,22 @@
             try {
                 const response = await fetch('http://localhost:5000/api/users/register', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(socialUser),
                 });
-
                 const result = await response.json();
                 if (response.ok) {
                     alert(`Account created successfully with ${platform}! Please sign in.`);
                     closeCreateAccountModal();
                     showSignInModal(new Event('click'));
                 } else {
-                    console.error(`Social sign-up error (${platform}):`, result);
                     alert(`Failed to create account with ${platform}: ${result.message}`);
                 }
             } catch (err) {
-                console.error(`Network error during social sign-up (${platform}):`, err);
                 alert(`Failed to create account with ${platform}. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.`);
             }
         }
 
-        // Sign In submission
         async function submitSignIn() {
             const usernameEmail = document.getElementById('signin-username-email').value;
             const password = document.getElementById('signin-password').value;
@@ -685,102 +723,84 @@
             try {
                 const response = await fetch('http://localhost:5000/api/users/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usernameEmail, password }),
                 });
-
                 const result = await response.json();
                 if (response.ok) {
                     alert('Sign in successful! Welcome to LearnPath.');
                     localStorage.setItem('loggedInUser', JSON.stringify(result.user));
                     updateUIForLoggedInUser(result.user);
                     closeSignInModal();
+                    window.location.reload();
                 } else {
-                    console.error('Sign-in error:', result);
                     alert('Invalid username or password.');
+                    closeSignInModal();
                 }
             } catch (err) {
-                console.error('Network error during sign-in:', err);
                 alert('Failed to sign in. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.');
             }
         }
 
-        // Social Sign In
         async function socialSignIn(platform) {
             const email = prompt(`Please enter your ${platform} email address to sign in:`);
-            if (!email) {
-                alert('Email is required to sign in.');
-                return;
-            }
-
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
+            if (!email) return alert('Email is required to sign in.');
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Please enter a valid email address.');
 
             try {
                 const response = await fetch('http://localhost:5000/api/users/social-login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, signupMethod: platform }),
                 });
-
                 const result = await response.json();
                 if (response.ok) {
                     alert(`Sign in successful with ${platform}! Welcome to LearnPath.`);
                     localStorage.setItem('loggedInUser', JSON.stringify(result.user));
                     updateUIForLoggedInUser(result.user);
                     closeSignInModal();
+                    window.location.reload();
                 } else {
-                    console.error(`Social sign-in error (${platform}):`, result);
                     alert('Invalid social account. Please sign up first.');
                 }
             } catch (err) {
-                console.error(`Network error during social sign-in (${platform}):`, err);
                 alert(`Failed to sign in with ${platform}. Please check if the backend server is running at http://localhost:5000 and MongoDB is accessible.`);
             }
         }
 
-        // Update UI for logged-in user
         function updateUIForLoggedInUser(user) {
             const signInLink = document.getElementById('sign-in-link');
             const profileSection = document.getElementById('profile-section');
             const profilePic = document.getElementById('profile-pic');
-
+            const tryLink = document.getElementById('try-link');
+            const streakLogo = document.getElementById('streak-logo');
             signInLink.classList.add('hidden');
             profileSection.classList.remove('hidden');
-            profilePic.src = user.profilePicture || DEFAULT_PROFILE_PIC;
+            tryLink.classList.add('hidden');
+            profilePic.src = user.profilePicture ? user.profilePicture : DEFAULT_PROFILE_PIC;
+            streakLogo.classList.remove('hidden');
+            console.log('UI Updated - User Data:', user);
         }
 
-        // Toggle dropdown
         function toggleDropdown() {
-            const dropdown = document.getElementById('dropdown');
-            dropdown.classList.toggle('hidden');
+            document.getElementById('dropdown').classList.toggle('hidden');
         }
 
-        // Sign out
         function signOut() {
             localStorage.removeItem('loggedInUser');
-            const signInLink = document.getElementById('sign-in-link');
-            const profileSection = document.getElementById('profile-section');
-            signInLink.classList.remove('hidden');
-            profileSection.classList.add('hidden');
+            document.getElementById('sign-in-link').classList.remove('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById('try-link').classList.remove('hidden');
+            document.getElementById('streak-logo').classList.add('hidden');
             toggleDropdown();
             alert('Signed out successfully.');
         }
 
-        // View progress (placeholder)
         function viewProgress() {
             alert('View Progress feature coming soon!');
             toggleDropdown();
         }
 
-        // Populate profile form
         async function populateProfileForm() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
             if (!user) {
@@ -791,36 +811,47 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:5000/api/users/${user.id}`);
+                const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+                    headers: { 'user-id': user.id },
+                });
                 const result = await response.json();
                 if (response.ok) {
                     document.getElementById('profile-username').value = result.username;
                     document.getElementById('profile-email').value = result.email;
                     document.getElementById('profile-password').value = '';
                     document.getElementById('profile-pic-preview').src = result.profilePicture || DEFAULT_PROFILE_PIC;
+                    console.log('Profile Form Loaded - User Data:', result);
                 } else {
-                    console.error('Error fetching user details:', result);
                     alert('Failed to load profile details.');
                 }
             } catch (err) {
-                console.error('Network error fetching user details:', err);
                 alert('Failed to load profile details. Please check if the backend server is running.');
             }
         }
 
-        // Preview profile picture
         function previewProfilePic(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     document.getElementById('profile-pic-preview').src = e.target.result;
+                    const saveButton = document.getElementById('save-changes-btn');
+                    saveButton.disabled = false;
+                    saveButton.classList.remove('cursor-not-allowed', 'opacity-50');
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        // Save profile changes
+        function removeProfilePic() {
+            document.getElementById('profile-pic-preview').src = DEFAULT_PROFILE_PIC;
+            document.getElementById('profile-pic-upload').value = '';
+            const saveButton = document.getElementById('save-changes-btn');
+            saveButton.disabled = false;
+            saveButton.classList.remove('cursor-not-allowed', 'opacity-50');
+            console.log('Profile Picture Removed - Preview Set to Default');
+        }
+
         async function saveProfileChanges() {
             const user = JSON.parse(localStorage.getItem('loggedInUser'));
             if (!user) {
@@ -836,42 +867,102 @@
             const profilePicFile = document.getElementById('profile-pic-upload').files[0];
             let profilePicture = document.getElementById('profile-pic-preview').src;
 
-            if (profilePicFile) {
+            if (!username || !email) {
+                alert('Username and email are required.');
+                return;
+            }
+
+            const saveButton = document.getElementById('save-changes-btn');
+            saveButton.disabled = true;
+            saveButton.classList.add('cursor-not-allowed', 'opacity-50');
+
+            if (profilePicture === DEFAULT_PROFILE_PIC) {
+                profilePicture = null;
+            } else if (profilePicFile) {
                 const reader = new FileReader();
-                reader.onload = async function(e) {
+                reader.onload = async (e) => {
                     profilePicture = e.target.result;
-                    await updateProfile(user.id, username, email, password, profilePicture);
+                    await saveToDatabase();
                 };
                 reader.readAsDataURL(profilePicFile);
             } else {
-                await updateProfile(user.id, username, email, password, profilePicture);
+                profilePicture = user.profilePicture || null;
+            }
+
+            await saveToDatabase();
+
+            async function saveToDatabase() {
+                try {
+                    console.log('Sending to Backend - Data:', { username, email, password, profilePicture });
+                    const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'user-id': user.id },
+                        body: JSON.stringify({ username, email, password, profilePicture }),
+                    });
+                    const result = await response.json();
+                    console.log('Backend Response:', result);
+                    if (response.ok) {
+                        alert('Profile updated successfully!');
+                        localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                        const refreshResponse = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+                            headers: { 'user-id': user.id },
+                        });
+                        const refreshResult = await refreshResponse.json();
+                        console.log('Refreshed User Data:', refreshResult);
+                        if (refreshResponse.ok) {
+                            localStorage.setItem('loggedInUser', JSON.stringify(refreshResult));
+                            updateUIForLoggedInUser(refreshResult);
+                            document.getElementById('profile-pic').src = refreshResult.profilePicture || DEFAULT_PROFILE_PIC;
+                            console.log('UI Updated with Refreshed Data - Profile Pic Src:', document.getElementById('profile-pic').src);
+                        }
+                        closeProfileModal();
+                    } else {
+                        alert(`Failed to update profile: ${result.message}`);
+                    }
+                } catch (err) {
+                    console.error('Error Saving Profile:', err);
+                    alert('Failed to update profile. Please check if the backend server is running.');
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.classList.remove('cursor-not-allowed', 'opacity-50');
+                }
             }
         }
 
-        async function updateProfile(userId, username, email, password, profilePicture) {
-            try {
-                const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, email, password, profilePicture }),
-                });
+        async function updateStreak(userId) {
+            const streakKey = `streak_${userId}`;
+            const lastLogin = localStorage.getItem(streakKey) || new Date('1970-01-01').toISOString().split('T')[0];
+            const today = new Date().toISOString().split('T')[0]; // UTC, adjust for IST if needed
+            let streak = parseInt(localStorage.getItem(`${streakKey}_count`) || '0', 10);
 
-                const result = await response.json();
-                if (response.ok) {
-                    alert('Profile updated successfully!');
-                    localStorage.setItem('loggedInUser', JSON.stringify(result.user));
-                    updateUIForLoggedInUser(result.user);
-                    closeProfileModal();
-                } else {
-                    console.error('Error updating profile:', result);
-                    alert(`Failed to update profile: ${result.message}`);
+            if (today > lastLogin) {
+                const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                if (lastLogin === yesterday) {
+                    streak++;
+                } else if (lastLogin !== today) {
+                    streak = 1;
                 }
-            } catch (err) {
-                console.error('Network error updating profile:', err);
-                alert('Failed to update profile. Please check if the backend server is running.');
+                localStorage.setItem(streakKey, today);
+                localStorage.setItem(`${streakKey}_count`, streak);
             }
+
+            const streakLogo = document.getElementById('streak-logo');
+            const streakPopup = document.getElementById('streak-popup');
+            if (streakLogo && streakPopup) {
+                streakLogo.firstChild.textContent = `🔥${streak}`;
+                streakPopup.textContent = `Login Streak: ${streak} day${streak !== 1 ? 's' : ''}`;
+                console.log('Streak Updated - Value:', streak);
+            }
+        }
+
+        function generatePath() {
+            const courseName = document.getElementById('course-input').value.trim();
+            if (!courseName) {
+                alert('Please enter a course name.');
+                return;
+            }
+            alert(`Generating path for ${courseName}! (Feature placeholder)`);
+            document.getElementById('path-message').classList.remove('hidden');
         }
     </script>
 </body>
