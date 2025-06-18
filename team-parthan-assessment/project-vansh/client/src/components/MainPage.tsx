@@ -17,6 +17,7 @@ import {
 } from "../components/ui/dialog";
 
 import ConceptAnalyzer from './ConceptAnalyzer';
+import { getDetails } from '../services/detailService';
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -104,7 +105,7 @@ const MainPage: React.FC = () => {
   ]);
 
   const userProfile: UserProfile = {
-    name: "Vansh Tuteja",
+    name:"Vansh Tuteja",
     masteredTopics: topics.filter(t => t.status === 'mastered').map(t => t.name),
     totalScore: 85,
     streak: 7
