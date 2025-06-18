@@ -1,13 +1,19 @@
 // Developed by Manjistha Bidkar
+// Utility to download YouTube subtitles using yt-dlp
+// 1. Attempts to download English subtitles (auto-generated or manual)
+// 2. If not available, downloads subtitles in the best available language
+// 3. Returns the path to the saved .vtt file and detected language code
+
 import { execa } from 'execa';
 import * as fs from 'fs';
 import * as path from 'path';
 
-/**
- * Downloads subtitles for the given YouTube video ID and returns the VTT file path.
- * Tries English first, then falls back to best available.
- */
-export async function downloadSubtitles(videoId: string, outputDir: string): Promise<string> {
+export interface SubtitleDownloadResult {
+  filePath: string;
+  langCode: string;
+}
+
+export async function downloadSubtitles(videoId: string, outputDir: string): Promise<SubtitleDownloadResult> {
   const baseUrl = `https://www.youtube.com/watch?v=${videoId}`;
   const output = path.join(outputDir, `${videoId}.%(ext)s`);
 
@@ -21,14 +27,15 @@ export async function downloadSubtitles(videoId: string, outputDir: string): Pro
       '-o', output,
       baseUrl,
     ]);
-
     const enVtt = fs.readdirSync(outputDir).find(f => f.startsWith(videoId) && f.endsWith('.en.vtt'));
-    if (enVtt) return path.join(outputDir, enVtt);
+    if (enVtt) {
+      return { filePath: path.join(outputDir, enVtt), langCode: 'en' };
+    }
   } catch {
-    // Continue to fallback
+    // Fail silently and fallback below
   }
 
-  // Fallback: try any best available subtitle
+  // If English not found, fallback to any available language
   try {
     await execa('yt-dlp', [
       '--write-auto-sub',
@@ -40,13 +47,14 @@ export async function downloadSubtitles(videoId: string, outputDir: string): Pro
     ]);
 
     const fallback = fs.readdirSync(outputDir).find(f => f.startsWith(videoId) && f.endsWith('.vtt'));
-    if (fallback) return path.join(outputDir, fallback);
+    if (fallback) {
+      const langMatch = fallback.match(/\.(\w+)\.vtt$/);
+      const detectedLang = langMatch?.[1] ?? 'unknown';
+      return { filePath: path.join(outputDir, fallback), langCode: detectedLang };
+    }
   } catch (error) {
-  if (error instanceof Error) {
-    console.error(`Failed to download subtitles for ${videoId}. yt-dlp error:`, error.message);
-  } else {
-    console.error(`Failed to download subtitles for ${videoId}. Unknown error:`, error);
+    console.error(`Failed to download subtitles for ${videoId}:`, error);
   }
-}
-  throw new Error(`No subtitle found for video: ${videoId}`);
+
+  throw new Error(`No subtitles found for video: ${videoId}`);
 }
