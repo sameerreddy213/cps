@@ -1,35 +1,44 @@
 // Developed by Manjistha Bidkar
-// This module orchestrates the subtitle download and parsing for a given YouTube video ID
+
+// Main service to process a YouTube video's transcript
+// 1. Downloads subtitles (tries English first, then best available language)
+// 2. Parses and cleans the .vtt subtitle file
+// 3. Translates to English if necessary
+// 4. Deletes temporary files before returning cleaned transcript
 
 import { downloadSubtitles } from '../utils/downloader';
 import { parseVttFile } from '../utils/parser';
+import { translateToEnglish } from '../utils/translator';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-/**
- * Downloads subtitles (preferring English) and extracts clean text for concept matching
- * @param videoId YouTube video ID
- * @returns Extracted transcript text
- */
 export async function processTranscript(videoId: string): Promise<string> {
   const tempDir = path.resolve('./temp_subtitles');
-
-  // Ensure temp directory exists
   await fs.ensureDir(tempDir);
 
   try {
-    const subtitlePath = await downloadSubtitles(videoId, tempDir);
-    const transcriptText = await parseVttFile(subtitlePath);
+     // Step 1: Download subtitles (.vtt file) to tempDir
+    const { filePath, langCode } = await downloadSubtitles(videoId, tempDir); // ✅ destructure object
+    
+    // Step 2: Parse and clean transcript text from .vtt file
+    const rawTranscript = await parseVttFile(filePath);
 
-    // Delete subtitle file after processing
-    await fs.remove(subtitlePath);
-    return transcriptText;
+    // Step 3: If not in English, translate to English
+    // Detect language based on langCode 
+    const isEnglish = langCode === 'en';
+
+    let finalTranscript = rawTranscript;
+    if (!isEnglish) {
+      console.log('Translating non-English subtitles to English...');
+      finalTranscript = await translateToEnglish(rawTranscript);
+    }
+
+    return finalTranscript;
   } catch (err) {
-    console.error('Error processing transcript for ${videoId}:', err);
+    console.error(`Error processing transcript for ${videoId}:`, err);
     return '';
   } finally {
-    // Clean up the temporary folder
+     // Step 4: Clean up temporary subtitle files
     await fs.remove(tempDir);
   }
 }
-
