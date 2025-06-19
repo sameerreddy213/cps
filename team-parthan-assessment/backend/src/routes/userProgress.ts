@@ -5,83 +5,63 @@ import User, { IUser } from '../models/User';
 
 const router = express.Router();
 
-// GET topic list with status for frontend display
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response): Promise<void> => {
+  const userId = req.params.id;
   try {
-    const userId = req.params.id;
-
-    
-
-    const allCourses: ICourse[] = await Course.find().lean();
-
     let userProgress = await UserCourseProgress.findOne({ userId });
 
     if (!userProgress) {
-      userProgress = new UserCourseProgress({ userId, mastered: [], ready: ['basic_programming'] });
-      
-    }
+      const allCourses: ICourse[] = await Course.find();
 
-    const mastered = userProgress.mastered || [];
-    const ready = userProgress.ready || ['basic_programming'];
-
-    const topics = allCourses.map(course => {
-      const courseId = course._id.toString();
-      let status: 'locked' | 'ready' | 'mastered' = 'locked';
-      if (mastered.includes(courseId)) status = 'mastered';
-      else if (ready.includes(courseId)) status = 'ready';
-
-      return {
-        id: courseId,
+      const topics = allCourses.map(course => ({
+        id: course._id,
         name: course.name,
         prerequisites: course.prerequisites,
-        status
-      };
-    });
+        status: course._id === 'basic_programming' ? 'ready' : 'not-started',
+        attempts: 0,
+        bestScore: 0,
+        totalQuestions: 5,
+        lastAttempt: null,
+      }));
 
-    res.json(topics);
-  } catch (err) {
-    console.error("Error in /:id route:", err);
-    res.status(500).json({ error: 'Error loading topics' });
+      userProgress = new UserCourseProgress({ userId, courseId: 'default', topics });
+      await userProgress.save();
+    }
+
+    res.json(userProgress.topics);
+  } catch (error) {
+    console.error("Error fetching topics:", error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// POST update progress after quiz
-router.post('/complete', async (req: Request, res: Response) => {
-  const { userId, courseId, passed } = req.body;
 
+router.post('/complete', async (req: Request, res: Response): Promise<void> => {
+  const { userId, courseId, passed, score } = req.body;
   try {
     let progress = await UserCourseProgress.findOne({ userId });
-
     if (!progress) {
-      progress = new UserCourseProgress({ userId, mastered: [], ready: ['basic_programming'] });
+      res.status(404).json({ error: 'Progress not found' });
+      return;
     }
 
-    if (passed) {
-      if (!progress.mastered.includes(courseId)) {
-        progress.mastered.push(courseId);
-      }
-
-      // Remove from ready if present
-      progress.ready = progress.ready.filter(id => id !== courseId);
-
-      const course: ICourse | null = await Course.findById(courseId);
-      if (course) {
-        for (const prereq of course.prerequisites) {
-          if (!progress.ready.includes(prereq) && !progress.mastered.includes(prereq)) {
-            progress.ready.push(prereq);
-          }
-        }
-      }
-    } else {
-      if (!progress.ready.includes(courseId) && !progress.mastered.includes(courseId)) {
-        progress.ready.push(courseId);
-      }
+    const topicIndex = progress.topics.findIndex(t => t.id === courseId);
+    if (topicIndex === -1) {
+      res.status(404).json({ error: 'Topic not found' });
+      return;
     }
+
+    const topic = progress.topics[topicIndex];
+    topic.score = score;
+    topic.status = passed ? 'mastered' : 'in-progress';
+    topic.attempts = (topic.attempts || 0) + 1;
+    topic.bestScore = Math.max(topic.bestScore || 0, score);
+    topic.lastAttempt = new Date();
 
     await progress.save();
-    res.json({ success: true });
+    res.json(progress.topics);
   } catch (err) {
-    console.error("Error in /complete route:", err);
+    console.error("Error updating progress:", err);
     res.status(500).json({ error: 'Failed to update progress' });
   }
 });

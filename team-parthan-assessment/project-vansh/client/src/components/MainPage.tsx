@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain,Network, Clock, CheckCircle, AlertCircle,User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink} from 'lucide-react';
+import { Brain,Network, Clock, CheckCircle, AlertCircle,User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink, Search} from 'lucide-react';
 import { TOPIC_QUIZ_DATA } from './data/quizData';
 import type { Topic, UserProfile, CustomContent, Quiz, QuizQuestion, QuizState } from '../interface/types';
 import TopicCard from './TopicCard';
@@ -40,114 +40,108 @@ const MainPage: React.FC = () => {
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
 
 const [searchQuery, setSearchQuery] = useState('');
-<!--   const [topics, setTopics] = useState<Topic[]>([
+   const [topics, setTopics] = useState<Topic[]>([]);
 
-    {
-      id: 'arrays',
-      name: 'Arrays',
-      prerequisites: [],
-      status: 'mastered',
-      score: 5,
-      totalQuestions: 5,
-      attempts: 3,
-      bestScore: 100,
-      lastAttempt: new Date('2024-01-15')
-    },
-    {
-      id: 'strings',
-      name: 'Strings',
-      prerequisites: [],
-      status: 'mastered',
-      score: 4,
-      totalQuestions: 5,
-      attempts: 2,
-      bestScore: 80,
-      lastAttempt: new Date('2024-01-14')
-    },
-    {
-      id: 'linked-lists',
-      name: 'Linked Lists',
-      prerequisites: ['arrays'],
-      status: 'in-progress',
-      score: 2,
-      totalQuestions: 5,
-      attempts: 1,
-      bestScore: 40,
-      lastAttempt: new Date('2024-01-10')
-    },
-    {
-      id: 'stacks',
-      name: 'Stacks',
-      prerequisites: ['arrays', 'linked-lists'],
-      status: 'not-started'
-    },
-    {
-      id: 'queues',
-      name: 'Queues',
-      prerequisites: ['arrays', 'linked-lists'],
-      status: 'not-started'
-    },
-    {
-      id: 'trees',
-      name: 'Binary Trees',
-      prerequisites: ['linked-lists', 'recursion'],
-      status: 'not-started'
-    },
-    {
-      id: 'recursion',
-      name: 'Recursion',
-      prerequisites: ['arrays', 'strings'],
-      status: 'not-started'
-    },
-    {
-      id: 'sorting',
-      name: 'Sorting Algorithms',
-      prerequisites: ['arrays', 'recursion'],
-      status: 'not-started' -->
+  //   {
+  //     id: 'arrays',
+  //     name: 'Arrays',
+  //     prerequisites: [],
+  //     status: 'mastered',
+  //     score: 5,
+  //     totalQuestions: 5,
+  //     attempts: 3,
+  //     bestScore: 100,
+  //     lastAttempt: new Date('2024-01-15')
+  //   },
+  //   {
+  //     id: 'strings',
+  //     name: 'Strings',
+  //     prerequisites: [],
+  //     status: 'mastered',
+  //     score: 4,
+  //     totalQuestions: 5,
+  //     attempts: 2,
+  //     bestScore: 80,
+  //     lastAttempt: new Date('2024-01-14')
+  //   },
+  //   {
+  //     id: 'linked-lists',
+  //     name: 'Linked Lists',
+  //     prerequisites: ['arrays'],
+  //     status: 'in-progress',
+  //     score: 2,
+  //     totalQuestions: 5,
+  //     attempts: 1,
+  //     bestScore: 40,
+  //     lastAttempt: new Date('2024-01-10')
+  //   },
+  //   {
+  //     id: 'stacks',
+  //     name: 'Stacks',
+  //     prerequisites: ['arrays', 'linked-lists'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'queues',
+  //     name: 'Queues',
+  //     prerequisites: ['arrays', 'linked-lists'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'trees',
+  //     name: 'Binary Trees',
+  //     prerequisites: ['linked-lists', 'recursion'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'recursion',
+  //     name: 'Recursion',
+  //     prerequisites: ['arrays', 'strings'],
+  //     status: 'not-started'
+  //   },
+  //   {
+  //     id: 'sorting',
+  //     name: 'Sorting Algorithms',
+  //     prerequisites: ['arrays', 'recursion'],
+  //     status: 'not-started' }
+  // ]);
 
   const[userId,setUserId] = useState('')
 
   
 
-  const [topics, setTopics] = useState<Topic[]>([])
-
-  useEffect(()=>{
-      const fetchDetails= async()=>{
-        try{
-          const details=await getDetails();
-          setUserId(details._id);
-          console.log(`abcd${details._id}`);
-        }
-        catch (err) {
-          console.error("Error fetching user details:", err);
-        } 
-      };
-      fetchDetails();
-    },[])
-
   useEffect(() => {
+  const fetchDetails = async () => {
+    try {
+      const details = await getDetails();
+      setUserId(details._id);
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+    }
+  };
+  fetchDetails();
+}, []);
+
+useEffect(() => {
   const fetchTopics = async () => {
     try {
       const res = await fetch(`/api/user-progress/${userId}`);
       const data = await res.json();
 
-      if (Array.isArray(data)) {
-        setTopics(data);
-      } else {
-        console.error("Expected array but got:", data);
-        setTopics([]);
-      }
+      const fixed = data.map((topic: Topic) => ({
+        ...topic,
+        lastAttempt: topic.lastAttempt ? new Date(topic.lastAttempt) : undefined,
+      }));
+
+      setTopics(fixed);
     } catch (err) {
       console.error("Failed to fetch topics:", err);
       setTopics([]);
-
     }
   };
 
   if (userId) fetchTopics();
 }, [userId]);
-
-
 
   
   
@@ -568,7 +562,7 @@ const [searchQuery, setSearchQuery] = useState('');
     });
   };
 
-  const completeQuiz = () => {
+  const completeQuiz = async () => {
     if (!currentQuiz) return;
 
     let correctAnswers = 0;
@@ -589,28 +583,40 @@ const [searchQuery, setSearchQuery] = useState('');
     setQuizHistory(prev => [...prev, completedQuiz]);
 
     // Update topic status and statistics
-    if (completedQuiz.topicId) {
-      setTopics(prev => prev.map(topic => {
-        if (topic.id === completedQuiz.topicId) {
-          const newAttempts = (topic.attempts || 0) + 1;
-          const newBestScore = Math.max(topic.bestScore || 0, score);
-          const newStatus = score >= 70 ? 'mastered' : 'in-progress';
+    //if (completedQuiz.topicId) {
+      // setTopics(prev => prev.map(topic => {
+      //   if (topic.id === completedQuiz.topicId) {
+      //     const newAttempts = (topic.attempts || 0) + 1;
+      //     const newBestScore = Math.max(topic.bestScore || 0, score);
+      //     const newStatus = score >= 70 ? 'mastered' : 'in-progress';
           
-          return {
-            ...topic,
-            status: newStatus,
-            score: correctAnswers,
-            totalQuestions: 5,
-            attempts: newAttempts,
-            bestScore: newBestScore,
-            lastAttempt: new Date()
-          };
-        }
-        return topic;
-      }));
-       const passed = score >= 70;
-    submitQuiz(userId,completedQuiz.topicId, passed);
+      //     return {
+      //       ...topic,
+      //       status: newStatus,
+      //       score: correctAnswers,
+      //       totalQuestions: 5,
+      //       attempts: newAttempts,
+      //       bestScore: newBestScore,
+      //       lastAttempt: new Date()
+      //     };
+      //   }
+      //   return topic;
+      // }));
+      const passed = score >= 70;
+
+  if (completedQuiz.topicId && userId) {
+    try {
+      const updated = await submitQuiz(userId, completedQuiz.topicId, passed, correctAnswers);
+const fixed = updated.map(t => ({
+  ...t,
+  lastAttempt: t.lastAttempt ? new Date(t.lastAttempt) : undefined,
+}));
+setTopics(fixed);
+    } catch (err) {
+      console.error("Error submitting quiz:", err);
     }
+  }
+   // }
 
     setCurrentQuiz(completedQuiz);
   };
@@ -905,10 +911,12 @@ const [searchQuery, setSearchQuery] = useState('');
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-gray-500">
-                        {topic.lastAttempt?.toLocaleDateString()}
+                        {topic.lastAttempt instanceof Date
+    ? topic.lastAttempt.toLocaleDateString()
+    : 'N/A'}
                       </div>
                       <div className="text-xs font-medium text-gray-600">
-                        {topic.bestScore}% best
+                        {(topic.bestScore || topic.score || 0) / (topic.totalQuestions || 1) * 100}% best
                       </div>
                     </div>
                   </div>
