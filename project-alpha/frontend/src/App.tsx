@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import axios from 'axios';
-import Graph from './components/Graph';
-import Quiz from './components/Quiz';
-
+import Graph from './components/Graph'; 
+import Quiz from './components/Quiz';     
+import { v4 as uuidv4 } from 'uuid';      
 type PrereqData = {
   topic: string;
   prerequisites: string[];
 };
 
 type MCQ = {
+  id: string; 
   topic: string;
   question: string;
   options: string[];
@@ -17,48 +18,73 @@ type MCQ = {
 
 function App() {
   const [topic, setTopic] = useState('');
-  const [data, setData] = useState<PrereqData | null>(null);
-  const [mcqs, setMcqs] = useState<MCQ[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [isAcknowledged, setIsAcknowledged] = useState(false);
-  const [quizLoading, setQuizLoading] = useState(false);
+  const [data, setData] = useState<PrereqData | null>(null); 
+  const [mcqs, setMcqs] = useState<MCQ[] | null>(null); 
+  const [loading, setLoading] = useState(false); 
+  const [isAcknowledged, setIsAcknowledged] = useState(false); 
+  const [quizLoading, setQuizLoading] = useState(false); 
   const [selectedConcept, setSelectedConcept] = useState('');
   const [conceptSummary, setConceptSummary] = useState('');
   const [showGraph, setShowGraph] = useState(true);
 
+  const [currentQuizSessionId, setCurrentQuizSessionId] = useState<string>(uuidv4());
+
+  // Function to fetch prerequisites from the backend
   const handleSubmit = async () => {
-    if (!topic.trim()) return;
+    if (!topic.trim()) {
+      alert('Please enter a topic.');
+      return;
+    }
     setLoading(true);
-    setMcqs(null);
+    setMcqs(null); // Clear any existing MCQs
+    setData(null); 
     setSelectedConcept('');
     setConceptSummary('');
     setShowGraph(true);
-    try {
+    setIsAcknowledged(false); 
+    setCurrentQuizSessionId(uuidv4()); 
       const res = await axios.post('http://localhost:5000/api/prerequisites', { topic });
       setData(res.data);
     } catch (err) {
-      console.error('Error fetching prerequisites', err);
+      console.error('Error fetching prerequisites:', err);
+      alert('Failed to fetch prerequisites. Please check server and topic.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchMCQs = async () => {
-    if (!data || !isAcknowledged) return;
+  // Function to fetch MCQs from the backend
+  // 'resetCache' flag tells the backend to clear its in-memory question cache for this set of topics
+  const fetchMCQs = async (resetCache: boolean = false) => {
+    // Only proceed if prerequisites data is available and acknowledged (unless it's a reset)
+    if (!data || (!isAcknowledged && !resetCache)) {
+      if (!data) console.warn("No prerequisite data to fetch MCQs for.");
+      if (!isAcknowledged && !resetCache) console.warn("Prerequisites not acknowledged yet.");
+      return;
+    }
+
     setQuizLoading(true);
+    setMcqs(null); // Clear current MCQs while loading new ones
+    // Generate a new quiz ID for the Quiz component.
+    // This is the signal that forces Quiz.tsx to fully reset its state.
+    setCurrentQuizSessionId(uuidv4());
+
     try {
       const res = await axios.post('http://localhost:5000/api/prerequisites/mcq', {
         prerequisites: data.prerequisites,
+        restart: resetCache, // Pass the restart flag to your backend
       });
-      setMcqs(res.data);
+      setMcqs(res.data); // Update MCQs with the new set from backend
+      console.log("MCQs fetched successfully. Current quiz ID:", currentQuizSessionId);
     } catch (err) {
-      console.error('Error fetching MCQs', err);
+      console.error('Error fetching MCQs:', err);
+      alert('Failed to fetch quiz questions. Please try again.');
     } finally {
       setQuizLoading(false);
     }
   };
 
-  const handleConceptClick = async (concept: string) => {
+   const handleConceptClick = async (concept: string) => {
     setSelectedConcept(concept);
     setConceptSummary('⏳ Loading...');
     setShowGraph(false);
@@ -72,6 +98,14 @@ function App() {
       console.error('Error fetching summary', err);
       setConceptSummary('⚠️ Failed to load summary.');
     }
+  };
+  // This function is passed to the Quiz component and called when the user clicks "Restart Quiz"
+  const handleQuizRestart = async () => {
+    console.log("App.tsx: Quiz restart requested by Quiz component.");
+    // Reset acknowledgment so user must acknowledge again if they navigate back to prerequisites
+    setIsAcknowledged(false);
+    // Call fetchMCQs with 'true' to signal backend to get fresh questions
+    await fetchMCQs(true);
   };
 
   return (
@@ -106,9 +140,14 @@ function App() {
         padding: '40px',
         boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
       }}>
-        {/* LEFT SIDE */}
+        {/* LEFT SIDE: Topic Input & Prerequisites */}
         <div style={{ flex: 1, minWidth: '300px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '20px', color: '#1f2937' }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            marginBottom: '20px',
+            color: '#1f2937'
+          }}>
             Enter a Topic
           </h2>
 
@@ -127,7 +166,8 @@ function App() {
                     color: '#3730a3',
                     borderRadius: '20px',
                     cursor: 'pointer',
-                    fontSize: '14px'
+                    fontSize: '14px',
+                    transition: '0.2s ease-in-out'
                   }}
                 >
                   {t}
@@ -136,7 +176,7 @@ function App() {
             </div>
           </div>
 
-          {/* INPUT FIELD */}
+          {/* INPUT FIELD & GENERATE BUTTON */}
           <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
             <input
               value={topic}
@@ -167,6 +207,14 @@ function App() {
               {loading ? 'Loading...' : 'Generate'}
             </button>
           </div>
+
+          {/* LOADER FOR PREREQUISITES */}
+          {loading && (
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+              <div className="loader"></div>
+              <p>Generating personalized recommendations...</p>
+            </div>
+          )}
 
           {/* PREREQUISITES LIST */}
           {data && (
@@ -203,8 +251,7 @@ function App() {
   ))}
 </ul>
 
-
-              {/* CHECKBOX + START QUIZ */}
+              {/* CHECKBOX AND START QUIZ BUTTON (only visible if MCQs haven't been loaded yet for current data) */}
               {!mcqs && (
                 <>
                   <label style={{ display: 'flex', alignItems: 'center', marginTop: '20px', color: '#374151' }}>
@@ -217,7 +264,7 @@ function App() {
                     I have thoroughly reviewed all prerequisites and am ready for the test
                   </label>
                   <button
-                    onClick={fetchMCQs}
+                    onClick={() => fetchMCQs(false)} // Initial fetch: no cache reset needed
                     style={{
                       marginTop: '10px',
                       padding: '12px 20px',
@@ -249,7 +296,7 @@ function App() {
           )}
         </div>
 
-        {/* RIGHT SIDE – Graph or Concept Summary */}
+         {/* RIGHT SIDE – Graph or Concept Summary */}
         <div style={{ flex: 1.5, minWidth: '400px', minHeight: '500px' }}>
           {showGraph && data?.topic && data?.prerequisites && (
             <div style={{
@@ -283,10 +330,33 @@ function App() {
         </div>
       </div>
 
-      {/* MCQ QUIZ */}
+      {/* MCQ QUIZ SECTION */}
       <div style={{ marginTop: '40px' }}>
-        {mcqs && <Quiz mcqs={mcqs} />}
+        {mcqs && (
+          <Quiz
+            mcqs={mcqs}
+            quizId={currentQuizSessionId} // Pass the unique session ID to Quiz
+            onRestartQuiz={handleQuizRestart} // Pass the restart handler to Quiz
+          />
+        )}
       </div>
+
+      {/* GLOBAL CSS FOR SPINNER */}
+      <style>{`
+        .loader {
+          border: 5px solid #e0e7ff;
+          border-top: 5px solid #6366f1;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 10px;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
