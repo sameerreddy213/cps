@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   BookOpen,
@@ -103,7 +103,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">
                 <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                  {userEmail}
+                  <Link to={'/profile'}>{userEmail}</Link>
                 </span>
               </div>
             )}

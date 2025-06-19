@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { BookOpen, Users, Trophy, ArrowRight } from "lucide-react";
 import api from "../services/api";
 import ThemeToggle from "../components/ThemeToggle";
+//update the themes by Alakh Mathur
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();

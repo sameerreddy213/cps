@@ -9,7 +9,6 @@ const router = express.Router();
 interface JwtPayload {
   email: string;
 }
-
 // GET /api/user/passed
 router.get('/passed', async (req: Request, res: Response): Promise<void> => {
   const authHeader = req.headers.authorization;
