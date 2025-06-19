@@ -1,5 +1,6 @@
-/* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
-/* UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025 AND 17/06/2025 */
+// /* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
+// /* UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025 AND 17/06/2025 */
+/*Modified by Nakshatra Bhandary on 18/6/25 to add the timer*/
 /* UPDATED BY NIKITA S RAJ KAPINI ON 18/06/2025 */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -47,6 +48,12 @@ interface ResponseWithCorrectness {
   isCorrect: boolean;
 }
 
+const formatSeconds = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
 const AssessmentDisplay: React.FC<{
   selectedTopics: Topic[];
   shouldGenerateAssessment: boolean;
@@ -61,6 +68,10 @@ const AssessmentDisplay: React.FC<{
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
   const [assessmentStarted, setAssessmentStarted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(0); // in seconds
+  const [totalTime, setTotalTime] = useState<number>(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
 
   const userId = getUserEmailFromToken();
   const reportRef = useRef<HTMLDivElement>(null);
@@ -81,10 +92,31 @@ const AssessmentDisplay: React.FC<{
   };
 
   const handleRetry = () => {
+    if (timerRef.current) {
+    clearInterval(timerRef.current);
+    timerRef.current = null;
+    }
     setShowResults(false);
     setUserAnswers({});
     setResponsesWithCorrectness([]);
     setAssessmentStarted(true);
+
+    // Reset timeLeft
+    const totalTime = questions.length * 1 * 60; // 1 mins per question
+    setTimeLeft(totalTime);
+    setTotalTime(totalTime);
+
+    // Restart timer
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          handleSubmit(); // Auto-submit when timer ends
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   useEffect(() => {
@@ -124,7 +156,24 @@ const AssessmentDisplay: React.FC<{
         }));
 
         setQuestions(transformed);
-        setAssessmentStarted(true); 
+        setAssessmentStarted(true);
+        const totalTime = data.questions.length * 1 * 60; // 1 minutes per question
+        setTimeLeft(totalTime);
+        setTotalTime(totalTime);
+
+        // Start timer
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        timerRef.current = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(timerRef.current!);
+              handleSubmit(); // Auto-submit when time is up
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       } catch (err) {
         console.error('Error generating assessment:', err);
       } finally {
@@ -157,6 +206,8 @@ const AssessmentDisplay: React.FC<{
   };
 
   const handleSubmit = async () => {
+  if (timerRef.current) 
+    {clearInterval(timerRef.current);}
   const token = localStorage.getItem('token');
     if (!token) {
       alert("Please login to continue.");
@@ -252,6 +303,10 @@ const AssessmentDisplay: React.FC<{
         <div className="assessment-content">
           {!showResults ? (
             <div className="questions-container">
+                  <div className="timer-display mb-4 text-lg font-semibold text-red-600">
+                    ⏳ Time Left: {Math.floor(timeLeft / 60)}:
+                    {(timeLeft % 60).toString().padStart(2, '0')}
+                  </div>
               {questions.map((q, index) => (
                 <div key={q.id} className="question-card">
                   <h3>Question {index + 1}</h3>
@@ -339,6 +394,10 @@ const AssessmentDisplay: React.FC<{
 
               <div className="score-display mt-4">
                 <h4>Total Score: {calculateScore()} / {questions.length}</h4>
+              </div>
+              <div className="time-taken mt-4">
+                <h4 className="text-blue-600">Time Taken</h4>
+                <p>You spent {formatSeconds(totalTime - timeLeft)} minutes on this assessment.</p>
               </div>
 
               <div className="revisit-topics mt-4">
