@@ -1,17 +1,30 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-
+/*
+avatar: "",
+    masteredTopics: 3,
+    totalScore: 85,
+    streak: 7
+*/
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
+  avatar:string;
+  masteredTopics:Number;
+  totalScore:Number;
+  streak:Number;
 }
 
 const userSchema: Schema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  avatar:{type: String,required:false,default:''},
+  masteredTopics:{type: Number,required:false,default:0},
+  totalScore:{type: Number,required:false,default:0},
+  streak:{type: Number,required:false,default:0},
 });
 
 // Hash password before saving
