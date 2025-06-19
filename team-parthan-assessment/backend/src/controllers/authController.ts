@@ -30,7 +30,7 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Create new user
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password});
     await user.save();
 
     // Generate JWT
