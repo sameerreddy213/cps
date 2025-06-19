@@ -1,6 +1,7 @@
 // /* AUTHOR - SHREYAS MENE (CREATED ON 13/06/2025) */
 // /* UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025 AND 17/06/2025 */
 /*Modified by Nakshatra Bhandary on 18/6/25 to add the timer*/
+/* UPDATED BY NIKITA S RAJ KAPINI ON 18/06/2025 */
 
 import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
@@ -125,6 +126,9 @@ const AssessmentDisplay: React.FC<{
 
       setTargetTopic(topic);
       setUserAnswers({});
+      setShowResults(false); 
+      setResponsesWithCorrectness([]); 
+      setRevisitTopics([]); 
       setLoading(true);
 
       try {
@@ -170,7 +174,6 @@ const AssessmentDisplay: React.FC<{
             return prev - 1;
           });
         }, 1000);
-
       } catch (err) {
         console.error('Error generating assessment:', err);
       } finally {
@@ -217,7 +220,7 @@ const AssessmentDisplay: React.FC<{
     try {
       const payload = {
         assessmentId,
-        userId, // ✅ include user email from decoded token
+        userId, // include user email from decoded token
         answers: questions.map((_, idx) => ({
           userAnswer: userAnswers[idx + 1] || [],
         }))
@@ -229,7 +232,7 @@ const AssessmentDisplay: React.FC<{
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(payload) // ✅ now sends userId too
+        body: JSON.stringify(payload) 
       });
 
       const result = await response.json();
