@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import prereqRoutes from './routes/prerequisites';
+import summaryRoutes from './routes/summaryRoute' 
 
 dotenv.config(); // Load .env
 
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/prerequisites', prereqRoutes);
+app.use('/api', summaryRoutes); 
 
 mongoose.connect(process.env.MONGO_URI!)
   .then(() => console.log('MongoDB connected'))
