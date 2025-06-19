@@ -1,21 +1,20 @@
 import type { Topic } from "../interface/types";
+import api from "./api";
 
 export const submitQuiz = async (
-  userId: string,
   courseId: string,
   passed: boolean,
   score: number
 ): Promise<Topic[]> => {
-  await fetch('/api/user-progress/complete', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, courseId, passed, score }),
-  });
+  await api.post('/user-progress/complete', 
+   
+    {  courseId, passed, score },
+  );
 
-  const progressRes = await fetch(`/api/user-progress/${userId}`);
-  if (!progressRes.ok) {
+  const progressRes = await api.get(`/user-progress/`);
+  if (progressRes.status < 200 || progressRes.status >= 300) {
     throw new Error('Failed to fetch updated progress');
   }
 
-  return await progressRes.json();
+  return progressRes.data;
 };

@@ -2,11 +2,13 @@ import express, { Request, Response } from 'express';
 import Course, { ICourse } from '../models/Course';
 import UserCourseProgress, { IUserCourseProgress } from '../models/UserCourseProgress';
 import User, { IUser } from '../models/User';
+import { auth } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-router.get('/:id', async (req: Request, res: Response): Promise<void> => {
-  const userId = req.params.id;
+router.get('/',auth, async (req: any, res: Response): Promise<void> => {
+  const userId = req.userId;
+  
   try {
     let userProgress = await UserCourseProgress.findOne({ userId });
 
@@ -36,9 +38,10 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 });
 
 
-router.post('/complete', async (req: Request, res: Response): Promise<void> => {
-  const { userId, courseId, passed, score } = req.body;
+router.post('/complete',auth, async (req: any, res: Response): Promise<void> => {
+  const { courseId, passed, score } = req.body;
   try {
+    const userId = req.userId; 
     let progress = await UserCourseProgress.findOne({ userId });
     if (!progress) {
       res.status(404).json({ error: 'Progress not found' });

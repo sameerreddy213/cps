@@ -20,6 +20,7 @@ import {
 
 import ConceptAnalyzer from './ConceptAnalyzer';
 import { getDetails } from '../services/detailService';
+import api from '../services/api';
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -106,27 +107,12 @@ const [searchQuery, setSearchQuery] = useState('');
   //     status: 'not-started' }
   // ]);
 
-  const[userId,setUserId] = useState('')
-
-  
-
-  useEffect(() => {
-  const fetchDetails = async () => {
-    try {
-      const details = await getDetails();
-      setUserId(details._id);
-    } catch (err) {
-      console.error("Error fetching user details:", err);
-    }
-  };
-  fetchDetails();
-}, []);
-
+ 
 useEffect(() => {
   const fetchTopics = async () => {
     try {
-      const res = await fetch(`/api/user-progress/${userId}`);
-      const data = await res.json();
+      const res = await api.get('/user-progress/');
+      const data = res.data;
 
       const fixed = data.map((topic: Topic) => ({
         ...topic,
@@ -139,9 +125,9 @@ useEffect(() => {
       setTopics([]);
     }
   };
-
-  if (userId) fetchTopics();
-}, [userId]);
+ fetchTopics()
+  
+}, []);
 
   
   
@@ -604,9 +590,9 @@ useEffect(() => {
       // }));
       const passed = score >= 70;
 
-  if (completedQuiz.topicId && userId) {
+  if (completedQuiz.topicId) {
     try {
-      const updated = await submitQuiz(userId, completedQuiz.topicId, passed, correctAnswers);
+      const updated = await submitQuiz(completedQuiz.topicId, passed, correctAnswers);
 const fixed = updated.map(t => ({
   ...t,
   lastAttempt: t.lastAttempt ? new Date(t.lastAttempt) : undefined,
