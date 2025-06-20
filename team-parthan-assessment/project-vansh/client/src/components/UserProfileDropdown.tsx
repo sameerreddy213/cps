@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import {
   User,
   Settings,
@@ -117,7 +117,7 @@ const UserProfileDropdown: React.FC = () => {
     setShowPhotoUpload(false);
   };
   const { data: details} = useSWR('/me', getDetails, {
-    dedupingInterval: 300000,
+    dedupingInterval: 600000,
     revalidateOnFocus: false,
   });
 
@@ -139,6 +139,7 @@ const UserProfileDropdown: React.FC = () => {
       try {
         if (photo) {
           await uploadPhoto(photo);
+          mutate("/me");
           console.log("Photo uploaded");
         }
       } catch (error) {

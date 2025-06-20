@@ -33,6 +33,7 @@ import UserStats from "./UserStats";
 import MobileNav from "./MobileNav";
 import UserProfileDropdown from "./UserProfileDropdown";
 import { submitQuiz } from "../services/progressUpdate";
+import { mutate } from "swr";
 
 import {
   Dialog,
@@ -135,6 +136,7 @@ const MainPage: React.FC = () => {
       }
     };
     updateMasteredTopics();
+    mutate("/me");
     const updateAverageScore = async () => {
       const averageScore =
         topics.reduce((acc, topic) => {
@@ -157,6 +159,7 @@ const MainPage: React.FC = () => {
       }
     };
     updateAverageScore();
+    mutate("/me");
   }, [topics]);
   // Timer effect for quiz
   useEffect(() => {
