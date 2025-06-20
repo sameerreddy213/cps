@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import Graph from './components/Graph'; // Assuming this path is correct
-import Quiz from './components/Quiz';     // Assuming this path is correct
-import { v4 as uuidv4 } from 'uuid';      // Import uuid for generating unique quiz IDs
+import Graph from './components/Graph';
+import Quiz from './components/Quiz';
+import { v4 as uuidv4 } from 'uuid';
 
-// Type definitions (ensure they match your backend's types)
+// Type definitions
 type PrereqData = {
   topic: string;
   prerequisites: string[];
 };
 
 type MCQ = {
-  id: string; // Crucial: Each MCQ must have a unique ID, matching Quiz.tsx and mcqGenerator.ts
+  id: string;
   topic: string;
   question: string;
   options: string[];
@@ -20,32 +20,53 @@ type MCQ = {
 
 function App() {
   const [topic, setTopic] = useState('');
-  const [data, setData] = useState<PrereqData | null>(null); // Stores prerequisites data
-  const [mcqs, setMcqs] = useState<MCQ[] | null>(null); // Stores fetched MCQs
-  const [loading, setLoading] = useState(false); // For initial prerequisite generation
-  const [isAcknowledged, setIsAcknowledged] = useState(false); // Checkbox state
-  const [quizLoading, setQuizLoading] = useState(false); // For MCQ fetching
-  // This unique ID is crucial. When it changes, Quiz.tsx knows it's a new quiz instance.
+  const [data, setData] = useState<PrereqData | null>(null);
+  const [mcqs, setMcqs] = useState<MCQ[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
+  const [quizLoading, setQuizLoading] = useState(false);
   const [selectedConcept, setSelectedConcept] = useState('');
   const [conceptSummary, setConceptSummary] = useState('');
   const [showGraph, setShowGraph] = useState(true);
-
   const [currentQuizSessionId, setCurrentQuizSessionId] = useState<string>(uuidv4());
+  const [attemptsToday, setAttemptsToday] = useState(0);
+  const [canAttempt, setCanAttempt] = useState(true);
+  const [quizPassed, setQuizPassed] = useState(false);
 
-  // Function to fetch prerequisites from the backend
+  // Check remaining attempts on mount or topic change
+  useEffect(() => {
+    const checkAttempts = async () => {
+      if (!topic) return;
+      try {
+        const res = await axios.get('http://localhost:5000/api/quiz-attempts', {
+          params: { topic },
+        });
+        setAttemptsToday(res.data.attemptsToday);
+        setCanAttempt(res.data.canAttempt);
+      } catch (err) {
+        console.error('Error checking quiz attempts:', err);
+        alert('Failed to verify quiz attempts. Please try again.');
+      }
+    };
+    checkAttempts();
+  }, [topic]);
+
   const handleSubmit = async () => {
     if (!topic.trim()) {
       alert('Please enter a topic.');
       return;
     }
     setLoading(true);
-    setMcqs(null); // Clear any existing MCQs
-    setData(null); 
+    setMcqs(null);
+    setData(null);
     setSelectedConcept('');
     setConceptSummary('');
-    setShowGraph(true);// Clear previous prerequisite data
-    setIsAcknowledged(false); // Reset acknowledgment for a new topic search
-    setCurrentQuizSessionId(uuidv4()); // Generate a brand new session ID for a fresh start with a new topic
+    setShowGraph(true);
+    setIsAcknowledged(false);
+    setCurrentQuizSessionId(uuidv4());
+    setQuizPassed(false);
+    setAttemptsToday(0);
+    setCanAttempt(true);
     try {
       const res = await axios.post('http://localhost:5000/api/prerequisites', { topic });
       setData(res.data);
@@ -57,28 +78,41 @@ function App() {
     }
   };
 
-  // Function to fetch MCQs from the backend
-  // 'resetCache' flag tells the backend to clear its in-memory question cache for this set of topics
   const fetchMCQs = async (resetCache: boolean = false) => {
-    // Only proceed if prerequisites data is available and acknowledged (unless it's a reset)
     if (!data || (!isAcknowledged && !resetCache)) {
       if (!data) console.warn("No prerequisite data to fetch MCQs for.");
       if (!isAcknowledged && !resetCache) console.warn("Prerequisites not acknowledged yet.");
       return;
     }
 
+    // Check attempts before fetching
+    try {
+      const res = await axios.get('http://localhost:5000/api/quiz-attempts', {
+        params: { topic: data.topic },
+      });
+      setAttemptsToday(res.data.attemptsToday);
+      setCanAttempt(res.data.canAttempt);
+      if (!res.data.canAttempt) {
+        alert(`Max attempts reached for ${data.topic} today. Please try again tomorrow.`);
+        return;
+      }
+    } catch (err) {
+      console.error('Error checking quiz attempts:', err);
+      alert('Failed to verify quiz attempts. Please try again.');
+      return;
+    }
+
     setQuizLoading(true);
-    setMcqs(null); // Clear current MCQs while loading new ones
-    // Generate a new quiz ID for the Quiz component.
-    // This is the signal that forces Quiz.tsx to fully reset its state.
+    setMcqs(null);
     setCurrentQuizSessionId(uuidv4());
+    setQuizPassed(false);
 
     try {
       const res = await axios.post('http://localhost:5000/api/prerequisites/mcq', {
         prerequisites: data.prerequisites,
-        restart: resetCache, // Pass the restart flag to your backend
+        restart: resetCache,
       });
-      setMcqs(res.data); // Update MCQs with the new set from backend
+      setMcqs(res.data);
       console.log("MCQs fetched successfully. Current quiz ID:", currentQuizSessionId);
     } catch (err) {
       console.error('Error fetching MCQs:', err);
@@ -88,7 +122,7 @@ function App() {
     }
   };
 
-   const handleConceptClick = async (concept: string) => {
+  const handleConceptClick = async (concept: string) => {
     setSelectedConcept(concept);
     setConceptSummary('⏳ Loading...');
     setShowGraph(false);
@@ -103,13 +137,51 @@ function App() {
       setConceptSummary('⚠️ Failed to load summary.');
     }
   };
-  // This function is passed to the Quiz component and called when the user clicks "Restart Quiz"
-  const handleQuizRestart = async () => {
-    console.log("App.tsx: Quiz restart requested by Quiz component.");
-    // Reset acknowledgment so user must acknowledge again if they navigate back to prerequisites
+
+  const handleQuizRestart = async (score: number, passed: boolean) => {
+    console.log("App.tsx: Quiz restart requested by Quiz component. Score:", score, "Passed:", passed);
+    if (passed) {
+      console.log("Restart blocked: User passed the quiz.");
+      setQuizPassed(true);
+      return;
+    }
+
+    try {
+      const res = await axios.get('http://localhost:5000/api/quiz-attempts', {
+        params: { topic: data?.topic },
+      });
+      setAttemptsToday(res.data.attemptsToday);
+      setCanAttempt(res.data.canAttempt);
+      if (!res.data.canAttempt) {
+        console.log("Restart blocked: Max attempts reached.");
+        return;
+      }
+    } catch (err) {
+      console.error('Error checking quiz attempts:', err);
+      alert('Failed to verify quiz attempts. Please try again.');
+      return;
+    }
+
     setIsAcknowledged(false);
-    // Call fetchMCQs with 'true' to signal backend to get fresh questions
     await fetchMCQs(true);
+  };
+
+  const handleQuizSubmit = async (score: number, total: number) => {
+    const passed = (score / total) * 100 >= 75;
+    setQuizPassed(passed);
+    try {
+      await axios.post('http://localhost:5000/api/quiz-attempts', {
+        quizId: currentQuizSessionId,
+        score: (score / total) * 100,
+        passed,
+        topic: data?.topic,
+      });
+      setAttemptsToday((prev) => prev + 1);
+      setCanAttempt(attemptsToday + 1 < 3);
+    } catch (err) {
+      console.error('Error recording quiz attempt:', err);
+      alert('Failed to record quiz attempt. Please try again.');
+    }
   };
 
   return (
@@ -118,7 +190,6 @@ function App() {
       background: 'linear-gradient(to right, #f3f4f6, #e0e7ff)',
       padding: '20px',
     }}>
-      {/* HEADER */}
       <header style={{
         backgroundColor: '#4f46e5',
         color: '#fff',
@@ -144,7 +215,6 @@ function App() {
         padding: '40px',
         boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
       }}>
-        {/* LEFT SIDE: Topic Input & Prerequisites */}
         <div style={{ flex: 1, minWidth: '300px' }}>
           <h2 style={{
             fontSize: '24px',
@@ -155,7 +225,6 @@ function App() {
             Enter a Topic
           </h2>
 
-          {/* SUGGESTIONS */}
           <div style={{ marginBottom: '20px' }}>
             <p style={{ marginBottom: '10px', fontWeight: 600 }}>Try one of these:</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -180,7 +249,6 @@ function App() {
             </div>
           </div>
 
-          {/* INPUT FIELD & GENERATE BUTTON */}
           <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
             <input
               value={topic}
@@ -212,7 +280,6 @@ function App() {
             </button>
           </div>
 
-          {/* LOADER FOR PREREQUISITES */}
           {loading && (
             <div style={{ marginTop: '20px', textAlign: 'center' }}>
               <div className="loader"></div>
@@ -220,43 +287,41 @@ function App() {
             </div>
           )}
 
-          {/* PREREQUISITES LIST */}
           {data && (
             <>
               <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '20px', fontWeight: 600 }}>
                 Prerequisites for <span style={{ color: '#6366f1' }}>{data.topic}</span>
               </h3>
               <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-  {data.prerequisites.map((item, i) => (
-    <li
-      key={i}
-      onClick={() => handleConceptClick(item)}
-      title="Click to explore this topic"
-      style={{
-        color: '#1f2937',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        marginBottom: '6px',
-        textDecoration: selectedConcept === item ? 'underline' : 'none',
-        fontWeight: selectedConcept === item ? 'bold' : 'normal',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.textDecoration = 'underline';
-        e.currentTarget.style.color = '#4f46e5';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.textDecoration =
-          selectedConcept === item ? 'underline' : 'none';
-        e.currentTarget.style.color = '#1f2937';
-      }}
-    >
-      {item}
-    </li>
-  ))}
-</ul>
+                {data.prerequisites.map((item, i) => (
+                  <li
+                    key={i}
+                    onClick={() => handleConceptClick(item)}
+                    title="Click to explore this topic"
+                    style={{
+                      color: '#1f2937',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      marginBottom: '6px',
+                      textDecoration: selectedConcept === item ? 'underline' : 'none',
+                      fontWeight: selectedConcept === item ? 'bold' : 'normal',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = 'underline';
+                      e.currentTarget.style.color = '#4f46e5';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration =
+                        selectedConcept === item ? 'underline' : 'none';
+                      e.currentTarget.style.color = '#1f2937';
+                    }}
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
 
-              {/* CHECKBOX AND START QUIZ BUTTON (only visible if MCQs haven't been loaded yet for current data) */}
-              {!mcqs && (
+              {!mcqs && canAttempt && (
                 <>
                   <label style={{ display: 'flex', alignItems: 'center', marginTop: '20px', color: '#374151' }}>
                     <input
@@ -268,7 +333,7 @@ function App() {
                     I have thoroughly reviewed all prerequisites and am ready for the test
                   </label>
                   <button
-                    onClick={() => fetchMCQs(false)} // Initial fetch: no cache reset needed
+                    onClick={() => fetchMCQs(false)}
                     style={{
                       marginTop: '10px',
                       padding: '12px 20px',
@@ -291,16 +356,20 @@ function App() {
                         Starting...
                       </>
                     ) : (
-                      'Start Quiz on Prerequisites'
+                      `Start Quiz on Prerequisites (${3 - attemptsToday} attempt${3 - attemptsToday === 1 ? '' : 's'} left today)`
                     )}
                   </button>
                 </>
+              )}
+              {!canAttempt && (
+                <p style={{ color: '#ef4444', marginTop: '20px', fontWeight: 'bold' }}>
+                  ⚠️ Max attempts reached for {data.topic} today. Please try again tomorrow.
+                </p>
               )}
             </>
           )}
         </div>
 
-         {/* RIGHT SIDE – Graph or Concept Summary */}
         <div style={{ flex: 1.5, minWidth: '400px', minHeight: '500px' }}>
           {showGraph && data?.topic && data?.prerequisites && (
             <div style={{
@@ -334,18 +403,21 @@ function App() {
         </div>
       </div>
 
-      {/* MCQ QUIZ SECTION */}
       <div style={{ marginTop: '40px' }}>
         {mcqs && (
           <Quiz
             mcqs={mcqs}
-            quizId={currentQuizSessionId} // Pass the unique session ID to Quiz
-            onRestartQuiz={handleQuizRestart} // Pass the restart handler to Quiz
+            quizId={currentQuizSessionId}
+            onRestartQuiz={handleQuizRestart}
+            onSubmitQuiz={handleQuizSubmit}
+            canAttempt={canAttempt}
+            attemptsToday={attemptsToday}
+            quizPassed={quizPassed}
+            topic={data?.topic || ''}
           />
         )}
       </div>
 
-      {/* GLOBAL CSS FOR SPINNER */}
       <style>{`
         .loader {
           border: 5px solid #e0e7ff;
