@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import LearningHistory from '../models/LearningHistory';
 import dotenv from 'dotenv';
-//providing the .env access
+import PDFDocument from 'pdfkit';
 
 dotenv.config();
 const router = express.Router();
@@ -18,8 +18,6 @@ interface LearningModule {
   completed: boolean;
 }
 
-
-// Augment the Express Request type to include the user field
 declare module 'express-serve-static-core' {
   interface Request {
     user?: string | JwtPayload;
@@ -28,22 +26,23 @@ declare module 'express-serve-static-core' {
 
 const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader) {
     res.sendStatus(401);
     return;
   }
-
   const token = authHeader.split(' ')[1];
+  if (!token) {
+    res.sendStatus(401);
+    return;
+  }
 
   jwt.verify(token, process.env.JWT_SECRET as string, (err, user) => {
     if (err) {
       res.sendStatus(403);
       return;
     }
-
     req.user = user;
-    next(); // ✅ This is key to conform to Express middleware typing
+    next();
   });
 };
 
@@ -73,33 +72,13 @@ Do not use markdown formatting - just plain text with line breaks for paragraphs
     });
 
     const data = await response.json();
-    const content = data.candidates[0].content.parts[0].text;
-    
-    return content;
-  } catch (error: any) {
-    console.error("❌ Content generation error:", error);
+    return data.candidates[0].content.parts[0].text;
+  } catch {
     return `
 Welcome to learning ${topic}!
 
-${topic} is an important subject that forms the foundation for many advanced concepts. Understanding ${topic} will help you build a strong knowledge base and prepare you for more complex topics.
-
-Key Concepts:
-The fundamental principles of ${topic} involve understanding its core components and how they work together. This includes learning the basic terminology, understanding the underlying mechanisms, and recognizing common patterns and applications.
-
-Practical Applications:
-${topic} has many real-world applications across various fields. By mastering these concepts, you'll be able to apply this knowledge to solve practical problems and understand more advanced topics that build upon these foundations.
-
-Learning Approach:
-To effectively learn ${topic}, it's recommended to:
-1. Start with the basic concepts and definitions
-2. Work through examples and practice problems
-3. Apply the knowledge to real-world scenarios
-4. Review and reinforce your understanding regularly
-
-Next Steps:
-Once you've mastered the fundamentals of ${topic}, you'll be ready to explore more advanced topics and applications. Take the quiz to test your understanding and demonstrate your knowledge of these important concepts.
-
-Remember, learning is a process, and mastering ${topic} takes time and practice. Don't hesitate to review the material multiple times and seek additional resources if needed.
+${topic} is an important subject that forms the foundation for many advanced concepts...
+(placeholder fallback content)
     `;
   }
 }
@@ -116,16 +95,17 @@ Each module should have:
 Format as JSON array:
 [
   {
-    "id": "module-1",
-    "title": "Module Title",
-    "content": "Learning content here...",
-    "duration": "15 min",
-    "type": "text",
-    "downloadUrl": "/downloads/module-1.pdf"
+    "id": "[module-1-unique-id]",
+    "title": "[Module Title]",
+    "content": "[Learning content here...]",
+    "duration": "[15 min]",
+    "type": "[text]"
   }
 ]
 
 Make sure modules build upon each other logically.
+Ensure 'id' is a unique string for each module.
+
 `;
 
   try {
@@ -140,148 +120,210 @@ Make sure modules build upon each other logically.
     const data = await response.json();
     const rawText = data.candidates[0].content.parts[0].text;
     const cleaned = rawText.replace(/```json\n?|\n?```/g, '').trim();
-    const modules = JSON.parse(cleaned);
+    let modules: any[];
 
-    // Check completion status from database
-    const completedModules = await LearningHistory.find({ 
-      userEmail, 
-      topic, 
-      completed: true 
-    });
-    
+    try {
+      modules = JSON.parse(cleaned);
+      if (!Array.isArray(modules)) throw new Error("Not an array.");
+    } catch {
+      modules = [];
+    }
+
+    const completedModules = await LearningHistory.find({ userEmail, topic, completed: true });
     const completedModuleIds = completedModules.map(h => h.moduleId);
 
     return modules.map((module: any) => ({
-      ...module,
+      id: module.id || crypto.randomUUID(),
+      title: module.title || 'Untitled Module',
+      content: module.content || 'No content.',
+      duration: module.duration || 'N/A',
+      type: module.type || 'text',
+      downloadUrl: `/api/learn/download/${encodeURIComponent(topic)}/${module.id || crypto.randomUUID()}`,
       completed: completedModuleIds.includes(module.id)
     }));
 
-  } catch (error: any) {
-    console.error("❌ Module generation error:", error);
+  } catch {
     return [
       {
-        id: "intro",
+        id: "intro-fallback",
         title: `Introduction to ${topic}`,
-        content: `Welcome to ${topic}! This module covers the basic concepts and foundations you need to understand before diving deeper.`,
+        content: `Fallback module.`,
         duration: "20 min",
-        type: "text" as const,
-        downloadUrl: `/downloads/${topic.toLowerCase()}-intro.pdf`,
-        completed: false
-      },
-      {
-        id: "fundamentals",
-        title: `${topic} Fundamentals`,
-        content: `Learn the core principles and fundamental concepts that form the backbone of ${topic}.`,
-        duration: "30 min",
-        type: "text" as const,
-        downloadUrl: `/downloads/${topic.toLowerCase()}-fundamentals.pdf`,
-        completed: false
-      },
-      {
-        id: "practical",
-        title: `Practical Applications`,
-        content: `Explore real-world applications and examples of how ${topic} is used in practice.`,
-        duration: "25 min",
-        type: "interactive" as const,
+        type: "text",
+        downloadUrl: `/api/learn/download/${encodeURIComponent(topic)}/intro-fallback`,
         completed: false
       }
     ];
   }
 }
 
-// GET /api/learn/:topic - Get learning content for a topic
 router.get('/:topic', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { topic } = req.params;
     const content = await generateLearningContent(topic);
-    
     res.json({ content });
-  } catch (error) {
-    console.error('Error generating learning content:', error);
+  } catch {
     res.status(500).json({ message: 'Failed to generate learning content' });
   }
 });
 
-// GET /api/learn/:topic/modules - Get learning modules for a topic
 router.get('/:topic/modules', authenticateToken, async (req: any, res: Response) => {
   try {
     const { topic } = req.params;
     const userEmail = req.user.email;
     const modules = await generateLearningModules(topic, userEmail);
-    
     res.json({ modules });
-  } catch (error) {
-    console.error('Error generating learning modules:', error);
+  } catch {
     res.status(500).json({ message: 'Failed to generate learning modules' });
   }
 });
 
-// GET /api/learn/history/:topic - Get learning history for a topic
 router.get('/history/:topic', authenticateToken, async (req: any, res: Response) => {
   try {
     const { topic } = req.params;
     const userEmail = req.user.email;
-    
     const history = await LearningHistory.find({ userEmail, topic }).sort({ completedAt: -1 });
-    
     res.json({ history });
-  } catch (error) {
-    console.error('Error fetching learning history:', error);
+  } catch {
     res.status(500).json({ message: 'Failed to fetch learning history' });
   }
 });
 
-// POST /api/learn/complete-module - Mark a module as completed
 router.post('/complete-module', authenticateToken, async (req: any, res: Response) => {
   try {
     const { topic, moduleId } = req.body;
     const userEmail = req.user.email;
-    
-    // Check if already completed
     const existing = await LearningHistory.findOne({ userEmail, topic, moduleId });
-    
+
     if (!existing) {
-      const newHistory = new LearningHistory({
-        userEmail,
-        topic,
-        moduleId,
-        completed: true,
-        completedAt: new Date()
-      });
+      const newHistory = new LearningHistory({ userEmail, topic, moduleId, completed: true, completedAt: new Date() });
       await newHistory.save();
     } else if (!existing.completed) {
       existing.completed = true;
       existing.completedAt = new Date();
       await existing.save();
     }
-    
+
     res.json({ message: 'Module marked as completed' });
-  } catch (error) {
-    console.error('Error marking module as complete:', error);
+  } catch {
     res.status(500).json({ message: 'Failed to mark module as complete' });
   }
 });
-//learn module routing fixed
-// GET /api/learn/download/:topic/:moduleId - Download learning material
-router.get('/download/:topic/:moduleId', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const { topic, moduleId } = req.params;
-    
-    // Generate PDF content (simplified - in production, you'd generate actual PDFs)
-    const pdfContent = `Learning Material for ${topic} - Module ${moduleId}
-    
-This is a downloadable learning resource for ${topic}.
-Content would include detailed explanations, examples, and exercises.
 
-Generated on: ${new Date().toLocaleDateString()}
-    `;
-    
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${topic}-${moduleId}.pdf"`);
-    res.send(Buffer.from(pdfContent));
+router.get('/download/:topic/:moduleId', authenticateToken, async (req: Request, res: Response) => {
+  const { topic, moduleId } = req.params;
+  let moduleTitle = `Module ${moduleId}`;
+  let moduleActualContent = `Content for module "${moduleId}" on "${topic}" could not be retrieved.`;
+
+  try {
+    const token = req.headers.authorization;
+    const apiBaseUrl = process.env.YOUR_API_BASE_URL || `http://localhost:5000`;
+
+    const modulesResponse = await fetch(`${apiBaseUrl}/api/learn/${encodeURIComponent(topic!)}/modules`, {
+      headers: { 'Authorization': token as string }
+    });
+
+    const modulesData = await modulesResponse.json();
+    if (modulesData && Array.isArray(modulesData.modules)) {
+      const targetModule = modulesData.modules.find((m: LearningModule) => m.id === moduleId);
+      if (targetModule) {
+        moduleActualContent = targetModule.content;
+        moduleTitle = targetModule.title;
+      }
+    }
+
+    const doc = new PDFDocument({
+  size: 'A4',
+  margins: { top: 50, bottom: 50, left: 60, right: 60 }
+});
+let buffers: Buffer[] = [];
+
+doc.on('data', buffers.push.bind(buffers));
+doc.on('end', () => {
+  const pdfBuffer = Buffer.concat(buffers);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${moduleTitle.replace(/\s/g, '_')}.pdf"`);
+  res.send(pdfBuffer);
+});
+
+// === 📌 Add logo (top-left corner) ===
+try {
+  doc.image('src/logo.png', doc.page.margins.left, doc.page.margins.top - 20, {
+    width: 100,
+    height: 40
+  });
+} catch (logoError) {
+  if (logoError && typeof logoError === 'object' && 'message' in logoError) {
+    console.warn('⚠️ Logo could not be loaded. Skipping logo section:', (logoError as { message: string }).message);
+  } else {
+    console.warn('⚠️ Logo could not be loaded. Skipping logo section:', logoError);
+  }
+}
+
+doc.moveDown(2);
+
+doc.fillColor('#1E88E5')
+  .fontSize(26)
+  .font('Helvetica-Bold')
+  .text(`Learning Material: ${topic}`, { align: 'center' });
+
+doc.moveDown(0.5);
+
+doc.fillColor('black')
+  .fontSize(18)
+  .font('Helvetica-Bold')
+  .text(`Module: ${moduleTitle}`, { align: 'center' });
+
+doc.moveDown(1);
+
+doc.strokeColor('#BDBDBD')
+  .lineWidth(1)
+  .moveTo(doc.page.margins.left, doc.y)
+  .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+  .stroke();
+
+doc.moveDown(1);
+
+const finalContentForPdf = moduleActualContent.trim();
+
+if (finalContentForPdf.length > 0 && !finalContentForPdf.includes('could not be retrieved')) {
+  doc.fontSize(12)
+    .font('Helvetica')
+    .fillColor('black')
+    .text(finalContentForPdf, {
+      align: 'justify',
+      lineGap: 4
+    });
+} else {
+  doc.fontSize(12)
+    .font('Helvetica-Oblique')
+    .fillColor('red')
+    .text(`No detailed content was available for this module. Please check the website or contact support.`, {
+      align: 'center'
+    });
+}
+
+doc.moveDown(2);
+
+doc.fontSize(10)
+  .fillColor('gray')
+  .text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, { align: 'right' });
+
+const range = doc.bufferedPageRange();
+for (let i = 0; i < range.count; i++) {
+  doc.switchToPage(i);
+  doc.fontSize(8)
+    .fillColor('gray')
+    .text(`Page ${i + 1} of ${range.count}`, doc.page.margins.left, doc.page.height - 40, {
+      align: 'center'
+    });
+}
+
+doc.end();
+
   } catch (error) {
-    console.error('Error downloading material:', error);
-    res.status(500).json({ message: 'Failed to download material' });
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ message: 'Failed to generate PDF' });
   }
 });
 

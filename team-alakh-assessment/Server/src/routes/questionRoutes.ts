@@ -20,11 +20,17 @@ interface QuizData {
 // Middleware to verify JWT token
 const authenticateToken = (req: any, res: Response, next: any) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.sendStatus(401);
+  if (!authHeader) {
+    res.sendStatus(401);
+    return;
+  }
 
   const token = authHeader.split(' ')[1];
   jwt.verify(token, process.env.JWT_SECRET!, (err: any, user: any) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      res.sendStatus(403);
+      return;
+    }
     req.user = user;
     next();
   });
@@ -226,11 +232,17 @@ interface QuizData {
 // Middleware to verify JWT token
 const authenticateToken = (req: any, res: Response, next: any) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.sendStatus(401);
+  if (!authHeader) {
+    res.sendStatus(401);
+    return;
+  }
 
   const token = authHeader.split(' ')[1];
   jwt.verify(token, process.env.JWT_SECRET!, (err: any, user: any) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      res.sendStatus(403);
+      return;
+    }
     req.user = user;
     next();
   });
@@ -361,7 +373,8 @@ router.get('/generate/:topic', authenticateToken, async (req: any, res: Response
 
     if (existingSession) {
       // Return existing session questions
-      return res.json({ questions: existingSession.questions });
+      res.json({ questions: existingSession.questions });
+      return;
     }
 
     // Generate new questions
@@ -400,7 +413,8 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
     });
 
     if (!session) {
-      return res.status(404).json({ message: 'No active quiz session found' });
+      res.status(404).json({ message: 'No active quiz session found' });
+      return;
     }
 
     // If cheating was detected, automatically fail
@@ -411,11 +425,12 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
       session.completed = true;
       await session.save();
 
-      return res.json({ 
+      res.json({ 
         score: 0, 
         passed: false, 
         message: 'Quiz terminated due to suspicious activity' 
       });
+      return;
     }
 
     // Calculate score using the stored questions
@@ -468,7 +483,8 @@ router.get('/session/:topic', authenticateToken, async (req: any, res: Response)
     }).sort({ createdAt: -1 }); // Get the most recent completed session
 
     if (!session) {
-      return res.status(404).json({ message: 'No completed quiz session found' });
+      res.status(404).json({ message: 'No completed quiz session found' });
+      return;
     }
 
     res.json({ 
