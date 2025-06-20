@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import axios from 'axios';
-import Graph from './components/Graph'; 
-import Quiz from './components/Quiz';     
-import { v4 as uuidv4 } from 'uuid';      
+import Graph from './components/Graph'; // Assuming this path is correct
+import Quiz from './components/Quiz';     // Assuming this path is correct
+import { v4 as uuidv4 } from 'uuid';      // Import uuid for generating unique quiz IDs
+
+// Type definitions (ensure they match your backend's types)
 type PrereqData = {
   topic: string;
   prerequisites: string[];
 };
 
 type MCQ = {
-  id: string; 
+  id: string; // Crucial: Each MCQ must have a unique ID, matching Quiz.tsx and mcqGenerator.ts
   topic: string;
   question: string;
   options: string[];
@@ -18,11 +20,12 @@ type MCQ = {
 
 function App() {
   const [topic, setTopic] = useState('');
-  const [data, setData] = useState<PrereqData | null>(null); 
-  const [mcqs, setMcqs] = useState<MCQ[] | null>(null); 
-  const [loading, setLoading] = useState(false); 
-  const [isAcknowledged, setIsAcknowledged] = useState(false); 
-  const [quizLoading, setQuizLoading] = useState(false); 
+  const [data, setData] = useState<PrereqData | null>(null); // Stores prerequisites data
+  const [mcqs, setMcqs] = useState<MCQ[] | null>(null); // Stores fetched MCQs
+  const [loading, setLoading] = useState(false); // For initial prerequisite generation
+  const [isAcknowledged, setIsAcknowledged] = useState(false); // Checkbox state
+  const [quizLoading, setQuizLoading] = useState(false); // For MCQ fetching
+  // This unique ID is crucial. When it changes, Quiz.tsx knows it's a new quiz instance.
   const [selectedConcept, setSelectedConcept] = useState('');
   const [conceptSummary, setConceptSummary] = useState('');
   const [showGraph, setShowGraph] = useState(true);
@@ -40,9 +43,10 @@ function App() {
     setData(null); 
     setSelectedConcept('');
     setConceptSummary('');
-    setShowGraph(true);
-    setIsAcknowledged(false); 
-    setCurrentQuizSessionId(uuidv4()); 
+    setShowGraph(true);// Clear previous prerequisite data
+    setIsAcknowledged(false); // Reset acknowledgment for a new topic search
+    setCurrentQuizSessionId(uuidv4()); // Generate a brand new session ID for a fresh start with a new topic
+    try {
       const res = await axios.post('http://localhost:5000/api/prerequisites', { topic });
       setData(res.data);
     } catch (err) {
