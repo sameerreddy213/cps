@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import useSWR from 'swr';
 import {
   User,
   Settings,
@@ -49,7 +50,7 @@ const UserProfileDropdown: React.FC = () => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showPhotoUpload, setShowPhotoUpload] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [photo,setPhoto]=useState<string>('')
+  const [photo, setPhoto] = useState<string>("");
   const navigate = useNavigate();
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -81,7 +82,6 @@ const UserProfileDropdown: React.FC = () => {
   ): void => {
     const file = event.target.files?.[0];
     if (file) {
-
       const reader = new FileReader();
       reader.onload = (e) => {
         setUserProfile((prev) => ({
@@ -116,40 +116,37 @@ const UserProfileDropdown: React.FC = () => {
     }));
     setShowPhotoUpload(false);
   };
+  const { data: details} = useSWR('/me', getDetails, {
+    dedupingInterval: 300000,
+    revalidateOnFocus: false,
+  });
 
   useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        const details = await getDetails();
-        setUserProfile((prev) => ({
-          ...prev,
-          name: details.name,
-          email: details.email,
-          avatar: details.avatar ? details.avatar:'',
-          masteredTopics: details.masteredTopics? details.masteredTopics:0,
-          totalScore: details.totalScore? details.totalScore:0,
-          streak: details.streak? details.streak:0,
-        }));
-      } catch (err) {
-        console.error("Error fetching user details:", err);
-      }
-    };
-    fetchDetails();
-  }, []);
+    if (details) {
+      setUserProfile({
+        name: details.name,
+        email: details.email,
+        avatar: details.avatar || '',
+        masteredTopics: details.masteredTopics || 0,
+        totalScore: details.totalScore || 0,
+        streak: details.streak || 0,
+      });
+    }
+  }, [details]);
 
-  useEffect(()=>{
-    const updatePhoto = async() =>{
+  useEffect(() => {
+    const updatePhoto = async () => {
       try {
-        if (photo){
+        if (photo) {
           await uploadPhoto(photo);
-          console.log('Photo uploaded')
+          console.log("Photo uploaded");
         }
       } catch (error) {
-        console.error('Error uploading photo:', error);
+        console.error("Error uploading photo:", error);
       }
     };
     updatePhoto();
-  },[photo]);
+  }, [photo]);
   return (
     <>
       <div className="relative">
@@ -304,8 +301,8 @@ const UserProfileDropdown: React.FC = () => {
             </div>
           </div>
           <DialogTitle className="text-s font-light text-gray-900">
-                Maximum file size: 100KB
-              </DialogTitle>
+            Maximum file size: 64KB
+          </DialogTitle>
 
           <div className="space-y-3">
             <button
