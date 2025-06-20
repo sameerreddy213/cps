@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
             foundation before tackling advanced topics. Learn systematically,
             progress confidently.
           </p>
-
+           {/*fixed the registration bug*/}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate("/register")}
