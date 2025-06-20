@@ -1,12 +1,13 @@
-// src/App.tsx
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Home from "./components/Home";
-import LanguageSelection from "./components/LanguageSelection";// ✅ Correct casing
+import LanguageSelection from "./components/LanguageSelection";// 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import DifficultySelection from './components/DifficultySelection'; 
+import Quiz from './components/Quiz'; 
+import QuizReview from './components/QuizReview';
 
 const App: React.FC = () => {
   return (
@@ -15,7 +16,10 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
-        <Route path="/language-selection" element={<LanguageSelection />} /> {/* ✅ New route */}
+    	<Route path="/select-language" element={<LanguageSelection />} />
+	 <Route path="/difficulty/:language" element={<DifficultySelection />} /> 
+        <Route path="/questions/:language/:difficulty" element={<Quiz />} />
+        <Route path="/review/:language/:difficulty" element={<QuizReview />} />
       </Routes>
     </Router>
   );

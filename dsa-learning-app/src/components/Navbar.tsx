@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
             <Link className="nav-link" to="/login">{t("navLogin")}</Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to="/language-selection">{t("navLanguages")}</Link>
+           <Link className="nav-link" to="/select-language">{t("navLanguages")}</Link>
           </li>
           <li className="nav-item">
             <span className="nav-link" style={{ cursor: "pointer" }}>{t("navLogout")}</span>
@@ -61,4 +61,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-
