@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import './Sidebar.css';
+import LogoutModal from './LogoutModal';
 
 const Sidebar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Click outside to close dropdown
@@ -37,7 +39,12 @@ const Sidebar: React.FC = () => {
         />
         {showDropdown && (
           <div className="avatar-dropdown">
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={() => setShowModal(true)} className="logout-button">Logout</button>
+            <LogoutModal
+              isOpen={showModal}
+              onConfirm={handleLogout}
+              onCancel={() => setShowModal(false)}
+            />
           </div>
         )}
       </div>
