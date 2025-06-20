@@ -10,7 +10,7 @@ interface UserStatsProps {
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ userProfile, topics, customContents }) => {
-  const completionRate = Math.round((userProfile.masteredTopics.length / topics.length) * 100);
+  const completionRate = Math.round((userProfile.masteredTopics / topics.length) * 100);
   const inProgressTopics = topics.filter(t => t.status === 'in-progress').length;
   const averageScore = topics.reduce((acc, topic) => {
     if (topic.score && topic.totalQuestions) {
@@ -48,7 +48,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userProfile, topics, customConten
               <Award className="w-5 h-5 text-green-600" />
             </div>
             <div className="text-2xl font-bold text-green-600">
-              {userProfile.masteredTopics.length}
+              {userProfile.masteredTopics}
             </div>
             <div className="text-xs text-green-600 font-medium">Mastered</div>
           </div>
@@ -95,14 +95,14 @@ const UserStats: React.FC<UserStatsProps> = ({ userProfile, topics, customConten
         </div>
 
         {/* Recent Achievements */}
-        {userProfile.masteredTopics.length > 0 && (
+        {userProfile.masteredTopics > 0 && (
           <div className="pt-4 border-t border-gray-100">
             <div className="text-sm text-gray-600 mb-3 font-medium">Recent Achievements</div>
             <div className="space-y-2 max-h-32 overflow-y-auto">
-              {userProfile.masteredTopics.slice(-3).map((topicName, index) => (
+              {topics.filter(t => t.status === 'mastered').slice(-3).map((topicName, index) => (
                 <div key={index} className="flex items-center space-x-2 text-sm">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-700">Mastered {topicName}</span>
+                  <span className="text-gray-700">Mastered {topicName.name as string}</span>
                 </div>
               ))}
             </div>

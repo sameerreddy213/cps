@@ -12,7 +12,7 @@ export interface Topic {
 
 export interface UserProfile {
   name: string;
-  masteredTopics: string[];
+  masteredTopics: number;
   totalScore: number;
   streak: number;
 }

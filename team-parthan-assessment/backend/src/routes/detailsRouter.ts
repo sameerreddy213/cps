@@ -1,5 +1,5 @@
 import express from 'express';
-import { details, uploadPhoto } from '../controllers/userDetailsController';
+import { details, uploadPhoto,updateDetails } from '../controllers/userDetailsController';
 import { auth } from '../middlewares/authMiddleware';
 const router= express.Router();
 
@@ -9,5 +9,7 @@ const router= express.Router();
 
 router.get("/", auth, details);
 router.post('/upload-photo',auth,uploadPhoto);
+router.post('/update',auth,updateDetails);
+// router.get('/streak',auth,streakCounter)
 
 export default router;
