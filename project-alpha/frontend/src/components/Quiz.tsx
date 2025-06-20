@@ -1,81 +1,73 @@
-import React, { useState, useEffect, useRef } from 'react';
-//import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // Import icons for arrows
 
-// Define the MCQ type matching your backend
+import React, { useState, useEffect, useRef } from 'react';
+
 type MCQ = {
-  id: string; // Crucial: Each MCQ must have a unique ID
+  id: string;
   topic: string;
   question: string;
   options: string[];
   answer: string;
 };
 
-// Define the props for the Quiz component
 type Props = {
-  mcqs: MCQ[]; // The array of MCQs to display
-  quizId: string; // A unique identifier for the current quiz attempt (from parent)
-  onRestartQuiz?: () => void; // Callback function to request a quiz restart from parent
+  mcqs: MCQ[];
+  quizId: string;
+  onRestartQuiz?: (score: number, passed: boolean) => void;
+  onSubmitQuiz?: (score: number, total: number) => void;
+  canAttempt: boolean;
+  attemptsToday: number;
+  quizPassed: boolean;
+  topic: string;
 };
 
-const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
-  // --- State Variables ---
+const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canAttempt, attemptsToday, quizPassed, topic }) => {
   const [userAnswers, setUserAnswers] = useState<string[]>(Array(mcqs.length).fill(''));
   const [submitted, setSubmitted] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [showWarning, setShowWarning] = useState(false); // For full-screen exit/tab switch warnings
-  const [showEnterFullScreenModal, setShowEnterFullScreenModal] = useState(true); // Initial modal for full screen
+  const [showWarning, setShowWarning] = useState(false);
+  const [showEnterFullScreenModal, setShowEnterFullScreenModal] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [overallTimeLeft, setOverallTimeLeft] = useState(mcqs.length * 60); // 1 minute per question
-  const [warningsLeft, setWarningsLeft] = useState(3); // Start with 3 warnings
-  const [keyPressWarningShown, setKeyPressWarningShown] = useState(false); // Tracks if the first key press alert has been shown
-  const [showKeyPressAlert, setShowKeyPressAlert] = useState(false); // To show/hide the key press notification
-  const [showNavigationPane, setShowNavigationPane] = useState(false); // State for navigation pane visibility
+  const [overallTimeLeft, setOverallTimeLeft] = useState(mcqs.length * 60);
+  const [warningsLeft, setWarningsLeft] = useState(3);
+  const [keyPressWarningShown, setKeyPressWarningShown] = useState(false);
+  const [showKeyPressAlert, setShowKeyPressAlert] = useState(false);
+  const [showNavigationPane, setShowNavigationPane] = useState(false);
 
-  // --- Refs ---
-  const quizRef = useRef<HTMLDivElement>(null); // Ref for the main quiz container to request full screen
-  const timerRef = useRef<number | null>(null); // Ref for the quiz timer interval
+  const quizRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<number | null>(null);
 
-  // --- Effects ---
-
-  // Effect to reset quiz state when a new quiz (identified by quizId) is loaded
   useEffect(() => {
     console.log("Quiz component: quizId changed or mcqs length changed. Resetting state.");
-    setUserAnswers(Array(mcqs.length).fill('')); // Reset user answers
-    setSubmitted(false); // Reset submission status
-    setShowWarning(false); // Hide any warnings
-    setShowEnterFullScreenModal(true); // Show the initial full-screen modal again
-    setCurrentQuestionIndex(0); // Go back to the first question
-    setOverallTimeLeft(mcqs.length * 60); // Reset timer based on new number of questions
-    setWarningsLeft(3); // **CRITICAL FIX**: GUARANTEED RESET of warnings
-    setKeyPressWarningShown(false); // Reset key press warning state
-    setShowKeyPressAlert(false); // Hide key press alert
-    setShowNavigationPane(false); // Hide navigation pane
+    setUserAnswers(Array(mcqs.length).fill(''));
+    setSubmitted(false);
+    setShowWarning(false);
+    setShowEnterFullScreenModal(true);
+    setCurrentQuestionIndex(0);
+    setOverallTimeLeft(mcqs.length * 60);
+    setWarningsLeft(3);
+    setKeyPressWarningShown(false);
+    setShowKeyPressAlert(false);
+    setShowNavigationPane(false);
 
-    // Clear any existing timer to prevent multiple timers running
-    // This is crucial to prevent multiple timers if the quizId changes rapidly
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
 
-    // Ensure full screen is exited if a new quiz loads while still in full screen
-    // This is a safety measure to prevent state inconsistencies
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
+  }, [quizId, mcqs.length]);
 
-  }, [quizId, mcqs.length]); // Dependencies: quizId for full quiz restart, mcqs.length for question count changes
-
-
-  // Effect for the overall quiz timer
   useEffect(() => {
     if (isFullScreen && !submitted) {
       timerRef.current = window.setInterval(() => {
         setOverallTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current!);
-            setSubmitted(true); // Auto-submit when time runs out
+            setSubmitted(true);
             console.log("Quiz auto-submitted: Time ran out.");
+            if (onSubmitQuiz) onSubmitQuiz(getScore(), mcqs.length);
             return 0;
           }
           return prev - 1;
@@ -83,29 +75,27 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
       }, 1000);
     }
     return () => {
-      // Cleanup: clear interval when component unmounts or dependencies change
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, [isFullScreen, submitted]); // Timer runs only when in full screen and not submitted
+  }, [isFullScreen, submitted, onSubmitQuiz, mcqs.length]);
 
-  // Effect to handle full-screen changes and tab visibility
   useEffect(() => {
     const handleFullScreenChange = () => {
       const isCurrentlyFullScreen = !!document.fullscreenElement;
       setIsFullScreen(isCurrentlyFullScreen);
       if (!isCurrentlyFullScreen && !submitted) {
-        // User exited full screen
         setWarningsLeft((prev) => {
           if (prev <= 1) {
-            setSubmitted(true); // Auto-submit if last warning exhausted
+            setSubmitted(true);
             if (timerRef.current) clearInterval(timerRef.current);
             console.log(`Auto-submit: Full-screen exit at ${new Date().toISOString()}. Last warning exhausted.`);
+            if (onSubmitQuiz) onSubmitQuiz(getScore(), mcqs.length);
             return 0;
           }
           const newWarnings = prev - 1;
-          setShowWarning(true); // Show warning modal
+          setShowWarning(true);
           console.log(`Warning: User exited full-screen mode at ${new Date().toISOString()}. Warnings left: ${newWarnings}`);
           return newWarnings;
         });
@@ -114,56 +104,52 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
 
     const handleVisibilityChange = () => {
       if (document.hidden && isFullScreen && !submitted) {
-        // User switched tabs/minimized browser
         setWarningsLeft((prev) => {
           if (prev <= 1) {
-            setSubmitted(true); // Auto-submit if last warning exhausted
+            setSubmitted(true);
             if (timerRef.current) clearInterval(timerRef.current);
             console.log(`Auto-submit: Tab switch at ${new Date().toISOString()}. Last warning exhausted.`);
+            if (onSubmitQuiz) onSubmitQuiz(getScore(), mcqs.length);
             return 0;
           }
           const newWarnings = prev - 1;
-          setShowWarning(true); // Show warning modal
+          setShowWarning(true);
           console.log(`Warning: Tab switch detected at ${new Date().toISOString()}. Warnings left: ${newWarnings}`);
           return newWarnings;
         });
       }
     };
 
-    // Add event listeners
     document.addEventListener('fullscreenchange', handleFullScreenChange);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Cleanup: remove event listeners
     return () => {
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isFullScreen, submitted]); // Dependencies: only re-run if these states change
+  }, [isFullScreen, submitted, onSubmitQuiz, mcqs.length]);
 
-  // Effect to handle prohibited key presses (Ctrl, Alt, Meta, PrintScreen)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const isProhibitedKey = ['Control', 'Alt', 'Meta', 'PrintScreen'].includes(event.key) ||
-                               event.ctrlKey || event.altKey || event.metaKey;
+                             event.ctrlKey || event.altKey || event.metaKey;
 
       if (isFullScreen && !submitted && isProhibitedKey) {
-        // event.preventDefault(); // Uncomment if you want to completely block the key action
-
         if (!keyPressWarningShown) {
-          setShowKeyPressAlert(true); // Show initial alert
-          setKeyPressWarningShown(true); // Mark that first alert has been shown
+          setShowKeyPressAlert(true);
+          setKeyPressWarningShown(true);
           console.log(`Alert: Key "${event.key}" pressed at ${new Date().toISOString()}. First warning issued.`);
         } else {
           setWarningsLeft((prev) => {
             if (prev <= 1) {
-              setSubmitted(true); // Auto-submit if last warning exhausted
+              setSubmitted(true);
               if (timerRef.current) clearInterval(timerRef.current);
               console.log(`Auto-submit: Key "${event.key}" pressed at ${new Date().toISOString()}. Last warning exhausted.`);
+              if (onSubmitQuiz) onSubmitQuiz(getScore(), mcqs.length);
               return 0;
             }
             const newWarnings = prev - 1;
-            setShowWarning(true); // Show general warning modal
+            setShowWarning(true);
             console.log(`Warning: Key "${event.key}" pressed at ${new Date().toISOString()}. Warnings left: ${newWarnings}`);
             return newWarnings;
           });
@@ -176,11 +162,10 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isFullScreen, submitted, keyPressWarningShown]); // Dependencies for this effect
+  }, [isFullScreen, submitted, keyPressWarningShown, onSubmitQuiz, mcqs.length]);
 
-  // Prevent copying of question and options
   const handleCopy = (event: React.ClipboardEvent) => {
-    event.preventDefault(); // Prevent default copy behavior
+    event.preventDefault();
     if (isFullScreen && !submitted) {
       if (!keyPressWarningShown) {
         setShowKeyPressAlert(true);
@@ -192,6 +177,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
             setSubmitted(true);
             if (timerRef.current) clearInterval(timerRef.current);
             console.log(`Auto-submit: Copy attempt at ${new Date().toISOString()}. Last warning exhausted.`);
+            if (onSubmitQuiz) onSubmitQuiz(getScore(), mcqs.length);
             return 0;
           }
           const newWarnings = prev - 1;
@@ -203,10 +189,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
     }
   };
 
-  // --- Event Handlers ---
-
   const handleOptionChange = (index: number, value: string) => {
-    if (!submitted && isFullScreen) { // Only allow changes if not submitted and in full screen
+    if (!submitted && isFullScreen) {
       const newAnswers = [...userAnswers];
       newAnswers[index] = value;
       setUserAnswers(newAnswers);
@@ -214,12 +198,13 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
   };
 
   const handleSubmit = () => {
-    if (isFullScreen) { // Only allow submission if in full screen
+    if (isFullScreen) {
       setSubmitted(true);
       if (timerRef.current) {
-        clearInterval(timerRef.current); // Stop timer on submission
+        clearInterval(timerRef.current);
       }
       console.log("Quiz submitted manually.");
+      if (onSubmitQuiz) onSubmitQuiz(getScore(), mcqs.length);
     }
   };
 
@@ -236,9 +221,9 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
   };
 
   const handleGoToQuestion = (index: number) => {
-    if (!submitted && isFullScreen) { // Allow navigation only if not submitted and in full screen
+    if (!submitted && isFullScreen) {
       setCurrentQuestionIndex(index);
-      setShowNavigationPane(false); // Close navigation pane after clicking a question
+      // Removed setShowNavigationPane(false) to keep pane open
     }
   };
 
@@ -261,8 +246,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
     if (quizRef.current) {
       quizRef.current.requestFullscreen().then(() => {
         setIsFullScreen(true);
-        setShowWarning(false); // Hide warning if it was shown
-        setShowEnterFullScreenModal(false); // Hide initial modal
+        setShowWarning(false);
+        setShowEnterFullScreenModal(false);
         console.log("Entered full-screen mode.");
       }).catch((err) => {
         console.error('Error entering full-screen mode:', err);
@@ -282,54 +267,26 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
     }
   };
 
-  // Handler for "Restart Quiz" button. This calls the prop from the parent.
   const handleRetakeQuiz = () => {
     console.log("Quiz component: Retake Quiz clicked, calling onRestartQuiz prop.");
     if (onRestartQuiz) {
-      onRestartQuiz(); // Delegate to parent to fetch new MCQs and trigger reset
-    } else {
-      console.warn("onRestartQuiz prop not provided to Quiz component. Cannot restart quiz effectively (will use same questions).");
-      // Fallback: local reset if no onRestartQuiz is provided (less ideal as it won't get new questions)
-      setUserAnswers(Array(mcqs.length).fill(''));
-      setSubmitted(false);
-      setIsFullScreen(false);
-      setShowWarning(false);
-      setShowEnterFullScreenModal(true);
-      setCurrentQuestionIndex(0);
-      setOverallTimeLeft(mcqs.length * 60);
-      setWarningsLeft(3);
-      setKeyPressWarningShown(false);
-      setShowKeyPressAlert(false);
-      setShowNavigationPane(false);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
+      onRestartQuiz(getScore(), getScorePercentage() >= 75);
     }
   };
 
-  // --- Helper Functions for UI ---
-
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Display warnings left as power symbols
   const renderWarningsLeft = () => {
     return '⚡'.repeat(warningsLeft);
   };
 
-  // Calculate navigation stats
   const totalQuestions = mcqs.length;
   const answeredQuestions = userAnswers.filter(answer => answer !== '').length;
   const unattemptedQuestions = totalQuestions - answeredQuestions;
-
 
   return (
     <div
@@ -345,9 +302,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         flexDirection: 'column',
         gap: '20px',
       }}
-      onCopy={handleCopy} // Attach copy prevention handler
+      onCopy={handleCopy}
     >
-      {/* Initial Enter Full Screen Modal */}
       {showEnterFullScreenModal && !isFullScreen && (
         <div
           style={{
@@ -377,7 +333,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
               📝 Enter Full-Screen Mode
             </h3>
             <p style={{ marginBottom: '20px', color: '#374151' }}>
-              Please enter full-screen mode to start the quiz. You have {mcqs.length} minute(s) for {mcqs.length} question(s). Pressing Ctrl, Alt, Start (Windows key), PrintScreen, or attempting to copy for the first time will show a warning alert. Exiting full-screen, switching tabs, or repeating these actions will count as a warning. You have 3 warnings (⚡⚡⚡); the quiz will auto-submit silently if the last warning is exhausted.
+              Please enter full-screen mode to start the quiz for {topic}. You have {mcqs.length} minute(s) for {mcqs.length} question(s). Pressing Ctrl, Alt, Start (Windows key), PrintScreen, or attempting to copy for the first time will show a warning alert. Exiting full-screen, switching tabs, or repeating these actions will count as a warning. You have 3 warnings (⚡⚡⚡); the quiz will auto-submit silently if the last warning is exhausted. You have {3 - attemptsToday} attempt(s) left today for {topic}.
             </p>
             <button
               onClick={enterFullScreen}
@@ -396,7 +352,6 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         </div>
       )}
 
-      {/* Warning Modal for Re-enter Full Screen */}
       {showWarning && !isFullScreen && !showEnterFullScreenModal && warningsLeft > 0 && (
         <div
           style={{
@@ -445,7 +400,6 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         </div>
       )}
 
-      {/* Key Press Alert Notification */}
       {showKeyPressAlert && (
         <div
           style={{
@@ -481,18 +435,15 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         </div>
       )}
 
-      {/* Main Quiz Content Header (Time, Exit Full Screen) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
         <h2 style={{ marginBottom: '20px', fontSize: '22px', fontWeight: 'bold' }}>
           MCQ Test {submitted ? '(Results)' : `(Question ${currentQuestionIndex + 1} of ${mcqs.length})`}
         </h2>
         {isFullScreen && !submitted && (
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            {/* Time Left remains here */}
             <div style={{ fontWeight: 'bold', color: overallTimeLeft <= 30 ? 'red' : '#374151' }}>
               Time Left: {formatTime(overallTimeLeft)}
             </div>
-            {/* Warnings Left moved below */}
             <button
               onClick={exitFullScreen}
               style={{
@@ -510,14 +461,12 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         )}
       </div>
 
-      {/* Quiz Progress Stats (Total, Answered, Unattempted, and NOW Warnings Left) */}
       {!submitted && isFullScreen && (
         <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', gap: '20px' }}>
             <span style={{ fontWeight: 'bold', color: '#374151' }}>Total Questions: {totalQuestions}</span>
             <span style={{ fontWeight: 'bold', color: 'green' }}>Answered: {answeredQuestions}</span>
             <span style={{ fontWeight: 'bold', color: 'red' }}>Unattempted: {unattemptedQuestions}</span>
-            {/* Warnings Left is now here */}
             <span style={{ fontWeight: 'bold', color: warningsLeft <= 1 ? 'red' : '#374151' }}>
               Warnings Left: {renderWarningsLeft()}
             </span>
@@ -525,15 +474,13 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         </div>
       )}
 
-      {/* Flex container for main content and navigation pane */}
       <div style={{
         flex: 1,
         overflowY: 'auto',
         display: 'flex',
         gap: '20px',
-        position: 'relative', // IMPORTANT: for positioning the toggle button relative to this container
+        position: 'relative',
       }}>
-        {/* Main Question Content */}
         <div style={{ flex: 1 }}>
           {mcqs.length > 0 && !submitted && (
             <div
@@ -543,7 +490,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
                 background: '#fff',
                 borderRadius: '8px',
                 boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                userSelect: 'none', // Prevent selection/copying
+                userSelect: 'none',
               }}
             >
               <p style={{ fontWeight: 600 }} dangerouslySetInnerHTML={{ __html: `${currentQuestionIndex + 1}. ${mcqs[currentQuestionIndex].question}` }} />
@@ -568,7 +515,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
           {submitted && (
             mcqs.map((mcq, i) => (
               <div
-                key={mcq.id} // Use unique MCQ ID for key
+                key={mcq.id}
                 style={{
                   marginBottom: '20px',
                   padding: '16px',
@@ -584,9 +531,9 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
                       <input
                         type="radio"
                         name={`q${i}`}
-                        value={userAnswers[i] || ''} // Ensure this matches selected value
+                        value={userAnswers[i] || ''}
                         checked={userAnswers[i] === opt}
-                        disabled={true} // Options are disabled after submission
+                        disabled={true}
                         style={{ marginRight: '8px' }}
                       />
                       {opt}
@@ -624,18 +571,13 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
           )}
         </div>
 
-        {/* Navigation Pane Toggle Button */}
         {!submitted && isFullScreen && (
           <button
             onClick={() => setShowNavigationPane(!showNavigationPane)}
             title={showNavigationPane ? 'Collapse Navigation' : 'Expand Navigation'}
             style={{
-              // Position it relative to its parent flex container, then adjust with top/bottom/right
-              position: 'absolute', // Changed from fixed to absolute to be relative to parent div.
-                                     // This ensures it moves with the scroll of the main content if that happens.
-                                     // If you want it truly fixed on the screen, use 'fixed' and adjust top/right.
-              right: showNavigationPane ? '210px' : '0px', // Adjusted to avoid overlap and sit next to the pane.
-                                                           // 200px (pane width) + 10px (gap)
+              position: 'absolute',
+              right: showNavigationPane ? '210px' : '0px',
               top: '50%',
               transform: 'translateY(-50%)',
               backgroundColor: '#6366f1',
@@ -649,38 +591,35 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
               alignItems: 'center',
               cursor: 'pointer',
               boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-              zIndex: 999, // Ensure it's above the pane if they overlap
-              transition: 'right 0.3s ease-in-out', // Smooth transition for movement
+              zIndex: 999,
+              transition: 'right 0.3s ease-in-out',
               fontSize: '20px',
               fontWeight: 'bold',
             }}
           >
-            {/* Conditional arrow rendering */}
             {showNavigationPane ? '»' : '«'}
-            {/*{showNavigationPane ? <FaChevronRight /> : <FaChevronLeft />} {/* Corrected arrow direction */}
           </button>
         )}
 
-        {/* Navigation Pane */}
         {isFullScreen && !submitted && (
           <div
             style={{
-              width: showNavigationPane ? '200px' : '0', // Control width based on state
+              width: showNavigationPane ? '200px' : '0',
               background: '#fff',
               padding: showNavigationPane ? '10px' : '0',
               borderRadius: '8px',
               boxShadow: showNavigationPane ? '0 2px 6px rgba(0,0,0,0.1)' : 'none',
-              overflow: 'hidden', // Hide content when collapsed
+              overflow: 'hidden',
               transition: 'width 0.3s ease-in-out, padding 0.3s ease-in-out',
-              position: 'fixed', // Keep fixed to the viewport if it's meant to be a persistent sidebar
-              right: '20px',      // Stays on the right side of the screen
-              top: '100px',        // Adjust top to clear header and be below fixed elements
-              maxHeight: 'calc(100vh - 120px)', // Max height to fit viewport
+              position: 'fixed',
+              right: '20px',
+              top: '100px',
+              maxHeight: 'calc(100vh - 120px)',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
               flexShrink: 0,
-              zIndex: 900, // Make sure it's below the toggle button (999) but above main content
+              zIndex: 900,
             }}
           >
             {showNavigationPane && (
@@ -700,21 +639,20 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
                   </p>
                 </div>
                 <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))',
-                    gap: '10px',
-                    overflowY: 'auto', // Scroll if many questions
-                    paddingRight: '5px',
-                    flexGrow: 1,
-                  }}>
-                  {mcqs.map((mcq, index) => ( // Use mcq.id for key
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))',
+                  gap: '10px',
+                  overflowY: 'auto',
+                  paddingRight: '5px',
+                  flexGrow: 1,
+                }}>
+                  {mcqs.map((mcq, index) => (
                     <button
                       key={mcq.id}
                       onClick={() => handleGoToQuestion(index)}
                       style={{
                         width: '40px',
                         height: '40px',
-                        // Conditional background color based on answer status and current question
                         backgroundColor: userAnswers[index] ? '#10b981' : (index === currentQuestionIndex ? '#6366f1' : '#ef4444'),
                         color: 'white',
                         border: index === currentQuestionIndex ? '2px solid #000' : 'none',
@@ -724,11 +662,9 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
                         fontWeight: 'bold',
                         opacity: submitted || !isFullScreen ? 0.5 : 1,
                         pointerEvents: submitted || !isFullScreen ? 'none' : 'auto',
-                        // --- Centering the number inside the circle ---
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        // --- End Centering ---
                       }}
                       disabled={submitted || !isFullScreen}
                     >
@@ -742,7 +678,6 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
         )}
       </div>
 
-      {/* Navigation Buttons (Previous, Next) and Submit Quiz Button */}
       {!submitted && isFullScreen && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -775,7 +710,6 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
               Next
             </button>
           </div>
-          {/* Submit Quiz button remains here */}
           <button
             onClick={handleSubmit}
             style={{
@@ -801,8 +735,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
             </p>
           )}
 
-          {/* Score-based messages */}
-          {getScorePercentage() >= 75 ? (
+          {quizPassed ? (
             <div style={{
               backgroundColor: '#d1fae5',
               border: '1px solid #34d399',
@@ -812,7 +745,11 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
               marginTop: '20px',
               fontSize: '18px',
               fontWeight: 'bold',
-            }}>    <p>🎉 Congratulations! You can proceed with the specified learning path.</p>
+            }}>
+              <p>🎉 Congratulations! You passed the quiz and can proceed with the specified learning path.</p>
+              <p style={{ marginTop: '10px', fontSize: '16px', fontWeight: 'normal' }}>
+                No further attempts are allowed since you passed.
+              </p>
             </div>
           ) : (
             <div style={{
@@ -826,21 +763,28 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz }) => {
               fontWeight: 'bold',
             }}>
               <p>😞 You need some learning on these prerequisites. After learning these, come and retake the test.</p>
-              <button
-                onClick={handleRetakeQuiz} // Call the delegated restart handler
-                style={{
-                  padding: '12px 20px',
-                  backgroundColor: '#6366f1',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  marginTop: '15px',
-                  fontSize: '16px',
-                }}
-              >
-                Restart Quiz
-              </button>
+              {canAttempt && (
+                <button
+                  onClick={handleRetakeQuiz}
+                  style={{
+                    padding: '12px 20px',
+                    backgroundColor: '#6366f1',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    marginTop: '15px',
+                    fontSize: '16px',
+                  }}
+                >
+                  Restart Quiz ({3 - attemptsToday} attempt{3 - attemptsToday === 1 ? '' : 's'} left today for {topic})
+                </button>
+              )}
+              {!canAttempt && (
+                <p style={{ color: '#ef4444', marginTop: '10px', fontWeight: 'bold' }}>
+                  ⚠️ Maximum attempts reached for {topic} today. Please try again tomorrow.
+                </p>
+              )}
             </div>
           )}
         </div>
