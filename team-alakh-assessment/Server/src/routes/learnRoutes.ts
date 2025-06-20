@@ -1,6 +1,6 @@
 //developed by :@Aditya Chandra Das and Alakh Mathur
-import express, { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import express, { Request, Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import LearningHistory from '../models/LearningHistory';
 import dotenv from 'dotenv';
 //providing the .env access
@@ -18,16 +18,32 @@ interface LearningModule {
   completed: boolean;
 }
 
-// Middleware to verify JWT token
-const authenticateToken = (req: any, res: Response, next: any) => {
+
+// Augment the Express Request type to include the user field
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: string | JwtPayload;
+  }
+}
+
+const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.sendStatus(401);
+
+  if (!authHeader) {
+    res.sendStatus(401);
+    return;
+  }
 
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.JWT_SECRET!, (err: any, user: any) => {
-    if (err) return res.sendStatus(403);
+
+  jwt.verify(token, process.env.JWT_SECRET as string, (err, user) => {
+    if (err) {
+      res.sendStatus(403);
+      return;
+    }
+
     req.user = user;
-    next();
+    next(); // ✅ This is key to conform to Express middleware typing
   });
 };
 
