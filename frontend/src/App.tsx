@@ -2,6 +2,7 @@
 /*Routes modified by Nakshatra on 16/6*/
 /*UPDATED BY NIKITA S RAJ KAPINI(16/06/2025) --> Topic selector component*/
 /*Routes modified by Nakshatra on 17/6 to ensure user can only go to dashboard after logging in*/
+/*Modified by Nakshatra on 19/6/25 for the automatic logout*/
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -13,6 +14,7 @@ import AssessmentDisplay from './components/AssessmentDisplay';
 import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
 import PrivateRoute from './components/PrivateRoute';
+import { useAuth } from './hooks/useAuth';
 import './App.css';
 
 interface Topic {
@@ -22,6 +24,7 @@ interface Topic {
 }
 
 const AppContent = () => {
+  useAuth();
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const [shouldGenerateAssessment, setShouldGenerateAssessment] = useState(false);
 
