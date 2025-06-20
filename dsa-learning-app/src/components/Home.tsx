@@ -18,10 +18,9 @@ const Home: React.FC = () => {
   return (
     <div>
       <div className="text-center py-5 bg-light">
-        <h1 className="display-4 text-primary fw-bold">DSA Learning Hub</h1>
+        <h1 className="display-4 text-primary fw-bold">DSA Recommendation System</h1>
         <p className="lead mx-auto w-75">
-          Master Data Structures & Algorithms with personalized quizzes, adaptive learning, and
-          comprehensive progress tracking. Get interview-ready with confidence.
+       A personalized path to master Data Structures & Algorithms - Engaging and Encouraging Quizzes,Adaptive learning and powerful Progress Tracker 
         </p>
         <br/>
         <div className="bg-primary text-white py-4 mt-4 rounded">
