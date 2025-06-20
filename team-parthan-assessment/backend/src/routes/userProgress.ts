@@ -62,6 +62,27 @@ router.post('/complete',auth, async (req: any, res: Response): Promise<void> => 
     topic.lastAttempt = new Date();
 
     await progress.save();
+
+    if (passed) {
+      progress.topics.forEach(t => {
+        if (
+          t.status === 'not-started' &&
+          Array.isArray(t.prerequisites) &&
+          t.prerequisites.includes(courseId)
+        ) {
+          const allPreReqsMastered = t.prerequisites.every(preqId => {
+            const preq = progress.topics.find(tp => tp.id === preqId);
+            return preq && preq.status === 'mastered';
+          });
+
+          if (allPreReqsMastered) {
+            t.status = 'ready';
+          }
+        }
+      });
+    }
+
+    await progress.save();
     res.json(progress.topics);
   } catch (err) {
     console.error("Error updating progress:", err);
