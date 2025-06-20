@@ -3,6 +3,8 @@
 /*UPDATED BY NIKITA S RAJ KAPINI(16/06/2025) --> Topic selector component*/
 /*Routes modified by Nakshatra on 17/6 to ensure user can only go to dashboard after logging in*/
 /*Modified by Nakshatra on 19/6/25 for the automatic logout*/
+/*Nav bar componenet added by Nikita S Raj Kapini on 19/06/2025*/
+
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -15,6 +17,7 @@ import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
 import PrivateRoute from './components/PrivateRoute';
 import { useAuth } from './hooks/useAuth';
+import Sidebar from './components/Sidebar';
 import './App.css';
 
 interface Topic {
@@ -61,14 +64,6 @@ const AppContent = () => {
     <div className="App">
       <div className="top-right">
       <ThemeToggle />
-        {!isAuthPage && (
-            <div className="logout-wrapper">
-              {isDashboard && (
-              <button className="logout-button" onClick={handleLogout}>
-                Logout
-              </button>)}
-            </div>
-          )}
       </div>
       <div className="app-container">
         <header className="app-header">
@@ -94,23 +89,26 @@ const AppContent = () => {
             <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                <div className="content-container">
-                  <TopicSelector
-                    onTopicSelect={handleTopicSelect}
-                    onGenerateAssessment={handleGenerateAssessment}
-                  />
-                  <AssessmentDisplay
-                    selectedTopics={selectedTopics}
-                    shouldGenerateAssessment={shouldGenerateAssessment}
-                    onAssessmentGenerated={handleAssessmentGenerated}
-                  />
-                </div>
-                </PrivateRoute>
-              }
-            />
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <div className="dashboard-container">
+                      <Sidebar /> {/* ← non-invasive and does not disturb layout */}
+                        <div className="content-container">
+                          <TopicSelector
+                            onTopicSelect={handleTopicSelect}
+                            onGenerateAssessment={handleGenerateAssessment}
+                          />
+                          <AssessmentDisplay
+                            selectedTopics={selectedTopics}
+                            shouldGenerateAssessment={shouldGenerateAssessment}
+                            onAssessmentGenerated={handleAssessmentGenerated}
+                          />
+                        </div>
+                    </div>
+                  </PrivateRoute>
+                }
+              />
           </Routes>
         </main>
 
