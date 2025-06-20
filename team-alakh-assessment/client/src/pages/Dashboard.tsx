@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import ThemeToggle from "../components/ThemeToggle";
+import Profile from "./Profile";
 
 const Dashboard: React.FC = () => {
   const [topic, setTopic] = useState("");
@@ -21,7 +22,7 @@ const Dashboard: React.FC = () => {
   const [missingPrereqs, setMissingPrereqs] = useState<string[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [canProceed, setCanProceed] = useState(false);
-
+  const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,7 +84,7 @@ const Dashboard: React.FC = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
-
+  
   return (
   <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
     {/* Header */}
@@ -103,7 +104,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg">
                 <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                  <Link to={'/profile'}>{userEmail}</Link>
+                  <button onClick={()=>setShowProfile(true)}>{userEmail}</button>
                 </span>
               </div>
             )}
@@ -276,6 +277,7 @@ const Dashboard: React.FC = () => {
         </div>
       )}
     </div>
+    {showProfile && <Profile onClose={() => setShowProfile(false)} />}
   </div>
 );
 };
