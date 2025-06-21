@@ -639,7 +639,13 @@ const QuizPage: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
-  const [evaluationData, setEvaluationData] = useState<any>(null);
+  
+  interface EvaluationData {
+    questions: Question[];
+    userAnswers: number[];
+  }
+  
+  const [evaluationData, setEvaluationData] = useState<EvaluationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [cheatingDetected, setCheatingDetected] = useState(false);
