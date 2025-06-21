@@ -1,4 +1,5 @@
 // Profile.tsx
+//Developed by @Omkar
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 
@@ -10,7 +11,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose }) => {
   const [data, setData] = useState<{ email: string; passed: string[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  //fetch the email and passed tests
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -30,7 +31,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose }) => {
 
     fetchProfile();
   }, []);
-
+  // if data is still being fetched
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -76,7 +77,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose }) => {
         </h2>
 
         <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3">✅ Passed Topics</h3>
-
+        //enlisting the Topics passed
         <div className="flex flex-wrap gap-4">
           {data.passed.length > 0 ? (
             data.passed.map((topic, index) => (
