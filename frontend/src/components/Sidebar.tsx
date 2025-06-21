@@ -119,11 +119,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import './Sidebar.css';
+import LogoutModal from './LogoutModal';
 import { getUserEmailFromToken } from '../utils/userId';
 import ChangePassword from './changepassword';
 
 const Sidebar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const email = getUserEmailFromToken();
@@ -168,7 +170,12 @@ const Sidebar: React.FC = () => {
               }}>
                 Change Password
               </button>
-              <button onClick={handleLogout}>Logout</button>
+              <button onClick={() => setShowModal(true)} className="logout-button">Logout</button>
+              <LogoutModal
+                isOpen={showModal}
+                onConfirm={handleLogout}
+                onCancel={() => setShowModal(false)}
+            />
             </div>
           )}
         </div>
