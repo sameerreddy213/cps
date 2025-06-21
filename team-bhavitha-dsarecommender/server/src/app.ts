@@ -10,8 +10,10 @@ import dotenv from "dotenv";
 import connectDB from "./config/db";
 import quizHistoryRoutes from "./routes/quizHistory";
 import recommendationRoutes from "./routes/recommendation";
+import exploreRoutes from "./routes/explore";
+import path from "path";
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 
 const app = express();
@@ -22,6 +24,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(bodyParser.json());
+app.use("/api/explore", exploreRoutes);
 app.use("/api", learningPathRoutes);
 app.use('/api', authRoutes);
 app.use("/api/quiz", quizRoutes);
