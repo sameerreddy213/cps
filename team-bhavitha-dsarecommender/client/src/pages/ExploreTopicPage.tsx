@@ -1,42 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import axios from "axios";
-
-// const ExploreTopicPage = () => {
-//   const { topic } = useParams<{ topic: string }>();
-//   const [concept, setConcept] = useState<any>(null);
-//   const [error, setError] = useState("");
-
-//   useEffect(() => {
-//     if (!topic) return;
-
-//     axios
-//       .get(`/api/explore/${encodeURIComponent(topic)}`)
-//       .then((res) => {
-//         setConcept(res.data);
-//         setError(""); // clear previous error
-//       })
-//       .catch((err) => {
-//         console.error("Error fetching concept:", err);
-//         setError("⚠️ Could not load topic information.");
-//         setConcept(null);
-//       });
-//   }, [topic]);
-
-//   if (error) return <p style={{ color: "red" }}>{error}</p>;
-//   if (!concept) return <p>Loading...</p>;
-
-//   return (
-//     <div style={{ padding: "2rem", maxWidth: "800px", margin: "auto" }}>
-//       <h2>{concept.name}</h2>
-//       <p><strong>Description:</strong> {concept.description}</p>
-//       <p><strong>Spotlight Fact:</strong> {concept.spotlight_fact}</p>
-//       <p><strong>Appears in Lecture:</strong> {concept.lecture}</p>
-//     </div>
-//   );
-// };
-
-// export default ExploreTopicPage;
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -57,53 +18,86 @@ const ExploreTopicPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Ensure topic is not undefined before making the API call
+    if (!topic) {
+      setError("No topic specified for exploration.");
+      return;
+    }
+
     axios
-      .get(`/api/explore/${encodeURIComponent(topic || "")}`)
-      .then((res) => setConcept(res.data))
+      .get(`/api/explore/${encodeURIComponent(topic)}`)
+      .then((res) => {
+        setConcept(res.data);
+        setError(""); // Clear previous error
+      })
       .catch((err) => {
         console.error("Error fetching concept:", err);
-        setError("Couldn't load concept information.");
+        setError("Couldn't load concept information. Please try again later."); // More user-friendly error
+        setConcept(null); // Clear concept on error
       });
   }, [topic]);
 
-  if (error) return <p>{error}</p>;
-  if (!concept) return <p>Loading...</p>;
+  if (error) {
+    return (
+      <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!concept) {
+    return (
+      <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
+        <p className="text-white fs-5">Loading concept information...</p>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "800px", margin: "auto" }}>
-      <h2 className="text-3xl font-bold mb-4">{concept.name}</h2>
+    <div className="container py-4 bg-dark text-white rounded shadow-lg">
+      <h2 className="text-center mb-4 text-primary fs-2">{concept.name}</h2> {/* Bootstrap heading classes */}
 
-      <p><strong>Description:</strong> {concept.description}</p>
-      <p><strong>Spotlight Fact:</strong> {concept.spotlight_fact}</p>
-      <p><strong>Appears in Lecture:</strong> {concept.lecture}</p>
+      <div className="card bg-dark-subtle text-white p-4 mb-4 shadow-sm">
+        <p className="mb-2"><strong>Description:</strong> {concept.description}</p>
+        <p className="mb-2"><strong>Spotlight Fact:</strong> {concept.spotlight_fact}</p>
+        <p className="mb-0"><strong>Appears in Lecture:</strong> {concept.lecture}</p>
+      </div>
 
       {concept.examples && concept.examples.length > 0 && (
-        <div style={{ marginTop: "1rem" }}>
-          <strong>Examples:</strong>
-          <ul style={{ paddingLeft: "1.5rem" }}>
+        <div className="card bg-dark-subtle text-white p-4 mb-4 shadow-sm">
+          <h5 className="card-title text-info mb-3">Examples:</h5>
+          <ul className="list-group list-group-flush bg-dark-subtle">
             {concept.examples.map((ex, i) => (
-              <li key={i}>{ex}</li>
+              <li key={i} className="list-group-item bg-dark-subtle text-white border-0 py-1">
+                {ex}
+              </li>
             ))}
           </ul>
         </div>
       )}
 
       {concept.related_topics && concept.related_topics.length > 0 && (
-        <div style={{ marginTop: "1rem" }}>
-          <strong>Related Topics:</strong>
-          <ul style={{ paddingLeft: "1.5rem" }}>
+        <div className="card bg-dark-subtle text-white p-4 mb-4 shadow-sm">
+          <h5 className="card-title text-info mb-3">Related Topics:</h5>
+          <ul className="list-group list-group-flush bg-dark-subtle">
             {concept.related_topics.map((related, i) => (
-              <li key={i}>{related}</li>
+              <li key={i} className="list-group-item bg-dark-subtle text-white border-0 py-1">
+                {related}
+              </li>
             ))}
           </ul>
         </div>
       )}
 
-      <div style={{ marginTop: "1rem" }}>
-        <strong>Quiz Available:</strong>{" "}
-        <span style={{ color: concept.quiz_available ? "green" : "red" }}>
-          {concept.quiz_available ? "Yes" : "No"}
-        </span>
+      <div className="card bg-dark-subtle text-white p-4 shadow-sm">
+        <p className="mb-0">
+          <strong>Quiz Available:</strong>{" "}
+          <span className={concept.quiz_available ? "text-success fw-bold" : "text-danger fw-bold"}>
+            {concept.quiz_available ? "Yes" : "No"}
+          </span>
+        </p>
       </div>
     </div>
   );
