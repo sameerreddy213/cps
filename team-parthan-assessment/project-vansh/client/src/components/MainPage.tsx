@@ -99,11 +99,13 @@ const MainPage: React.FC = () => {
     totalScore: 0,
     streak: 0,
   });
+  useEffect(() => {
   const setstreak = async () => {
     await api.get("/me/streak");
     mutate("/me");
   };
   setstreak();
+}, []); 
   useEffect(() => {
     const profile = async () => {
       try {
