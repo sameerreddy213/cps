@@ -43,9 +43,10 @@ const LoginPage = () => {
           <input
             id="username"
             type="text"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your username" // Added placeholder
             required
           />
         </div>
@@ -54,9 +55,10 @@ const LoginPage = () => {
           <input
             id="password"
             type="password"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password" // Added placeholder
             required
           />
         </div>

@@ -51,9 +51,10 @@ const RegisterPage = () => {
           <input
             id="fullName"
             type="text"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your full name" // Added placeholder
             required
           />
         </div>
@@ -63,9 +64,10 @@ const RegisterPage = () => {
           <input
             id="regUsername"
             type="text"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder="Choose a username" // Added placeholder
             required
           />
         </div>
@@ -75,9 +77,10 @@ const RegisterPage = () => {
           <input
             id="regPassword"
             type="password"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Create a password" // Added placeholder
             required
           />
         </div>
@@ -87,9 +90,10 @@ const RegisterPage = () => {
           <input
             id="email"
             type="email"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email address" // Added placeholder
           />
         </div>
 
@@ -97,7 +101,7 @@ const RegisterPage = () => {
           <label htmlFor="topicsCovered" className="form-label text-white">Topics Already Covered (comma-separated):</label>
           <textarea
             id="topicsCovered"
-            className="form-control bg-dark-subtle text-dark-contrast border-secondary" // Ensure form-control is here
+            className="form-control bg-dark-subtle text-dark-contrast border-secondary"
             value={topics}
             onChange={(e) => setTopics(e.target.value)}
             placeholder="e.g. Recursion, Loops, Functions"
