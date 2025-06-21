@@ -7,6 +7,11 @@ import QuizPage from "./pages/QuizPage";
 import QuizSelectPage from "./pages/QuizSelectPage";
 import HomePage from './pages/HomePage';
 import Navbar from './components/Navbar';
+import ExploreTopicPage from "./pages/ExploreTopicPage";
+
+// Inside <Routes>...
+
+
 
 function App() {
   return (
@@ -20,6 +25,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           {/* Protected routes go here */}
           <Route element={<ProtectedRoutes/>}>
+            <Route path="/explore/:topic" element={<ExploreTopicPage />} />
             <Route path="/dashboard/:username" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/quiz/:topic" element={<QuizPage />} />
