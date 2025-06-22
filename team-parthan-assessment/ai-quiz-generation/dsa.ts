@@ -24,7 +24,7 @@ function ask(question: string): Promise<string> {
 }
 
 // Function to fetch quiz from Ollama API
-async function fetchQuiz(topic: string): Promise<QuizQuestion[]> {
+export async function fetchQuiz(topic: string): Promise<QuizQuestion[]> {
   const prompt = `
 Generate 5 MCQs on the topic "${topic}". Make sure only one option is the correct answer. Provide explanation too.
 Format:
@@ -57,13 +57,15 @@ Return only valid JSON.
   const rawQuiz = JSON.parse(match[0]);
 
   // Assign IDs to each question
-  const quiz: QuizQuestion[] = rawQuiz.map((q, index) => ({
+  const quiz: QuizQuestion[] = rawQuiz.map((q: { question: any; options: any; correctAnswer: any; explanation: any; }, index: number) => ({
     id: (index + 1).toString(),
     question: q.question,
     options: q.options,
     correctAnswer: q.correctAnswer,
     explanation: q.explanation
   }));
+
+  console.log(quiz)
 
   return quiz;
 }

@@ -26,6 +26,16 @@
     ]
   },
   {
+    "_id": "functions",
+    "name": "Functions",
+    "prerequisites": ["basic_programming"]
+  },
+  {
+    "_id": "recursion_basics",
+    "name": "Recursion",
+    "prerequisites": ["functions"]
+  },
+  {
     "_id": "arrays",
     "name": "Arrays",
     "prerequisites": [
@@ -434,6 +444,11 @@
     "_id": "range_updates_fenwick",
     "name": "Range Updates (Fenwick)",
     "prerequisites": ["fenwick_tree"]
+  },
+  {
+    "_id": "dynamic_programming",
+    "name": "Dynamic Programming",
+    "prerequisites": ["recursion_basics", "arrays"]
   },
   {
     "_id": "dsu",

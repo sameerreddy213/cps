@@ -23,6 +23,8 @@ import ConceptAnalyzer from "./ConceptAnalyzer";
 import { getDetails, updateDetails } from "../services/detailService";
 import api from "../services/api";
 import downloadReviewAsPDF from "../services/reviewDownload";
+import { mutate } from 'swr';
+import { submitQuiz } from '../services/progressUpdate';
 
 
 const MainPage: React.FC = () => {
@@ -45,80 +47,7 @@ const MainPage: React.FC = () => {
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
 const [searchQuery, setSearchQuery] = useState('');
 
-  const [topics, setTopics] = useState<Topic[]>([
-
-    {
-      id: 'arrays',
-      name: 'Arrays',
-      prerequisites: [],
-      status: 'mastered',
-      score: 5,
-      totalQuestions: 5,
-      attempts: 3,
-      bestScore: 100,
-      lastAttempt: new Date('2024-01-15')
-    },
-    {
-      id: 'strings',
-      name: 'Strings',
-      prerequisites: [],
-      status: 'mastered',
-      score: 4,
-      totalQuestions: 5,
-      attempts: 2,
-      bestScore: 80,
-      lastAttempt: new Date('2024-01-14')
-    },
-    {
-      id: 'linked-lists',
-      name: 'Linked Lists',
-      prerequisites: ['arrays'],
-      status: 'in-progress',
-      score: 2,
-      totalQuestions: 5,
-      attempts: 1,
-      bestScore: 40,
-      lastAttempt: new Date('2024-01-10')
-    },
-    {
-      id: 'stacks',
-      name: 'Stacks',
-      prerequisites: ['arrays', 'linked-lists'],
-      status: 'not-started'
-    },
-    {
-      id: 'queues',
-      name: 'Queues',
-      prerequisites: ['arrays', 'linked-lists'],
-      status: 'not-started'
-    },
-    {
-      id: 'trees',
-      name: 'Binary Trees',
-      prerequisites: ['linked-lists', 'recursion'],
-      status: 'not-started'
-    },
-    {
-      id: 'recursion',
-      name: 'Recursion',
-      prerequisites: ['arrays', 'strings'],
-      status: 'not-started'
-    },
-    {
-      id: 'sorting',
-      name: 'Sorting Algorithms',
-      prerequisites: ['arrays', 'recursion'],
-      status: 'not-started'
-    }
-  ]);
-
-  const userProfile: UserProfile = {
-    name:"Vansh Tuteja",
-    masteredTopics: topics.filter(t => t.status === 'mastered').map(t => t.name),
-    totalScore: 85,
-    streak: 7
-  };
-
+  const [topics, setTopics] = useState<Topic[]>([]);
 
   useEffect(() => {
     const fetchTopics = async () => {
@@ -572,7 +501,7 @@ const [searchQuery, setSearchQuery] = useState('');
     });
   };
 
-  const completeQuiz = () => {
+  const completeQuiz = async () => {
     if (!currentQuiz) return;
 
     let correctAnswers = 0;
@@ -593,25 +522,44 @@ const [searchQuery, setSearchQuery] = useState('');
     setQuizHistory(prev => [...prev, completedQuiz]);
 
     // Update topic status and statistics
-    if (completedQuiz.topicId) {
-      setTopics(prev => prev.map(topic => {
-        if (topic.id === completedQuiz.topicId) {
-          const newAttempts = (topic.attempts || 0) + 1;
-          const newBestScore = Math.max(topic.bestScore || 0, score);
-          const newStatus = score >= 70 ? 'mastered' : 'in-progress';
+    //if (completedQuiz.topicId) {
+    //   setTopics(prev => prev.map(topic => {
+    //     if (topic.id === completedQuiz.topicId) {
+    //       const newAttempts = (topic.attempts || 0) + 1;
+    //       const newBestScore = Math.max(topic.bestScore || 0, score);
+    //       const newStatus = score >= 70 ? 'mastered' : 'in-progress';
           
-          return {
-            ...topic,
-            status: newStatus,
-            score: correctAnswers,
-            totalQuestions: 5,
-            attempts: newAttempts,
-            bestScore: newBestScore,
-            lastAttempt: new Date()
-          };
-        }
-        return topic;
-      }));
+    //       return {
+    //         ...topic,
+    //         status: newStatus,
+    //         score: correctAnswers,
+    //         totalQuestions: 5,
+    //         attempts: newAttempts,
+    //         bestScore: newBestScore,
+    //         lastAttempt: new Date()
+    //       };
+    //     }
+    //     return topic;
+    //   }));
+    // }
+
+    const passed = score >= 70;
+
+    if (completedQuiz.topicId) {
+      try {
+        const updated = await submitQuiz(
+          completedQuiz.topicId,
+          passed,
+          correctAnswers
+        );
+        const fixed = updated.map((t) => ({
+          ...t,
+          lastAttempt: t.lastAttempt ? new Date(t.lastAttempt) : undefined,
+        }));
+        setTopics(fixed);
+      } catch (err) {
+        console.error("Error submitting quiz:", err);
+      }
     }
 
     setCurrentQuiz(completedQuiz);
@@ -913,7 +861,7 @@ const [searchQuery, setSearchQuery] = useState('');
                         {topic.lastAttempt?.toLocaleDateString()}
                       </div>
                       <div className="text-xs font-medium text-gray-600">
-                        {topic.bestScore}% best
+                        {(topic.bestScore || 0) / (topic.totalQuestions || 1) * 100}% best
                       </div>
                     </div>
                   </div>
