@@ -1,0 +1,19 @@
+{
+  "name": "our-app",
+  "version": "1.0.0",
+  "description": "For Both Frontend and Backend Purposes",
+  "license": "ISC",
+  "author": "Team-9",
+  "type": "module",
+  "main": "index.ts",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "build": "tsc -b",
+    "lint": "npm run lint --prefix client && npm run lint --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
