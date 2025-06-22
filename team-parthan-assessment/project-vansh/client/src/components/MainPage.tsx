@@ -45,6 +45,7 @@ import {
 import ConceptAnalyzer from "./ConceptAnalyzer";
 import { getDetails, updateDetails } from "../services/detailService";
 import api from "../services/api";
+import downloadReviewAsPDF from "../services/reviewDownload";
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -1386,6 +1387,15 @@ const MainPage: React.FC = () => {
           {/* Review Footer */}
           <div className="bg-white border-t border-gray-200 px-4 md:px-8 py-6">
             <div className="max-w-4xl mx-auto flex justify-center space-x-4">
+
+                <button
+  onClick={() => downloadReviewAsPDF(reviewQuiz)}
+  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-medium transition-colors text-lg"
+>
+  Download as PDF
+</button>
+
+
               <button
                 onClick={() => {
                   if (reviewQuiz.topicId) {
