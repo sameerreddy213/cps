@@ -16,9 +16,14 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 
-import ConceptAnalyzer from './ConceptAnalyzer';
-import { getDetails } from '../services/detailService';
+
 import Loading from './Loading';
+
+import ConceptAnalyzer from "./ConceptAnalyzer";
+import { getDetails, updateDetails } from "../services/detailService";
+import api from "../services/api";
+import downloadReviewAsPDF from "../services/reviewDownload";
+
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -113,6 +118,107 @@ const [searchQuery, setSearchQuery] = useState('');
     totalScore: 85,
     streak: 7
   };
+
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const res = await api.get("/user-progress/");
+        const data = res.data;
+
+        const fixed = data.map((topic: Topic) => ({
+          ...topic,
+          lastAttempt: topic.lastAttempt
+            ? new Date(topic.lastAttempt)
+            : undefined,
+        }));
+
+        setTopics(fixed);
+      } catch (err) {
+        console.error("Failed to fetch topics:", err);
+        setTopics([]);
+      }
+    };
+    fetchTopics();
+  }, []);
+
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    name: "",
+    masteredTopics: topics
+      .filter((t) => t.status === "mastered")
+      .map((t) => t.name).length,
+    totalScore: 0,
+    streak: 0,
+  });
+  useEffect(() => {
+  const setstreak = async () => {
+    await api.get("/me/streak");
+    mutate("/me");
+  };
+  setstreak();
+}, []); 
+  useEffect(() => {
+    const profile = async () => {
+      try {
+        const details = await getDetails();
+        setUserProfile((prev) => ({
+          ...prev,
+          name: details.name,
+          masteredTopics: details.masteredTopics ? details.masteredTopics : 0,
+          totalScore: details.totalScore ? details.totalScore : 0,
+          streak: details.streak ? details.streak : 0,
+        }));
+      } catch (error) {
+        console.log("Error fetching details in mainpage ", error);
+      }
+    };
+    profile();
+  }, []);
+  useEffect(() => {
+    const updateMasteredTopics = async () => {
+      try {
+        await updateDetails({
+          item: "masteredTopics",
+          value: topics
+            .filter((t) => t.status === "mastered")
+            .map((t) => t.name).length,
+        });
+        setUserProfile((prev) => ({
+          ...prev,
+          masteredTopics: topics
+            .filter((t) => t.status === "mastered")
+            .map((t) => t.name).length,
+        }));
+      } catch (error) {
+        console.log("Error updating mastered topics: ", error);
+      }
+    };
+    updateMasteredTopics();
+    mutate("/me");
+    const updateAverageScore = async () => {
+      const averageScore =
+        topics.reduce((acc, topic) => {
+          if (topic.score && topic.totalQuestions) {
+            return acc + (topic.score / topic.totalQuestions) * 100;
+          }
+          return acc;
+        }, 0) / topics.filter((t) => t.score).length || 0;
+      try {
+        await updateDetails({
+          item: "totalScore",
+          value: Math.round(averageScore * 100) / 100,
+        });
+        setUserProfile((prev) => ({
+          ...prev,
+          totalScore: Math.round(averageScore * 100) / 100,
+        }));
+      } catch (error) {
+        console.log("Error updating average score: ", error);
+      }
+    };
+    updateAverageScore();
+    mutate("/me");
+  }, [topics]);
 
   // Timer effect for quiz
   useEffect(() => {
@@ -1154,6 +1260,15 @@ const [searchQuery, setSearchQuery] = useState('');
           {/* Review Footer */}
           <div className="bg-white border-t border-gray-200 px-4 md:px-8 py-6">
             <div className="max-w-4xl mx-auto flex justify-center space-x-4">
+
+                <button
+  onClick={() => downloadReviewAsPDF(reviewQuiz)}
+  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-medium transition-colors text-lg"
+>
+  Download as PDF
+</button>
+
+
               <button
                 onClick={() => {
                   if (reviewQuiz.topicId) {
