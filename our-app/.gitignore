@@ -1,0 +1,45 @@
+# Root
+node_modules/
+dist/
+.env
+*.tsbuildinfo
+.vscode/
+!.vscode/extensions.json
+.idea
+*.tgz
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dist-ssr
+*.local
+
+# Client
+client/node_modules/
+client/dist/
+client/.env
+
+# Server
+server/node_modules/
+server/dist/
+server/.env
+
+# Shared (optional)
+shared/dist/
+shared/node_modules/
+
+# OS junk
+Thumbs.db
+
+# Editor junk
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
