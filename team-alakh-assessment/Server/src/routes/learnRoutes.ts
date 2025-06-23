@@ -53,7 +53,9 @@ const authenticateToken = (
   });
 };
 
-async function generateLearningModules(topic: string): Promise<LearningModuleType[]> {
+async function generateLearningModules(
+  topic: string
+): Promise<LearningModuleType[]> {
   const prompt = `
 Generate a structured learning sequence for "${topic}" with 5-7 learning modules.
 Each module should have:
@@ -112,157 +114,253 @@ Format as JSON array:
         content: "Fallback module content.",
         duration: "20 min",
         type: "text",
-        downloadUrl: `/api/learn/download/${encodeURIComponent(topic)}/fallback`,
+        downloadUrl: `/api/learn/download/${encodeURIComponent(
+          topic
+        )}/fallback`,
       },
     ];
   }
 }
 
-router.get("/:topic", authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const { topic } = req.params;
-    const existing = await LearningModule.findOne({ topic });
-    if (existing && existing.modules.length > 0) {
-      res.json({ content: existing.modules.map(m => m.content).join("\n\n") });
-      return;
-    } else {
-      const generatedModules = await generateLearningModules(topic);
-      const contentText = generatedModules.map(m => m.content).join("\n\n");
-      res.json({ content: contentText });
-      return;
+router.get(
+  "/:topic",
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    try {
+      const { topic } = req.params;
+      const existing = await LearningModule.findOne({ topic });
+      if (existing && existing.modules.length > 0) {
+        res.json({
+          content: existing.modules.map((m) => m.content).join("\n\n"),
+        });
+        return;
+      } else {
+        const generatedModules = await generateLearningModules(topic);
+        const contentText = generatedModules.map((m) => m.content).join("\n\n");
+        res.json({ content: contentText });
+        return;
+      }
+    } catch {
+      res.status(500).json({ message: "Failed to generate or fetch content" });
     }
-  } catch {
-    res.status(500).json({ message: "Failed to generate or fetch content" });
   }
-});
+);
 
-router.get("/:topic/modules", authenticateToken, async (req: any, res: Response) => {
-  try {
-    const { topic } = req.params;
-    const userEmail = req.user.email;
+router.get(
+  "/:topic/modules",
+  authenticateToken,
+  async (req: any, res: Response) => {
+    try {
+      const { topic } = req.params;
+      const userEmail = req.user.email;
 
-    let topicDoc = await LearningModule.findOne({ topic });
-    if (!topicDoc) {
-      const modules = await generateLearningModules(topic);
-      topicDoc = await LearningModule.findOne({ topic }); // refetch after creation
+      let topicDoc = await LearningModule.findOne({ topic });
+      if (!topicDoc) {
+        const modules = await generateLearningModules(topic);
+        topicDoc = await LearningModule.findOne({ topic }); // refetch after creation
+      }
+
+      if (!topicDoc) {
+        res.status(404).json({ message: "Topic not found" });
+        return;
+      }
+
+      const history = await LearningHistory.find({ userEmail, topic });
+      const completedIds = history.map((h) => h.moduleId);
+
+      const modules = topicDoc.modules.map((m: any) => ({
+        ...m.toObject(),
+        completed: completedIds.includes(m.id),
+      }));
+
+      res.json({ modules });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to get modules" });
     }
-
-    if (!topicDoc) {
-      res.status(404).json({ message: "Topic not found" });
-      return;
-    }
-
-    const history = await LearningHistory.find({ userEmail, topic });
-    const completedIds = history.map((h) => h.moduleId);
-
-    const modules = topicDoc.modules.map((m: any) => ({
-      ...m.toObject(),
-      completed: completedIds.includes(m.id),
-    }));
-
-    res.json({ modules });
-  } catch (err) {
-    res.status(500).json({ message: "Failed to get modules" });
   }
-});
+);
 
-router.post("/complete-module", authenticateToken, async (req: any, res: Response) => {
-  try {
-    const { topic, moduleId } = req.body;
-    const userEmail = req.user.email;
+router.post(
+  "/complete-module",
+  authenticateToken,
+  async (req: any, res: Response) => {
+    try {
+      const { topic, moduleId } = req.body;
+      const userEmail = req.user.email;
 
-    const existing = await LearningHistory.findOne({ userEmail, topic, moduleId });
-    if (existing && existing.completed) {
-      res.json({ message: "Already completed" });
-      return;
-    }
-
-    if (existing) {
-      existing.completed = true;
-      existing.completedAt = new Date();
-      await existing.save();
-    } else {
-      await new LearningHistory({
+      const existing = await LearningHistory.findOne({
         userEmail,
         topic,
         moduleId,
-        completed: true,
-        completedAt: new Date(),
-      }).save();
-    }
-
-    res.json({ message: "Marked as completed" });
-  } catch {
-    res.status(500).json({ message: "Failed to mark module as complete" });
-  }
-});
-
-router.get("/history/:topic", authenticateToken, async (req: any, res: Response) => {
-  try {
-    const { topic } = req.params;
-    const userEmail = req.user.email;
-
-    const history = await LearningHistory.find({ userEmail, topic }).sort({ completedAt: -1 });
-    res.json({ history });
-  } catch {
-    res.status(500).json({ message: "Failed to get history" });
-  }
-});
-
-router.get("/download/:topic/:moduleId", authenticateToken, async (req: Request, res: Response) => {
-  const { topic, moduleId } = req.params;
-
-  let moduleTitle = `Module ${moduleId}`;
-  let moduleContent = `Content for module ${moduleId} not found.`;
-
-  try {
-    const doc = await LearningModule.findOne({ topic });
-    if (doc) {
-      const module = doc.modules.find((m: any) => m.id === moduleId);
-      if (module) {
-        moduleTitle = module.title ?? `Module ${moduleId}`;
-        moduleContent = module.content ?? `Content for module ${moduleId} not found.`;
-      }
-    }
-
-    const pdf = new PDFDocument({ size: "A4", margins: { top: 50, bottom: 50, left: 60, right: 60 } });
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${moduleTitle.replace(/\s/g, "_")}.pdf"`
-    );
-    pdf.pipe(res);
-
-    pdf.font("Helvetica-Bold").fontSize(24).text(`Learning Topic: ${topic}`, { align: "center" });
-    pdf.moveDown();
-    pdf.font("Helvetica-Bold").fontSize(18).text(`Module: ${moduleTitle}`, { align: "center" });
-    pdf.moveDown(2);
-
-    pdf
-      .font("Helvetica")
-      .fontSize(12)
-      .fillColor("black")
-      .text(moduleContent, { align: "justify", lineGap: 6 });
-
-    pdf.moveDown(2);
-    pdf
-      .fontSize(10)
-      .fillColor("gray")
-      .text(`Generated on: ${new Date().toLocaleDateString("en-IN")}`, { align: "right" });
-
-    const range = pdf.bufferedPageRange();
-    for (let i = 0; i < range.count; i++) {
-      pdf.switchToPage(i);
-      pdf.fontSize(8).text(`Page ${i + 1} of ${range.count}`, 0, pdf.page.height - 40, {
-        align: "center",
       });
-    }
+      if (existing && existing.completed) {
+        res.json({ message: "Already completed" });
+        return;
+      }
 
-    pdf.end();
-  } catch (error) {
-    console.error("Download error:", error);
-    res.status(500).json({ message: "Failed to generate PDF" });
+      if (existing) {
+        existing.completed = true;
+        existing.completedAt = new Date();
+        await existing.save();
+      } else {
+        await new LearningHistory({
+          userEmail,
+          topic,
+          moduleId,
+          completed: true,
+          completedAt: new Date(),
+        }).save();
+      }
+
+      res.json({ message: "Marked as completed" });
+    } catch {
+      res.status(500).json({ message: "Failed to mark module as complete" });
+    }
   }
-});
+);
+
+router.get(
+  "/history/:topic",
+  authenticateToken,
+  async (req: any, res: Response) => {
+    try {
+      const { topic } = req.params;
+      const userEmail = req.user.email;
+
+      const history = await LearningHistory.find({ userEmail, topic }).sort({
+        completedAt: -1,
+      });
+      res.json({ history });
+    } catch {
+      res.status(500).json({ message: "Failed to get history" });
+    }
+  }
+);
+
+router.get(
+  "/download/:topic/:moduleId",
+  authenticateToken,
+  async (req: Request, res: Response) => {
+    const { topic, moduleId } = req.params;
+
+    let moduleTitle = `Module ${moduleId}`;
+    let moduleContent = `Content for module ${moduleId} not found.`;
+
+    try {
+      const doc = await LearningModule.findOne({ topic });
+      if (doc) {
+        const module = doc.modules.find((m: any) => m.id === moduleId);
+        if (module) {
+          moduleTitle = module.title ?? `Module ${moduleId}`;
+          moduleContent =
+            module.content ?? `Content for module ${moduleId} not found.`;
+        }
+      }
+
+      const pdf = new PDFDocument({
+        size: "A4",
+        margins: { top: 50, bottom: 50, left: 60, right: 60 },
+      });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${moduleTitle.replace(/\s/g, "_")}.pdf"`
+      );
+      pdf.pipe(res);
+
+      // --- Header Section ---
+      const headerHeight = 70; // Adjust as needed for your header content
+      const logoPath = "./logo.png"; // 
+      const instituteName = "PreAssess - Smart Learning Platform"; 
+
+      //Rectangle for the header background
+      pdf.rect(0, 0, pdf.page.width, headerHeight).fill("#F0F0F0"); // Light gray background
+
+      //logo
+      try {
+        pdf.image(logoPath, pdf.page.width - 550, 10, {
+          width: 100,
+          height: 50,
+          align: "right"
+        }); // right-aligned logo
+      } catch (error) {
+        console.error("Error loading logo image:", error);
+        pdf
+          .font("Helvetica-Bold")
+          .fontSize(10)
+          .fillColor("red")
+          .text("Logo Missing", pdf.page.width - 150, 30);
+      }
+
+      // institute name
+      pdf
+        .font("Helvetica-Bold")
+        .fontSize(16)
+        .fillColor("#800000")
+        .text(instituteName,60, 30, { align: "center" });
+
+      // line under the header for separation 
+      pdf
+        .lineWidth(1)
+        .strokeColor("#CCCCCC")
+        .moveTo(0, headerHeight)
+        .lineTo(pdf.page.width, headerHeight)
+        .stroke();
+
+      // --- End Header Section ---
+
+      // Y-position for the main content to start AFTER the header
+      const contentStartY = headerHeight + 20;
+
+    
+      pdf.y = contentStartY;
+      pdf
+        .font("Helvetica-Bold")
+        .fontSize(24)
+        .fillColor("#002147") 
+        .text(`Learning Topic: ${topic}`, { align: "center" });
+
+      // Module Title: Move down from the Learning Topic
+      pdf.moveDown(); 
+      pdf
+        .font("Helvetica-Bold")
+        .fontSize(18)
+        .fillColor("#333333") 
+        .text(`Module: ${moduleTitle}`, { align: "center" });
+      pdf.moveDown(2);
+
+      // Module Content: This will automatically flow from the previous position
+      pdf
+        .font("Helvetica")
+        .fontSize(12)
+        .fillColor("black")
+        .text(moduleContent, { align: "justify", lineGap: 6 });
+
+      pdf.moveDown(2);
+      pdf
+        .fontSize(10)
+        .fillColor("gray")
+        .text(`Generated on: ${new Date().toLocaleDateString("en-IN")}`, {
+          align: "right",
+        });
+
+      const range = pdf.bufferedPageRange();
+      for (let i = 0; i < range.count; i++) {
+        pdf.switchToPage(i);
+        pdf
+          .fontSize(8)
+          .text(`Page ${i + 1} of ${range.count}`, 0, pdf.page.height - 40, {
+            align: "center",
+          });
+      }
+
+      pdf.end();
+
+    } catch (error) {
+      console.error("Download error:", error);
+      res.status(500).json({ message: "Failed to generate PDF" });
+    }
+  }
+);
 
 export default router;
