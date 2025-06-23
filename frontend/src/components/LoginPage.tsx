@@ -1,8 +1,10 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
 /*Modified by Nakshatra Bhandary (16/6/26) and (17/6/25) to connect to the backend*/
+/*Modified by Nakshatra Bhandary 23/6/25 to add forgot password*/
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import ForgotPasswordModal from './ForgotPasswordModal';
 import './LoginPage.css';
 
 const LoginPage: React.FC = () => {
@@ -20,6 +22,8 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showForgotModal, setShowForgotModal] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,12 +83,19 @@ try {
         <button type="submit" className="login-button">
           Login
         </button>
+        <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+          <span onClick={() => setShowForgotModal(true)} style={{ cursor: 'pointer', color: '#6366F1' }}>
+            Forgot Password?
+          </span>
+        </p>
+
         <p style={{ fontSize: '0.9rem' }}>
   Don't have an account?{' '}
-  <a href="/register" style={{ color: '#6366F1' }}>Register here</a>
+  <Link to="/register" style={{ color: '#6366F1' }}>Register here</Link>
 </p>
 
       </form>
+      {showForgotModal && <ForgotPasswordModal onClose={() => setShowForgotModal(false)} />}
     </div>
   );
 };

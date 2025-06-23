@@ -38,9 +38,12 @@ To assist learners by:
 MONGO_URI = mongodb://localhost:27017/agenticAI
 OPENROUTER_API_KEY= your_openrouter_api_key
 JWT_SECRET=your_backend_secret_key(Please generate it from web)
+EMAIL_USER=your_gmail_id
+EMAIL_PASS=your_gmail_app_password
 ```
 
 > Make sure the `.env` file is located inside the `backend/` folder.
+> Note the the password being used in EMAIL_PASS is not your gmail password but is the app password created for this purpose after enabling 2 factor authentication.
 
 ---
 

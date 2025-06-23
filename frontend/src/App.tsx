@@ -4,7 +4,7 @@
 /*Routes modified by Nakshatra on 17/6 to ensure user can only go to dashboard after logging in*/
 /*Modified by Nakshatra on 19/6/25 for the automatic logout*/
 /*Nav bar componenet added by Nikita S Raj Kapini on 19/06/2025*/
-
+/*Modified by Nakshatra on 23/6/25 for the forgot password*/
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -27,7 +27,7 @@ interface Topic {
 }
 
 const AppContent = () => {
-  useAuth();
+//  useAuth();
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const [shouldGenerateAssessment, setShouldGenerateAssessment] = useState(false);
 
