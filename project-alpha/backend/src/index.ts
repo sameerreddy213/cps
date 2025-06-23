@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import prereqRoutes from './routes/prerequisites';
 import summaryRoutes from './routes/summaryRoute' 
 import quizAttempts from './routes/quizAttempts'
-
+import learningPath from './routes/learningpath'
 dotenv.config();
 
 const app = express();
@@ -14,7 +14,8 @@ app.use(express.json());
 
 app.use('/api/prerequisites', prereqRoutes);
 app.use('/api', summaryRoutes);
-app.use('/api',quizAttempts)
+app.use('/api',quizAttempts);
+app.use('/api', learningPath);
 
 mongoose.connect(process.env.MONGO_URI!)
   .then(() => console.log('MongoDB connected'))
