@@ -190,7 +190,7 @@ const Dashboard = () => {
             placeholder="Start Concept (e.g., Variables)"
             value={startConcept}
             onChange={(e) => setStartConcept(e.target.value)}
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Changed bg-dark to bg-dark-subtle and added text-dark-contrast
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             style={{ maxWidth: '300px' }}
           />
           <input
@@ -198,7 +198,7 @@ const Dashboard = () => {
             placeholder="Target Concept (e.g., Recursion)"
             value={endConcept}
             onChange={(e) => setEndConcept(e.target.value)}
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary" // Changed bg-dark to bg-dark-subtle and added text-dark-contrast
+            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
             style={{ maxWidth: '300px' }}
           />
           <button onClick={handleGetPath} className="btn btn-primary btn-lg flex-shrink-0">
@@ -209,12 +209,12 @@ const Dashboard = () => {
         {pathError && <div className="alert alert-danger text-center mt-3">{pathError}</div>}
 
         {recommendedPath.length > 0 && (
-          <div className="recommended-path-section bg-secondary-subtle p-4 rounded shadow mt-4 text-start text-dark">
+          <div className="recommended-path-section bg-secondary-subtle p-4 rounded shadow mt-4 text-dark-contrast"> {/* Changed text-dark to text-dark-contrast for entire section */}
             <h4 className="text-center mb-4 text-info">Recommended Path:</h4>
             <ul className="list-group list-group-flush">
               {recommendedPath.map((topic, idx) => (
-                <li key={idx} className="list-group-item bg-dark-subtle border-secondary rounded mb-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 py-3 text-white">
-                  <span className="fs-5 text-white">
+                <li key={idx} className="list-group-item bg-dark-subtle border-secondary rounded mb-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 py-3 text-dark-contrast"> {/* Changed text-white to text-dark-contrast */}
+                  <span className="fs-5 text-dark-contrast"> {/* Changed text-white to text-dark-contrast */}
                     {idx + 1}. <strong>{topic}</strong>
                   </span>
                   <div className="d-flex gap-2 flex-wrap justify-content-center justify-content-md-end">
@@ -241,7 +241,7 @@ const Dashboard = () => {
         ) : (
           <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
             {quizHistory.map((entry, i) => (
-              <li key={i} className="list-group-item bg-secondary-subtle border-start border-5 border-primary rounded mb-3 shadow-sm text-start text-dark">
+              <li key={i} className="list-group-item bg-secondary-subtle border-start border-5 border-primary rounded mb-3 shadow-sm text-start text-dark-contrast"> {/* Changed text-dark to text-dark-contrast */}
                 <strong>{entry.topic}</strong> — Score: {entry.score}% — Mastery Weight: {entry.mastery}
                 <br />
                 <small className="text-muted">{new Date(entry.createdAt).toLocaleString()}</small>

@@ -57,20 +57,20 @@ const ExploreTopicPage = () => {
 
   return (
     <div className="container py-4 bg-dark text-white rounded shadow-lg">
-      <h2 className="text-center mb-4 text-primary fs-2">{concept.name}</h2> {/* Bootstrap heading classes */}
+      <h2 className="text-center mb-4 text-primary fs-2">{concept.name}</h2>
 
-      <div className="card bg-dark-subtle text-white p-4 mb-4 shadow-sm">
+      <div className="card bg-dark-subtle text-dark-contrast p-4 mb-4 shadow-sm"> {/* Changed text-white to text-dark-contrast */}
         <p className="mb-2"><strong>Description:</strong> {concept.description}</p>
         <p className="mb-2"><strong>Spotlight Fact:</strong> {concept.spotlight_fact}</p>
         <p className="mb-0"><strong>Appears in Lecture:</strong> {concept.lecture}</p>
       </div>
 
       {concept.examples && concept.examples.length > 0 && (
-        <div className="card bg-dark-subtle text-white p-4 mb-4 shadow-sm">
+        <div className="card bg-dark-subtle text-dark-contrast p-4 mb-4 shadow-sm"> {/* Changed text-white to text-dark-contrast */}
           <h5 className="card-title text-info mb-3">Examples:</h5>
           <ul className="list-group list-group-flush bg-dark-subtle">
             {concept.examples.map((ex, i) => (
-              <li key={i} className="list-group-item bg-dark-subtle text-white border-0 py-1">
+              <li key={i} className="list-group-item bg-dark-subtle text-dark-contrast border-0 py-1"> {/* Changed text-white to text-dark-contrast */}
                 {ex}
               </li>
             ))}
@@ -79,11 +79,11 @@ const ExploreTopicPage = () => {
       )}
 
       {concept.related_topics && concept.related_topics.length > 0 && (
-        <div className="card bg-dark-subtle text-white p-4 mb-4 shadow-sm">
+        <div className="card bg-dark-subtle text-dark-contrast p-4 mb-4 shadow-sm"> {/* Changed text-white to text-dark-contrast */}
           <h5 className="card-title text-info mb-3">Related Topics:</h5>
           <ul className="list-group list-group-flush bg-dark-subtle">
             {concept.related_topics.map((related, i) => (
-              <li key={i} className="list-group-item bg-dark-subtle text-white border-0 py-1">
+              <li key={i} className="list-group-item bg-dark-subtle text-dark-contrast border-0 py-1"> {/* Changed text-white to text-dark-contrast */}
                 {related}
               </li>
             ))}
@@ -91,7 +91,7 @@ const ExploreTopicPage = () => {
         </div>
       )}
 
-      <div className="card bg-dark-subtle text-white p-4 shadow-sm">
+      <div className="card bg-dark-subtle text-dark-contrast p-4 shadow-sm"> {/* Changed text-white to text-dark-contrast */}
         <p className="mb-0">
           <strong>Quiz Available:</strong>{" "}
           <span className={concept.quiz_available ? "text-success fw-bold" : "text-danger fw-bold"}>
