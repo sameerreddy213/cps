@@ -26,6 +26,8 @@ const QuizModal: React.FC<QuizModalProps> = ({
   };
 
   const currentQuestion = quiz.questions[quiz.currentQuestionIndex];
+  if (!currentQuestion) return null;
+  
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">

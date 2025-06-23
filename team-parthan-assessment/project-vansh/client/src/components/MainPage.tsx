@@ -47,6 +47,12 @@ const MainPage: React.FC = () => {
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
 const [searchQuery, setSearchQuery] = useState('');
 
+
+
+const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  //const [typeofinput, setTypeofInput] = useState("pdf");
+  const [concepts, setConcepts] = useState<{ mainTopic: string[]; prerequisites: string[] } | null>(null);
+  const [loadingConcepts, setLoadingConcepts] = useState(false);
   const [topics, setTopics] = useState<Topic[]>([]);
 
   useEffect(() => {
@@ -386,28 +392,62 @@ const [searchQuery, setSearchQuery] = useState('');
     }
   };
 
-  const generateQuizForTopic = (topicId: string): QuizQuestion[] => {
-    const topicData = TOPIC_QUIZ_DATA[topicId as keyof typeof TOPIC_QUIZ_DATA];
-    if (!topicData) {
-      return [
-        {
-          id: '1',
-          question: `What is a key concept in ${topics.find(t => t.id === topicId)?.name}?`,
-          options: ['Concept A', 'Concept B', 'Concept C', 'All of the above'],
-          correctAnswer: 3,
-          explanation: 'This is a placeholder question. More questions will be added for this topic.'
-        }
-      ];
+  const generateQuizForTopic = async (topicId: string) => {
+    // const topicData = TOPIC_QUIZ_DATA[topicId as keyof typeof TOPIC_QUIZ_DATA];
+    // if (!topicData) {
+    //   return [
+    //     {
+    //       id: '1',
+    //       question: `What is a key concept in ${topics.find(t => t.id === topicId)?.name}?`,
+    //       options: ['Concept A', 'Concept B', 'Concept C', 'All of the above'],
+    //       correctAnswer: 3,
+    //       explanation: 'This is a placeholder question. More questions will be added for this topic.'
+    //     }
+    //   ];
+    // }
+
+    // const shuffledQuestions = [...topicData.questions].sort(() => Math.random() - 0.5);
+    // return shuffledQuestions.slice(0, 5);
+
+    setLoader(true);
+  try {
+    const res = await fetch("http://localhost:5000/api/generate-quiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: [topicId], prerequisites: [] })
+    });
+
+    if (!res.ok) throw new Error("Failed to analyze file");
+    
+    const data = await res.json();
+    const topicData = data.quiz as QuizQuestion[];
+if (!Array.isArray(topicData) || topicData.length === 0) {
+ 
+      throw new Error("Invalid or empty quiz data");
     }
 
-    const shuffledQuestions = [...topicData.questions].sort(() => Math.random() - 0.5);
-    return shuffledQuestions.slice(0, 5);
+    return topicData as QuizQuestion[]; 
+  } catch (err) {
+    console.error("Error:", err);
+    return [
+      {
+        id: '1',
+        question: `What is a key concept in ${topics.find(t => t.id === topicId)?.name}?`,
+        options: ['Concept A', 'Concept B', 'Concept C', 'All of the above'],
+        correctAnswer: 3,
+        explanation: 'This is a placeholder question. More questions will be added for this topic.'
+      }
+    ];
+  } finally {
+    setLoader(false);
+  }
+
   };
 
   const startQuizForTopic = async(topicId: string) => {
     const topic = topics.find(t => t.id === topicId);
     if (!topic) return;
-    await simulateQuizGeneration();
+    //await simulateQuizGeneration();
     // Update topic status to in-progress if it's the first time
     if (topic.status === 'not-started' || (topic.status === 'ready' && !topic.attempts)) {
       setTopics(prev => prev.map(t => 
@@ -424,7 +464,8 @@ const [searchQuery, setSearchQuery] = useState('');
       ));
     }
 
-    const questions = generateQuizForTopic(topicId);
+    const questions = await generateQuizForTopic(topicId);
+    if (!questions || questions.length === 0) return;
     const timeLimit = questions.length * 60;
     const attemptNumber = (topic.attempts || 0) + 1;
     
@@ -448,7 +489,7 @@ const [searchQuery, setSearchQuery] = useState('');
   const startCustomQuiz = async(contentId: string) => {
     const quiz = generatedQuizzes.find(q => q.contentId === contentId);
     if (!quiz) return;
-    await simulateQuizGeneration();
+    //await simulateQuizGeneration();
     const timeLimit = quiz.questions.length * 60;
     
     const newQuiz: QuizState = {
@@ -964,11 +1005,34 @@ const [searchQuery, setSearchQuery] = useState('');
             ref={fileInputRef}
             type="file"
             accept={uploadType === "pdf" ? ".pdf" : "image/*"}
-            onChange={(e) => handleFileUpload(e.target.files)}
+            onChange={(e) => {handleFileUpload(e.target.files);
+              const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadedFile(file);
+                        setConcepts(null);
+                      }
+            }
+              
+            }
             className="hidden"
           />
+          {uploadedFile && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected file: <span className="font-medium">{uploadedFile.name}</span>
+                    </p>
+                  )}
         </div>
       )}
+
+       {/* Analyzer */}
+              <ConceptAnalyzer
+                file={uploadedFile}
+                typeofinput={uploadType}
+                concepts={concepts}
+                setConcepts={setConcepts}
+                loading={loadingConcepts}
+                setLoading={setLoadingConcepts}
+              />
 
       {/* AI Features Info */}
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">

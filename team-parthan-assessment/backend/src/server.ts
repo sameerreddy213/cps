@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoute';
 import userRoutes from './routes/detailsRouter';
 import userProgressRoutes from './routes/userProgress';
+import analyzeRoutes from './routes/analyzeRoute';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/me',userRoutes);
 app.use('/api/user-progress', userProgressRoutes);
+app.use('/api',analyzeRoutes)
 
 
 // Database connection
