@@ -4,38 +4,38 @@ import User from '../models/userModel';
 import UserConceptProgress from "../models/userConceptProgress";
 import { HydratedDocument } from "mongoose";
 
-// /**
-//  * @desc    Fetches a quiz for a concept, removing answers before sending to the client.
-//  * @route   GET /api/quizzes/:conceptId
-//  * @access  Private
-//  */
-// export const getQuizForConcept = async (req: Request, res: Response) => {
-//     try {
-//         const concept = await Concept.findById(req.params.conceptId).select('quiz');
+/**
+ * @desc    Fetches a quiz for a concept, removing answers before sending to the client.
+ * @route   GET /api/quizzes/:conceptId
+ * @access  Private
+ */
+export const getQuizForConcept = async (req: Request, res: Response) => {
+    try {
+        const concept = await Concept.findById(req.params.conceptId).select('quiz');
 
-//         if (!concept || !concept.quiz || concept.quiz.length === 0) {
-//             return res.status(404).json({ message: 'Quiz not found for this concept.' });
-//         }
+        if (!concept || !concept.quiz || concept.quiz.length === 0) {
+            return res.status(404).json({ message: 'Quiz not found for this concept.' });
+        }
 
-//         // IMPORTANT: We must remove the correct answers before sending the quiz.
-//         const sanitizedQuiz = concept.quiz.map(q => ({
-//             questionText: q.questionText,
-//             options: q.options,
-//             _id: (q as any)._id, // Useful for the frontend to key on
-//         }));
+        // IMPORTANT: We must remove the correct answers before sending the quiz.
+        const sanitizedQuiz = concept.quiz.map(q => ({
+            questionText: q.questionText,
+            options: q.options,
+            _id: (q as any)._id, // Useful for the frontend to key on
+        }));
 
-//         res.status(200).json(sanitizedQuiz);
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Server Error' });
-//     }
-// };
+        res.status(200).json(sanitizedQuiz);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
 
-// /**
-//  * @desc    Grades a quiz submission and updates the user's learning profile.
-//  * @route   POST /api/quizzes/submit/:conceptId
-//  * @access  Private
-//  */
+/**
+ * @desc    Grades a quiz submission and updates the user's learning profile.
+ * @route   POST /api/quizzes/submit/:conceptId
+ * @access  Private
+ */
 // export const submitQuiz = async (req: Request, res: Response) => {
 //     try {
 //         const { conceptId } = req.params;
@@ -62,7 +62,7 @@ import { HydratedDocument } from "mongoose";
 //         const score = correctCount / concept.quiz.length;
 
 //         // --- Update user's learning profile ---
-//         const user = await User.findById(req.user?.id);
+//         const user = await User.findById((req.user as any)?._id);
 //         if (!user) {
 //             return res.status(404).json({ message: 'User not found.' });
 //         }
@@ -101,6 +101,9 @@ import { HydratedDocument } from "mongoose";
 //     }
 // };
 
+
+// --For Quiz Recommendation and Mastery Tracking-- 
+// Interface for request body
 interface SubmitQuizRequestBody {
   userId: string;
   conceptId: string;
@@ -122,18 +125,18 @@ export const submitQuiz = async (req: Request, res: Response): Promise<void> => 
 
     if (existing) {
       // Average previous and new score, cap at 1
-      existing.masteryScore = Math.min((existing.masteryScore + masteryIncrement) / 2, 1);
-      existing.attempts += 1;
-      existing.lastUpdated = new Date();
+      existing.score = Math.min((existing.score + masteryIncrement) / 2, 1);
+      // existing.attempts += 1;
+      // existing.lastUpdated = new Date();
       await existing.save();
     } else {
       // Create new progress record
       const newProgress: HydratedDocument<any> = new UserConceptProgress({
         userId,
         conceptId,
-        masteryScore: masteryIncrement,
-        attempts: 1,
-        lastUpdated: new Date(),
+        score: masteryIncrement,
+        // attempts: 1,
+        // lastUpdated: new Date(),
       });
 
       await newProgress.save();
@@ -145,3 +148,4 @@ export const submitQuiz = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
+
