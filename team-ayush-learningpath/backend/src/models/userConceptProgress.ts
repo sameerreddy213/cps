@@ -6,9 +6,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IUserConceptProgress extends Document {
   userId: mongoose.Types.ObjectId;        // Reference to the user
   conceptId: mongoose.Types.ObjectId;     // Reference to the concept
-  masteryScore: number;                   // Value from 0 (not mastered) to 1 (fully mastered)
-  attempts: number;                       // Number of quiz attempts on this concept
-  lastUpdated: Date;                      // Timestamp of last update
+  score: number;                   // Value from 0 (not mastered) to 1 (fully mastered)
+  // attempts: number;                       // Number of quiz attempts on this concept
+  // lastUpdated: Date;                      // Timestamp of last update
 }
 
 /**
@@ -34,7 +34,7 @@ const UserConceptProgressSchema: Schema<IUserConceptProgress> = new Schema(
     },
 
     // Score from 0.0 to 1.0 representing mastery level
-    masteryScore: {
+    score: {
       type: Number,
       required: true,
       min: 0,
@@ -42,19 +42,19 @@ const UserConceptProgressSchema: Schema<IUserConceptProgress> = new Schema(
       default: 0,
     },
 
-    // Number of attempts made by the user on this concept
-    attempts: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
+    // // Number of attempts made by the user on this concept
+    // attempts: {
+    //   type: Number,
+    //   required: true,
+    //   default: 0,
+    // },
 
-    // When this progress was last updated
-    lastUpdated: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
+    // // When this progress was last updated
+    // lastUpdated: {
+    //   type: Date,
+    //   required: true,
+    //   default: Date.now,
+    // },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt timestamps automatically
