@@ -485,18 +485,44 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
     setCurrentQuiz(newQuiz);
     setShowQuizModal(true);
   };
+const startCustomQuiz = async (contentId: string) => {
+  if (!concepts || !concepts.prerequisites || concepts.prerequisites.length === 0) {
+    console.warn("No concepts extracted from the content.");
+    return;
+  }
 
-  const startCustomQuiz = async(contentId: string) => {
-    const quiz = generatedQuizzes.find(q => q.contentId === contentId);
-    if (!quiz) return;
-    //await simulateQuizGeneration();
-    const timeLimit = quiz.questions.length * 60;
-    
+  setLoader(true);
+
+  try {
+    const topicIds = concepts.prerequisites;
+
+    const res = await fetch("http://localhost:5000/api/generate-quiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: topicIds,
+        prerequisites: [] // Adjust as needed
+      })
+    });
+
+    if (!res.ok) throw new Error("Failed to generate quiz");
+
+    const data = await res.json();
+
+    const questions: QuizQuestion[] = data.quiz as QuizQuestion[];
+
+    if (!questions || questions.length === 0) {
+      console.warn("No questions received from the quiz API.");
+      return;
+    }
+
+    const timeLimit = questions.length * 60; // seconds
+
     const newQuiz: QuizState = {
       contentId,
-      questions: quiz.questions,
+      questions,
       currentQuestionIndex: 0,
-      userAnswers: new Array(quiz.questions.length).fill(undefined),
+      userAnswers: new Array(questions.length).fill(undefined),
       score: 0,
       isCompleted: false,
       timeStarted: new Date(),
@@ -506,7 +532,12 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
 
     setCurrentQuiz(newQuiz);
     setShowQuizModal(true);
-  };
+  } catch (err) {
+    console.error("Quiz generation failed:", err);
+  } finally {
+    setLoader(false);
+  }
+};
 
   const handleQuizAnswer = (answerIndex: number) => {
     if (!currentQuiz || currentQuiz.isCompleted) return;
@@ -983,6 +1014,16 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
           <p className="text-xs text-gray-500 mt-2">
             Our AI will analyze the video content and generate relevant DSA questions
           </p>
+
+          {/* Analyzer */}
+              <ConceptAnalyzer
+                youtubeUrl={youtubeUrl}
+                typeofinput={uploadType}
+                concepts={concepts}
+                setConcepts={setConcepts}
+                loading={loadingConcepts}
+                setLoading={setLoadingConcepts}
+              />
         </div>
       )}
 
@@ -1021,10 +1062,7 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
                       Selected file: <span className="font-medium">{uploadedFile.name}</span>
                     </p>
                   )}
-        </div>
-      )}
-
-       {/* Analyzer */}
+                  {/* Analyzer */}
               <ConceptAnalyzer
                 file={uploadedFile}
                 typeofinput={uploadType}
@@ -1033,6 +1071,10 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
                 loading={loadingConcepts}
                 setLoading={setLoadingConcepts}
               />
+        </div>
+      )}
+
+       
 
       {/* AI Features Info */}
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">

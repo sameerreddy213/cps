@@ -9,7 +9,7 @@ interface QuizQuestion {
 export default async function generateQuiz(topic: string[], prerequisites:string[]) {
   // Use Gemini, OpenAI, or static template
     const prompt = `
-Generate 5 MCQs on the topic "${topic}". Make sure only one option is the correct answer. Provide explanation too.
+You are an expert in data structures and algorithms. Generate 5 MCQs on the topic "${topic}". Make sure only one option is the correct answer and correct answer follows zero indexing in options. Provide explanation too.
 Format:
 [
   {

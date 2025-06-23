@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
 import { dsaConcepts } from '../concept-graph/conceptList';
 
+dotenv.config();
+
 const uri =
-  'mongodb+srv://recommendation:RYxDZJWicf0VeglY@cluster0.b8papcu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+  process.env.MONGO_ATLAS_URI || 'mongodb+srv://<username>:<password>@cluster0.mongodb.net/recommendation-system?';;
 
 const dbName = 'recommendation-system';
 const collectionName = 'Concepts';
