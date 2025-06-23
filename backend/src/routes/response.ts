@@ -23,7 +23,6 @@ function getUserEmailFromToken(req: Request): string | null {
   }
 }
 
-
 // POST: Submit user answers
 router.post('/submit', async (req: Request, res: Response): Promise<void> => {
   const { assessmentId, userId, answers } = req.body;
@@ -72,7 +71,8 @@ router.post('/submit', async (req: Request, res: Response): Promise<void> => {
       userId: email,
       targetTopic: assessment.targetTopic,
       responses: evaluatedResponses,
-      percentage_score: percentageScore
+      percentage_score: percentageScore,
+      timeTaken: req.body.timeTaken
     });
 
     await newResponse.save();
@@ -84,35 +84,6 @@ router.post('/submit', async (req: Request, res: Response): Promise<void> => {
 });
 
 // GET: Analyze performance to suggest weak prerequisite topics
-// router.get('/analysis/:userId/:assessmentId', async (req: Request, res: Response) => {
-//   const { userId, assessmentId } = req.params;
-
-//   try {
-//     const response = await UserResponse.findOne({ userId, assessmentId });
-//     if (!response) {
-//       res.status(404).json({ error: 'User response not found' });
-//       return;
-//     }
-
-//     const weakTopics = response.responses
-//       .filter(q => !q.isCorrect)
-//       .map(q => q.topic_tested);
-
-//     const uniqueWeakTopics = [...new Set(weakTopics)];
-
-//     res.json({
-//       message: 'Analysis complete',
-//       weakTopics,
-//       recommendations: uniqueWeakTopics.length
-//         ? `Please revisit the following prerequisite topics before continuing: ${uniqueWeakTopics.join(', ')}.`
-//         : 'Great job! You’re ready to move forward with the target topic.'
-//     });
-//   } catch (err) {
-//     console.error('❌ Error generating analysis:', err);
-//     res.status(500).json({ error: 'Server error while generating analysis' });
-//   }
-// });
-
 router.get('/analysis/:assessmentId', async (req: Request, res: Response) => {
   const assessmentId = req.params.assessmentId;
   const email = getUserEmailFromToken(req); // secure extraction

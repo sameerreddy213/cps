@@ -220,11 +220,13 @@ const AssessmentDisplay: React.FC<{
     try {
       const payload = {
         assessmentId,
-        userId, // include user email from decoded token
+        userId,
+        timeTaken: totalTime - timeLeft, 
         answers: questions.map((_, idx) => ({
-          userAnswer: userAnswers[idx + 1] || [],
+        userAnswer: userAnswers[idx + 1] || [],
         }))
       };
+
 
       const response = await fetch('http://localhost:5000/api/response/submit', {
         method: 'POST',
@@ -429,3 +431,4 @@ const AssessmentDisplay: React.FC<{
 };
 
 export default AssessmentDisplay;
+
