@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 type MCQ = {
   id: string;
@@ -6,6 +8,11 @@ type MCQ = {
   question: string;
   options: string[];
   answer: string;
+};
+
+type LearningPathWeek = {
+  week: number;
+  tasks: string[];
 };
 
 type Props = {
@@ -33,6 +40,10 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
   const [showNavigationPane, setShowNavigationPane] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [showLearningPathModal, setShowLearningPathModal] = useState(false);
+  const [weeksInput, setWeeksInput] = useState('');
+  const [learningPath, setLearningPath] = useState<LearningPathWeek[] | null>(null);
+  const [learningPathLoading, setLearningPathLoading] = useState(false);
 
   const quizRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
@@ -77,6 +88,10 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       progressRingGood: '#10b981',
       unattemptedColor: '#f59e0b',
       resultsHeading: '#2563eb',
+      learningPathBackground: '#e0f2fe',
+      learningPathBorder: '#3b82f6',
+      learningPathText: '#1e40af',
+      learningPathHighlight: '#fef3c7',
     },
     dark: {
       quizBackground: '#1f2937',
@@ -116,6 +131,10 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       progressRingGood: '#34d399',
       unattemptedColor: '#d97706',
       resultsHeading: '#60a5fa',
+      learningPathBackground: '#1e3a8a',
+      learningPathBorder: '#60a5fa',
+      learningPathText: '#bfdbfe',
+      learningPathHighlight: '#78350f',
     },
   };
 
@@ -141,6 +160,9 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
     setShowKeyPressAlert(false);
     setShowNavigationPane(false);
     setShowFeedback(false);
+    setShowLearningPathModal(false);
+    setWeeksInput('');
+    setLearningPath(null);
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -377,6 +399,31 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
     }
   };
 
+  const handleLearningPathSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const weeks = parseInt(weeksInput, 10);
+    if (isNaN(weeks) || weeks < 1 || weeks > 52) {
+      alert('Please enter a valid number of weeks (1-52).');
+      return;
+    }
+
+    setLearningPathLoading(true);
+    try {
+      const res = await axios.post('http://localhost:5000/api/learning-path', {
+        topic,
+        scorePercentage: getScorePercentage(),
+        weeks,
+      });
+      setLearningPath(res.data.learningPath);
+      setShowLearningPathModal(false);
+    } catch (err) {
+      console.error('Error fetching learning path:', err);
+      alert('Failed to generate learning path. Please try again.');
+    } finally {
+      setLearningPathLoading(false);
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -462,6 +509,75 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
         </div>
       )}
 
+      {showLearningPathModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: currentTheme.modalOverlay,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: currentTheme.modalBackground,
+              padding: '30px',
+              borderRadius: '12px',
+              textAlign: 'center',
+              maxWidth: '500px',
+              boxShadow: currentTheme.boxShadow,
+            }}
+          >
+            <h3 style={{ color: currentTheme.buttonPrimary, marginBottom: '20px' }}>
+              📚 Plan Your Learning Journey
+            </h3>
+            <p style={{ marginBottom: '20px', color: currentTheme.textPrimary }}>
+              How many weeks are you willing to dedicate to mastering {topic}?
+            </p>
+            <form onSubmit={handleLearningPathSubmit}>
+              <input
+                type="number"
+                value={weeksInput}
+                onChange={(e) => setWeeksInput(e.target.value)}
+                placeholder="Enter number of weeks (1-52)"
+                min="1"
+                max="52"
+                style={{
+                  padding: '12px',
+                  width: '100%',
+                  marginBottom: '20px',
+                  border: `1px solid ${currentTheme.buttonPrimary}`,
+                  borderRadius: '8px',
+                  color: currentTheme.textPrimary,
+                  backgroundColor: currentTheme.questionBackground,
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: currentTheme.buttonSuccess,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: learningPathLoading ? 'not-allowed' : 'pointer',
+                  opacity: learningPathLoading ? 0.5 : 1,
+                }}
+                disabled={learningPathLoading}
+              >
+                {learningPathLoading ? 'Generating...' : 'Generate Learning Path'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {showWarning && !isFullScreen && !showEnterFullScreenModal && warningsLeft > 0 && (
         <div
           style={{
@@ -518,8 +634,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
             right: '20px',
             backgroundColor: currentTheme.alertBackground,
             padding: '15px',
-            borderRadius: '8px',
             border: `1px solid ${currentTheme.alertBorder}`,
+            borderRadius: '8px',
             boxShadow: currentTheme.boxShadow,
             zIndex: 1100,
             maxWidth: '300px',
@@ -546,9 +662,6 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-        {/* <h2 style={{ marginBottom: '20px', fontSize: '22px', fontWeight: 'bold', color: currentTheme.textPrimary }}>
-          MCQ Test {submitted ? '(Results)' : `(Question ${currentQuestionIndex + 1} of ${mcqs.length})`}
-        </h2> */}
         {isFullScreen && !submitted && (
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <div style={{ fontWeight: 'bold', color: overallTimeLeft <= 30 ? currentTheme.buttonSecondary : currentTheme.textPrimary }}>
@@ -908,12 +1021,76 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
                   Review Questions
                 </button>
               </div>
-            </div>
+              {learningPath && (
+                <div style={{ marginTop: '40px', position: 'relative' }}>
+                  <h2 style={{
+                    fontSize: '28px',
+                    marginBottom: '30px',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                  }}
+                  >
+                    <span style={{ color: currentTheme.resultsHeading }}
+                    >Learning Path for</span>{' '}
+                    <span style={{
+                      color: currentTheme.buttonSuccess,
+                      backgroundColor: currentTheme.learningPathHighlight,
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                    }}>
+                      {topic}
+                    </span>
+                  </h2>
+                  <div className="roadway" style={{
+                    position: 'relative',
+                    paddingLeft: '40px',
+                    paddingRight: '20px',
+                  }}>
+                    {learningPath.map((week, index) => (
+                      <div key={week.week} className="roadway-item" style={{
+                        marginBottom: '20px',
+                        position: 'relative',
+                        padding: '10px 20px',
+                        background: currentTheme.learningPathBackground,
+                        border: `1px solid ${currentTheme.learningPathBorder}`,
+                        borderRadius: '8px',
+                        color: currentTheme.learningPathText,
+                        boxShadow: currentTheme.boxShadow,
+                        animation: `fadeIn 0.5s ease-in-out ${index * 0.2}s forwards`,
+                        opacity: '0',
+                      }}
+                    >
+                      <h3 style={{
+                        fontSize: '20px',
+                        fontWeight: '600',
+                        marginBottom: '10px',
+                        color: currentTheme.textPrimary,
+                      }}>
+                        Week {week.week}
+                      </h3>
+                      <ul style={{
+                        paddingLeft: '20px',
+                        lineHeight: '1.8',
+                        listStyleType: 'disc',
+                        color: currentTheme.textPrimary,
+                      }}>
+                        {week.tasks.map((task, i) => (
+                          <li key={i} style={{ marginBottom: '6px' }}
+                          >{task}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    ))}
+                  </div>
+              </div>
+              )}
+          </div>
           )}
         </div>
 
-        {!submitted && isFullScreen && (
+        {!submitted && !isFullScreen && (
           <button
+            type="button"
             onClick={() => setShowNavigationPane(!showNavigationPane)}
             title={showNavigationPane ? 'Collapse Navigation' : 'Expand Navigation'}
             style={{
@@ -932,13 +1109,13 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               alignItems: 'center',
               cursor: 'pointer',
               boxShadow: currentTheme.boxShadow,
-              zIndex: 999,
+              zIndex: '999',
               transition: 'right 0.3s ease-in-out',
               fontSize: '20px',
               fontWeight: 'bold',
             }}
           >
-            {showNavigationPane ? '»' : '«'}
+            {showNavigationPane ? '>' : '<'}
           </button>
         )}
 
@@ -959,8 +1136,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
-              flexShrink: 0,
-              zIndex: 900,
+              flexShrink: '0',
+              zIndex: '900',
             }}
           >
             {showNavigationPane && (
@@ -985,7 +1162,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
                   gap: '10px',
                   overflowY: 'auto',
                   paddingRight: '5px',
-                  flexGrow: 1,
+                  flexGrow: '1',
                 }}>
                   {mcqs.map((mcq, index) => (
                     <button
@@ -1090,6 +1267,23 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               <p style={{ marginTop: '10px', fontSize: '16px', fontWeight: 'normal' }}>
                 No further attempts are allowed since you passed.
               </p>
+              {!learningPath && (
+                <button
+                  onClick={() => setShowLearningPathModal(true)}
+                  style={{
+                    padding: '12px 20px',
+                    backgroundColor: currentTheme.buttonPrimary,
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    marginTop: '15px',
+                    fontSize: '16px',
+                  }}
+                >
+                  Proceed to Learning Path
+                </button>
+              )}
             </div>
           ) : (
             <div style={{
@@ -1129,6 +1323,33 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
           )}
         </div>
       )}
+      <style>{`
+        .roadway::before {
+          content: '';
+          position: absolute;
+          left: 20px;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: linear-gradient(to bottom, ${currentTheme.buttonPrimary}, ${currentTheme.buttonSuccess});
+          border-radius: 2px;
+        }
+        .roadway-item::before {
+          content: '';
+          position: absolute;
+          left: -20px;
+          top: 20px;
+          width: 12px;
+          height: 12px;
+          background-color: ${currentTheme.buttonSuccess};
+          border-radius: 50%;
+          border: 2px solid ${currentTheme.learningPathBackground};
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };
