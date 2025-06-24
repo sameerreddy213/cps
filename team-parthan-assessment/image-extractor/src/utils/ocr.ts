@@ -22,17 +22,17 @@ function isProbablyTyped(text: string): boolean {
 }
 
 export async function extractTextFromImage(imagePath: string): Promise<{ text: string, mode: PreprocessMode }> {
-  const langPath = path.join(__dirname, '../../tessdata_best');
+  const langPath = path.join(__dirname, '../../tessdata_fast');
 
   console.log(`[OCR] Running initial scan to detect content type...`);
 
   // Light scan using generic config
-  const lightScan = await Tesseract.recognize(imagePath, 'eng', {
+  const lightScan = await Tesseract.recognize(imagePath, 'eng+osd', {
     langPath,
     logger: (m: { status: string; progress: number }) => {
       if (m.status) console.log(`[Initial]: ${m.status} - ${Math.round((m.progress || 0) * 100)}%`);
     },
-    tessedit_pageseg_mode: '11',
+    tessedit_pageseg_mode: '13',
     preserve_interword_spaces: '1'
   } as any);
 
@@ -46,7 +46,7 @@ export async function extractTextFromImage(imagePath: string): Promise<{ text: s
 
   // Configure Tesseract settings for final scan
   const finalConfig: Record<string, string> = {
-    tessedit_pageseg_mode: isTyped ? '6' : '11',
+    tessedit_pageseg_mode: isTyped ? '6' : '13',
     preserve_interword_spaces: '1'
   };
 
