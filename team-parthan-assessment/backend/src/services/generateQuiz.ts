@@ -4,19 +4,21 @@ interface QuizQuestion {
   options: string[];
   correctAnswer: number;
   explanation: string;
+  topic?: string;
 }
 
 export default async function generateQuiz(topic: string[], prerequisites:string[]) {
-  // Use Gemini, OpenAI, or static template
+  
     const prompt = `
-You are an expert in data structures and algorithms. Generate 5 MCQs on the topic "${topic}". Make sure only one option is the correct answer and correct answer follows zero indexing in options. Provide explanation too.
+You are an expert in data structures and algorithms. Generate 5 MCQs for each of the the topic "${topic}" , so the total number of questions will be 5 times number of topics in ${topic}. Make sure only one option is the correct answer and correct answer follows zero indexing in options. Provide explanation too. And mention the topic of the question from the list - ${topic}. .
 Format:
 [
   {
     "question": "...",
     "options": ["A", "B", "C", "D"],
     "correctAnswer": 1,
-    "explanation": "..."
+    "explanation": "...",
+    "topic":"..."
   }
 ]
 Return only valid JSON.
@@ -40,13 +42,16 @@ Return only valid JSON.
   const rawQuiz = JSON.parse(match[0]);
 
   // Assign IDs to each question
-  const quiz: QuizQuestion[] = rawQuiz.map((q: { question: any; options: any; correctAnswer: any; explanation: any; }, index: number) => ({
+  const quiz: QuizQuestion[] = rawQuiz.map((q: { question: any; options: any; correctAnswer: any; explanation: any; topic: any }, index: number) => ({
     id: (index + 1).toString(),
     question: q.question,
     options: q.options,
     correctAnswer: q.correctAnswer,
-    explanation: q.explanation
+    explanation: q.explanation,
+    topic: q.topic ? q.topic : topic.join(', ')
   }));
+
+  
 
   console.log(quiz)
 

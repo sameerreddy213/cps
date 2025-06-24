@@ -485,59 +485,65 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
     setCurrentQuiz(newQuiz);
     setShowQuizModal(true);
   };
+
+
+
+
 const startCustomQuiz = async (contentId: string) => {
-  if (!concepts || !concepts.prerequisites || concepts.prerequisites.length === 0) {
-    console.warn("No concepts extracted from the content.");
+  if (!concepts?.prerequisites?.length) {
+    console.warn("No prerequisites found");
     return;
   }
 
   setLoader(true);
 
   try {
-    const topicIds = concepts.prerequisites;
-
     const res = await fetch("http://localhost:5000/api/generate-quiz", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        topic: topicIds,
-        prerequisites: [] // Adjust as needed
-      })
+        prerequisites: concepts.prerequisites,
+      }),
     });
 
-    if (!res.ok) throw new Error("Failed to generate quiz");
+    if (!res.ok) throw new Error("Quiz generation failed");
 
-    const data = await res.json();
+    const result = await res.json();
 
-    const questions: QuizQuestion[] = data.quiz as QuizQuestion[];
+    console.log(result);
 
-    if (!questions || questions.length === 0) {
-      console.warn("No questions received from the quiz API.");
-      return;
-    }
+    const data = result.quiz;
 
-    const timeLimit = questions.length * 60; // seconds
+    console.log(data);
+
+    const allQuestions: QuizQuestion[] = data.map((q: any, index: any) => ({
+      ...q,
+      id: `${index + 1}`, 
+    }));
+
+    const timeLimit = allQuestions.length * 60;
 
     const newQuiz: QuizState = {
       contentId,
-      questions,
+      questions: allQuestions,
       currentQuestionIndex: 0,
-      userAnswers: new Array(questions.length).fill(undefined),
+      userAnswers: new Array(allQuestions.length).fill(undefined),
       score: 0,
       isCompleted: false,
       timeStarted: new Date(),
       timeLimit,
-      timeRemaining: timeLimit
+      timeRemaining: timeLimit,
     };
 
     setCurrentQuiz(newQuiz);
     setShowQuizModal(true);
   } catch (err) {
-    console.error("Quiz generation failed:", err);
+    console.error("Custom Quiz generation failed:", err);
   } finally {
     setLoader(false);
   }
 };
+
 
   const handleQuizAnswer = (answerIndex: number) => {
     if (!currentQuiz || currentQuiz.isCompleted) return;
@@ -573,8 +579,46 @@ const startCustomQuiz = async (contentId: string) => {
     });
   };
 
+
+  const completeCustomQuiz = () => {
+  if (!currentQuiz) return;
+
+  let correctAnswers = 0;
+  const scoreByTopic: Record<string, { total: number; correct: number }> = {};
+
+  currentQuiz.questions.forEach((question, index) => {
+    const isCorrect = currentQuiz.userAnswers[index] === question.correctAnswer;
+    if (isCorrect) correctAnswers++;
+
+    const topic = question.topic || 'Unknown';
+    if (!scoreByTopic[topic]) scoreByTopic[topic] = { total: 0, correct: 0 };
+    scoreByTopic[topic].total++;
+    if (isCorrect) scoreByTopic[topic].correct++;
+  });
+
+  const overallScore = Math.round((correctAnswers / currentQuiz.questions.length) * 100);
+
+  const completedQuiz: QuizState = {
+    ...currentQuiz,
+    score: overallScore,
+    isCompleted: true,
+    timeCompleted: new Date(),
+   
+  };
+ 
+  console.log(scoreByTopic);
+  setQuizHistory(prev => [...prev, completedQuiz]);
+  setCurrentQuiz(completedQuiz);
+};
+
+
   const completeQuiz = async () => {
     if (!currentQuiz) return;
+
+    if(currentQuiz.contentId) {
+      completeCustomQuiz();
+      return;
+    }
 
     let correctAnswers = 0;
     currentQuiz.questions.forEach((question, index) => {
