@@ -122,7 +122,6 @@ const quizData: Partial<QuizDocument> = {
             correctOption: "A",
             score: 1
         },
-        // 10 more questions with similar structure
         {
             questionText: "What is the maximum size of an array in Java?",
             options: [

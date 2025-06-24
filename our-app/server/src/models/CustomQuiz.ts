@@ -28,6 +28,7 @@ export interface CustomQuizDocument extends Document {
     customQuestions: CustomQuestion[];
     createdAt: Date;
     updatedAt: Date;
+    quizScore: number;
 }
 
 const customQuizSchema = new Schema<CustomQuizDocument>(
@@ -93,7 +94,11 @@ const customQuizSchema = new Schema<CustomQuizDocument>(
                     }
                 }
             }
-        ]
+        ],
+        quizScore: {
+            type: Number,
+            default: 0
+        }
     },
     {
         timestamps: true,

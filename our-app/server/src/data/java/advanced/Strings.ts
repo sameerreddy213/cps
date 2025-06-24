@@ -122,7 +122,6 @@ const quizData: Partial<QuizDocument> = {
             correctOption: "A",
             score: 1
         }
-        // You can add 10 more advanced questions if needed
     ]
 };
 

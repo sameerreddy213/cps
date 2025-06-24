@@ -122,7 +122,6 @@ const quizData: Partial<QuizDocument> = {
             correctOption: "A",
             score: 1
         },
-        // 10 more questions can be added with similar structure
         {
             questionText: "What is the order of elements in a stack?",
             options: [
