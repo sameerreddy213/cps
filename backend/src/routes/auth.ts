@@ -1,16 +1,20 @@
 /*Author: Nakshatra Bhandary on 17/6/25*/
 /*Updated by Nikita S Raj Kapini on 20/6/25*/
+/*Modified by Nakshatra on 23/6/25 to add forgot password.*/
 import express from 'express';
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import transporter from '../utils/mailer';
+//import { forgotPassword, verifyResetCode, resetPassword } from '../controllers/auth';
 
 const router = express.Router();
 
 // ─── Register ────────────────────────────────────────────────────────────────
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
+  console.log("Inside /register");
 
   try {
     // 1. Check existing user
@@ -103,5 +107,95 @@ router.post('/change-password', async (req: Request, res: Response): Promise<voi
   }
 });
 
+// ─── Forgot Password and reset it──────────────────────────────────────────────────────────
+// ─── Forgot Password ──────────────────────────────────────────────────────────
+router.post('/forgot-password', async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
 
+  try {
+    // 1. Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // 2. Generate and save reset code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetCode = code;
+    user.resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await user.save();
+
+    // 3. Send email
+    await transporter.sendMail({
+      to: user.email,
+      subject: 'Password Reset Code',
+      text: `Your password reset code is: ${code}`,
+    });
+
+    res.json({ message: 'OTP sent to email' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Server error during password reset request' });
+  }
+});
+
+// ─── Verify Reset Code ───────────────────────────────────────────────────────
+router.post('/verify-reset-code', async (req: Request, res: Response): Promise<void> => {
+  const { email, code } = req.body;
+
+  try {
+    // 1. Find user
+    const user = await User.findOne({ email });
+    if (!user || user.resetCode !== code) {
+      res.status(400).json({ message: 'Invalid code' });
+      return;
+    }
+
+    // 2. Check expiration
+    if (user.resetCodeExpires && user.resetCodeExpires < new Date()) {
+      res.status(400).json({ message: 'Code expired' });
+      return;
+    }
+
+    res.json({ message: 'Code verified successfully' });
+  } catch (err) {
+    console.error('Verify reset code error:', err);
+    res.status(500).json({ message: 'Server error during code verification' });
+  }
+});
+
+// ─── Reset Password ──────────────────────────────────────────────────────────
+router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
+  const { email, code, newPassword } = req.body;
+
+  try {
+    // 1. Find user and validate code
+    const user = await User.findOne({ email });
+    if (!user || user.resetCode !== code) {
+      res.status(400).json({ message: 'Invalid code' });
+      return;
+    }
+
+    if (user.resetCodeExpires && user.resetCodeExpires < new Date()) {
+      res.status(400).json({ message: 'Code expired' });
+      return;
+    }
+
+    // 2. Hash new password and save
+    const hash = await bcrypt.hash(newPassword, 10);
+    user.password = hash;
+    user.resetCode = undefined;
+    user.resetCodeExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Password reset successful' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ message: 'Server error during password reset' });
+  }
+});
+
+
+export default router;
 export const authRoutes = router;
