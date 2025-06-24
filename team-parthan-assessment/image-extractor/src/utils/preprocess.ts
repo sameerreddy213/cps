@@ -18,10 +18,11 @@ export async function preprocessImage(
   // For handwritten text: enhance contrast, sharpen edges, binarize, enlarge
   if (mode === PreprocessMode.HANDWRITTEN) {
     await image
-      .normalize()
-      .sharpen({ sigma: 1 })
-      .threshold(140)
-      .resize({ width: 1800 })
+      .normalize() // enhance contrast
+      .blur(0.5) // smooth edges
+      .sharpen({ sigma: 2 }) // boost stroke boundaries
+      .threshold(140) // binarize
+      .resize({ width: 2000 }) // upscale for clearer OCR
       .jpeg({ quality: 100 })
       .toFile(outputPath);
   } else {
