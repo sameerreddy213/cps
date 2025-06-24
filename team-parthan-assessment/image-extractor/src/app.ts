@@ -6,6 +6,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import dayjs from 'dayjs';
 import { preprocessImage, PreprocessMode } from './utils/preprocess';
 import { extractTextFromImage } from './utils/ocr';
 
@@ -15,6 +16,15 @@ const PORT = 3000;
 // Directory to store uploaded and processed images
 const IMAGE_DIR = path.join(__dirname, '../images');
 if (!fs.existsSync(IMAGE_DIR)) fs.mkdirSync(IMAGE_DIR);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, IMAGE_DIR),
+  filename: (req, file, cb) => {
+    const timestamp = dayjs().format('YYYYMMDD-HHmmss-SSS');
+    const ext = path.extname(file.originalname);
+    cb(null, `upload-${timestamp}${ext}`);
+  }
+});
 
 // Multer setup for file upload
 const upload = multer({ dest: IMAGE_DIR });
@@ -39,7 +49,10 @@ app.post('/extract-text', upload.single('image'), async (req, res) => {
     }
 
     const originalPath = req.file.path;
-    const processedPath = path.join(IMAGE_DIR, `processed-${Date.now()}.jpg`);
+    const timestamp = dayjs().format('YYYYMMDD-HHmmss-SSS');
+    const processedPath = path.join(IMAGE_DIR, `processed-${timestamp}.jpg`);
+
+    console.log(`[UPLOAD] Received file: ${req.file.originalname} -> Saved as: ${req.file.path}`);
 
     // Initial scan to detect mode
     const { text: initialText, mode } = await extractTextFromImage(originalPath);
@@ -67,3 +80,4 @@ app.post('/extract-text', upload.single('image'), async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
