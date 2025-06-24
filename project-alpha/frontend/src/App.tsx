@@ -198,9 +198,9 @@ function App() {
         marginBottom: '30px',
         textAlign: 'center',
       }}>
-        <h1 style={{ fontSize: '32px', margin: 0 }}>📘 Smart Learning Path Recommender</h1>
+        <h1 style={{ fontSize: '32px', margin: 0 }}>📘 LearnPath</h1>
         <p style={{ marginTop: '8px', fontSize: '16px', opacity: 0.9 }}>
-          Get the best prerequisites before diving into any topic.
+          A Smart Learning Path Recommender, Get the best prerequisites before diving into any topic.
         </p>
       </header>
 
