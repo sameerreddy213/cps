@@ -243,7 +243,7 @@ router.get("/download/:topic/:moduleId", authenticateToken, async (req: Request,
       .fontSize(12)
       .fillColor("black")
       .text(moduleContent, { align: "justify", lineGap: 6 });
-
+//fixing the pdf bug
     pdf.moveDown(2);
     pdf
       .fontSize(10)
