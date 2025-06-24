@@ -1,6 +1,6 @@
 /*Author: Nakshatra Bhandary on 17/6/25*/
 /*Updated by Nikita S Raj Kapini on 20/6/25*/
-/*Modified by Nakshatra on 23/6/25 to add forgot password.*/
+/*Modified by Nakshatra on 23/6/25 and 24/6/25 to add forgot password.*/
 import express from 'express';
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
@@ -167,9 +167,15 @@ router.post('/verify-reset-code', async (req: Request, res: Response): Promise<v
 
 // ─── Reset Password ──────────────────────────────────────────────────────────
 router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
-  const { email, code, newPassword } = req.body;
+  const { email, code, newPassword, confirmPassword } = req.body;
 
   try {
+    console.log(newPassword, confirmPassword)
+    if (newPassword !== confirmPassword) {
+      res.status(400).json({ message: 'Passwords do not match' });
+      return;
+    }
+
     // 1. Find user and validate code
     const user = await User.findOne({ email });
     if (!user || user.resetCode !== code) {
