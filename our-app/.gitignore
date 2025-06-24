@@ -43,3 +43,9 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files used for testing or development by the team-9
+temp*.ts
+temp
+tempjava
+tempscripts
