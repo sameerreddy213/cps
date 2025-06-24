@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import Course from "../models/Course";
-import Quiz from "../models/Quiz";
-import advancedQuiz from "../data/java/advanced/Arrays";
-import beginnerQuiz from "../data/java/beginner/Arrays";
-import intermediateQuiz from "../data/java/intermediate/Arrays";
+import Course from "../../models/Course";
+import Quiz from "../../models/Quiz";
+import advancedQuiz from "../../data/java/advanced/Arrays";
+import beginnerQuiz from "../../data/java/beginner/Arrays";
+import intermediateQuiz from "../../data/java/intermediate/Arrays";
 
 const seedJavaArrayQuizzes = async () => {
     try {

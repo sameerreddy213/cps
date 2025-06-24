@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import Course from "../models/Course";
-import Quiz from "../models/Quiz";
-import advancedQuiz from "../data/java/advanced/Queues";
-import beginnerQuiz from "../data/java/beginner/Queues";
-import intermediateQuiz from "../data/java/intermediate/Queues";
+import Course from "../../models/Course";
+import Quiz from "../../models/Quiz";
+import advancedQuiz from "../../data/java/advanced/Queues";
+import beginnerQuiz from "../../data/java/beginner/Queues";
+import intermediateQuiz from "../../data/java/intermediate/Queues";
 
 const seedJavaQueuesQuizzes = async () => {
     try {

@@ -1,20 +1,20 @@
 import mongoose from "mongoose";
-import Course from "../models/Course";
-import Quiz from "../models/Quiz";
-import arraysQuiz from "../data/java/advanced/Arrays";
-import linkedListsQuiz from "../data/java/advanced/LinkedLists";
-import matricesQuiz from "../data/java/advanced/Matrices";
-import queuesQuiz from "../data/java/advanced/Queues";
-import recursionQuiz from "../data/java/advanced/Recursion";
-import stacksQuiz from "../data/java/advanced/Stacks";
-import stringsQuiz from "../data/java/advanced/Strings";
+import Course from "../../models/Course";
+import Quiz from "../../models/Quiz";
+import arraysQuiz from "../../data/java/advanced/Arrays";
+import linkedListsQuiz from "../../data/java/advanced/LinkedLists";
+import matricesQuiz from "../../data/java/advanced/Matrices";
+import queuesQuiz from "../../data/java/advanced/Queues";
+import recursionQuiz from "../../data/java/advanced/Recursion";
+import stacksQuiz from "../../data/java/advanced/Stacks";
+import stringsQuiz from "../../data/java/advanced/Strings";
 
 const seedJavaAdvancedQuizzes = async () => {
     try {
         // Get all required courses
         const courses = await Course.find({
             title: {
-                $in: ['Arrays', 'LinkedLists', 'Matrices', 'Queues',
+                $in: ['Arrays', 'Linked Lists', 'Matrices', 'Queues',
                     'Recursion', 'Stacks', 'Strings']
             }
         });
@@ -33,7 +33,7 @@ const seedJavaAdvancedQuizzes = async () => {
         // Map of quiz data to their corresponding course titles
         const quizzesByCourse = {
             'Arrays': arraysQuiz,
-            'LinkedLists': linkedListsQuiz,
+            'Linked Lists': linkedListsQuiz,
             'Matrices': matricesQuiz,
             'Queues': queuesQuiz,
             'Recursion': recursionQuiz,

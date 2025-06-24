@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import seedCourses from "./seedCourses";
+import seedUsers from "./seedUsers";
 import seedJavaBeginnerQuizzes from "./difficulty-based/seedJavaBeginnerQuizzes";
 import seedJavaIntermediateQuizzes from "./difficulty-based/seedJavaIntermediateQuizzes";
 import seedJavaAdvancedQuizzes from "./difficulty-based/seedJavaAdvancedQuizzes";
@@ -14,6 +15,7 @@ async function seedDatabase() {
         console.log("Connected to MongoDB");
 
         await seedCourses();
+        await seedUsers();
 
         // Using difficulty-based seeding approach
         await seedJavaBeginnerQuizzes();

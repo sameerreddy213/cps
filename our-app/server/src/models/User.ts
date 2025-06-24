@@ -9,6 +9,7 @@ interface QuizInfo {
 
 interface CourseInfo {
     courseId: mongoose.Types.ObjectId;
+    courseName: string;
     status: CourseStatus;
     result: number;
 }
@@ -90,6 +91,10 @@ const userSchema = new Schema<UserDocument>(
                 courseId: {
                     type: Schema.Types.ObjectId,
                     ref: 'Course',
+                    required: true
+                },
+                courseName: {
+                    type: String,
                     required: true
                 },
                 status: {

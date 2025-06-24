@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import Course from "../models/Course";
-import Quiz from "../models/Quiz";
-import advancedQuiz from "../data/java/advanced/Recursion";
-import beginnerQuiz from "../data/java/beginner/Recursion";
-import intermediateQuiz from "../data/java/intermediate/Recursion";
+import Course from "../../models/Course";
+import Quiz from "../../models/Quiz";
+import advancedQuiz from "../../data/java/advanced/Recursion";
+import beginnerQuiz from "../../data/java/beginner/Recursion";
+import intermediateQuiz from "../../data/java/intermediate/Recursion";
 
 const seedJavaRecursionQuizzes = async () => {
     try {
