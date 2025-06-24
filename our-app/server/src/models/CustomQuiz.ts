@@ -15,7 +15,10 @@ interface CustomQuestion {
     correctOption: OptionTag;
     level: Difficulty;
     score: number;
-    topic: mongoose.Types.ObjectId;
+    topic: {
+        courseID: mongoose.Types.ObjectId;
+        courseName: string;
+    }
 }
 
 export interface CustomQuizDocument extends Document {
@@ -78,9 +81,16 @@ const customQuizSchema = new Schema<CustomQuizDocument>(
                     min: 0
                 },
                 topic: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Course',
-                    required: true
+                    courseID: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Course',
+                        default: null
+                    },
+                    courseName: {
+                        type: String,
+                        default: 'basic',
+                        trim: true
+                    }
                 }
             }
         ]

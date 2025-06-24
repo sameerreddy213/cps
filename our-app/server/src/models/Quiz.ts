@@ -18,7 +18,10 @@ export interface QuizDocument extends Document {
     level: Level;
     language: Language;
     description?: string;
-    topic: mongoose.Types.ObjectId; // Reference to Course
+    topic: {
+        courseID: mongoose.Types.ObjectId;
+        courseName: string;
+    }
     questions: Question[];
     createdAt: Date;
     updatedAt: Date;
@@ -47,10 +50,16 @@ const quizSchema = new Schema<QuizDocument>(
             trim: true
         },
         topic: {
-            type: Schema.Types.ObjectId,
-            ref: 'Course',
-            required: true,
-            default: null
+            courseID: {
+                type: Schema.Types.ObjectId,
+                ref: 'Course',
+                default: null,
+            },
+            courseName: {
+                type: String,
+                default: 'basic',
+                trim: true
+            }
         },
         questions: [
             {
