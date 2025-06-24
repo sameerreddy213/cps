@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
@@ -1088,9 +1087,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
           )}
         </div>
 
-        {!submitted && !isFullScreen && (
+        {!submitted && isFullScreen && (
           <button
-            type="button"
             onClick={() => setShowNavigationPane(!showNavigationPane)}
             title={showNavigationPane ? 'Collapse Navigation' : 'Expand Navigation'}
             style={{
@@ -1109,13 +1107,13 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               alignItems: 'center',
               cursor: 'pointer',
               boxShadow: currentTheme.boxShadow,
-              zIndex: '999',
+              zIndex: 999,
               transition: 'right 0.3s ease-in-out',
               fontSize: '20px',
               fontWeight: 'bold',
             }}
           >
-            {showNavigationPane ? '>' : '<'}
+            {showNavigationPane ? '»' : '«'}
           </button>
         )}
 
@@ -1136,8 +1134,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
-              flexShrink: '0',
-              zIndex: '900',
+              flexShrink: 0,
+              zIndex: 900,
             }}
           >
             {showNavigationPane && (
@@ -1162,7 +1160,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
                   gap: '10px',
                   overflowY: 'auto',
                   paddingRight: '5px',
-                  flexGrow: '1',
+                  flexGrow: 1,
                 }}>
                   {mcqs.map((mcq, index) => (
                     <button
@@ -1195,6 +1193,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
           </div>
         )}
       </div>
+
 
       {!submitted && isFullScreen && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
