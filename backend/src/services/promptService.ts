@@ -1,5 +1,6 @@
 /* AUTHOR - NIKITA S RAJ KAPINI (CREATED ON 10/06/2025) */
 /* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 17/06/2025) */
+/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 24/06/2025) */
 export const generatePrompt = (targetTopic: string, prereqs: string[]) => `
 You are an educational assistant tasked with generating diagnostic assessments that evaluate a learner’s readiness to study a particular target topic. Your goal is to create a well-balanced, concept-aligned question set based only on the prerequisite concepts for that target topic.
 
@@ -58,6 +59,7 @@ Additional Constraints:
 - At least one question must be of type **multiple-correct-mcq**
 - At least one question must be of type **true-false**
 - At least two question must be of type **single-correct-mcq**
+- The correct answer must be one of the options provided
 - Do not repeat concepts excessively — ensure variety
 - Ensure strict format adherence; malformed JSON or schema violations will be rejected
 
@@ -67,4 +69,5 @@ If the topic is not related to Machine Learning, return exactly:
 Double-check:
 - Output only the final JSON object — no explanations, comments, or extra formatting
 - Ensure the number of questions satisfies the rules based on the number of listed prerequisite concepts
+- The correct answer must be one of the options provided
 `;

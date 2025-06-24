@@ -1,5 +1,6 @@
 /* AUTHOR - NIKITA S RAJ KAPINI (CREATED ON 10/06/2025) */
 /* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 13/06/2025) */
+/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 24/06/2025) */
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface Question {
@@ -10,7 +11,7 @@ interface Question {
   topic_tested: string;
   concept_area: string;
   difficulty: string;
-  insight_if_wrong: string;
+  insight_if_wrong?: string;
   estimated_time_min: number;
 }
 
@@ -28,7 +29,7 @@ const QuestionSchema: Schema = new Schema({
   topic_tested: { type: String, required: true },
   concept_area: { type: String, required: true },
   difficulty: { type: String, required: true },
-  insight_if_wrong: { type: String, required: true },
+  insight_if_wrong: { type: String, required: false },
   estimated_time_min: { type: Number, required: true },
 });
 

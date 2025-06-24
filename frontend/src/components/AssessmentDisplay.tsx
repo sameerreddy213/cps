@@ -2,6 +2,7 @@
 /* UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025 AND 17/06/2025 */
 /*Modified by Nakshatra Bhandary on 18/6/25 to add the timer*/
 /* UPDATED BY NIKITA S RAJ KAPINI ON 18/06/2025 */
+/* UPDATED BY NIKITA S RAJ KAPINI ON 24/06/2025 */
 
 import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
@@ -71,7 +72,8 @@ const AssessmentDisplay: React.FC<{
   const [timeLeft, setTimeLeft] = useState<number>(0); // in seconds
   const [totalTime, setTotalTime] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [showTimeUpModal, setShowTimeUpModal] = useState(false);
+  const [actualTimeSpent, setActualTimeSpent] = useState<number>(0);
 
   const userId = getUserEmailFromToken();
   const reportRef = useRef<HTMLDivElement>(null);
@@ -100,6 +102,8 @@ const AssessmentDisplay: React.FC<{
     setUserAnswers({});
     setResponsesWithCorrectness([]);
     setAssessmentStarted(true);
+    setRevisitTopics([]);
+    setActualTimeSpent(0);
 
     // Reset timeLeft
     const totalTime = questions.length * 1 * 60; // 1 mins per question
@@ -111,11 +115,13 @@ const AssessmentDisplay: React.FC<{
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
-          handleSubmit(); // Auto-submit when timer ends
+          setShowTimeUpModal(true);
           return 0;
         }
         return prev - 1;
       });
+
+      setActualTimeSpent((prev) => prev + 1); // ✅ increment every second
     }, 1000);
   };
 
@@ -130,6 +136,7 @@ const AssessmentDisplay: React.FC<{
       setResponsesWithCorrectness([]); 
       setRevisitTopics([]); 
       setLoading(true);
+      setActualTimeSpent(0);
 
       try {
         const res = await fetch('http://localhost:5000/api/assessment/generate', {
@@ -157,7 +164,7 @@ const AssessmentDisplay: React.FC<{
 
         setQuestions(transformed);
         setAssessmentStarted(true);
-        const totalTime = data.questions.length * 1 * 60; // 1 minutes per question
+        const totalTime = 15//data.questions.length * 1 * 60; // 1 minutes per question
         setTimeLeft(totalTime);
         setTotalTime(totalTime);
 
@@ -168,12 +175,13 @@ const AssessmentDisplay: React.FC<{
           setTimeLeft((prev) => {
             if (prev <= 1) {
               clearInterval(timerRef.current!);
-              handleSubmit(); // Auto-submit when time is up
+              setShowTimeUpModal(true);
               return 0;
             }
             return prev - 1;
           });
-        }, 1000);
+       setActualTimeSpent((prev) => prev + 1); // Always increment, even after timeLeft is 0
+      }, 1000);
       } catch (err) {
         console.error('Error generating assessment:', err);
       } finally {
@@ -221,7 +229,7 @@ const AssessmentDisplay: React.FC<{
       const payload = {
         assessmentId,
         userId,
-        timeTaken: totalTime - timeLeft, 
+        timeTaken: actualTimeSpent, 
         answers: questions.map((_, idx) => ({
         userAnswer: userAnswers[idx + 1] || [],
         }))
@@ -399,24 +407,60 @@ const AssessmentDisplay: React.FC<{
               </div>
               <div className="time-taken mt-4">
                 <h4 className="text-blue-600">Time Taken</h4>
-                <p>You spent {formatSeconds(totalTime - timeLeft)} minutes on this assessment.</p>
-              </div>
-
-              <div className="revisit-topics mt-4">
-                <h4 className="text-red-600">Topics to Revisit</h4>
-                {revisitTopics.length > 0 ? (
-                  <>
-                    <ul className="list-disc list-inside">
-                      {revisitTopics.map((topic, i) => (
-                        <li key={i}>{topic}</li>
-                      ))}
-                    </ul>
-                    <p>Please revisit the above topics before proceeding further with "{targetTopic}".</p>
-                  </>
-                ) : (
-                  <p className="text-green-700">You're all set to proceed to "{targetTopic}"! 🎉</p>
+                <p>
+                  You spent <strong>{formatSeconds(actualTimeSpent)}</strong> minutes on this assessment.<br />
+                  Allotted time was <strong>{formatSeconds(totalTime)}</strong> minutes.
+                </p>
+                {timeLeft === 0 && (
+                  <p className="text-yellow-700 font-semibold mt-2">
+                    ⏰ You have exceeded the allotted time. Try to improve your speed next time!
+                  </p>
                 )}
               </div>
+
+              {(() => {
+                const score = calculateScore();
+                const percentScore = (score / questions.length) * 100;
+                const total = questions.length;
+                const percentTime = ((totalTime - timeLeft) / totalTime) * 100;
+                if (score === total) {
+                      return (
+                        <div className="positive-message">
+                          You're all set to proceed to "{targetTopic}"! 🎉
+                        </div>
+                      );
+                    } else if (revisitTopics.length > 0 && percentScore >= 80) {
+                      return (
+                        <div className="revisit-topics mt-4">
+                          <h4 className="text-red-600">Topics to Revisit</h4>
+                          <ul className="list-disc list-inside revisit-highlight">
+                              {revisitTopics.map((topic, i) => (
+                                <li key={i}>{topic}</li>
+                              ))}
+                            </ul>
+                            <div className="positive-message">
+                              You're doing great! Just make sure to look through the topics listed once and you're all set to proceed to "{targetTopic}"! 🎉
+                            </div>
+                        </div>
+                      );
+                    } else if (revisitTopics.length > 0) {
+                      return (
+                        <div className="revisit-topics mt-4">
+                          <h4 className="text-red-600">Topics to Revisit</h4>
+                          <ul className="list-disc list-inside">
+                            {revisitTopics.map((topic, i) => (
+                              <li key={i}>{topic}</li>
+                            ))}
+                          </ul>
+                          <p>
+                            Please revisit the above topics before proceeding further with "{targetTopic}".
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })()}
 
               <div className="mt-6 flex gap-4">
                 <button className="retry-button" onClick={handleRetry}>🔁 Try Again</button>
@@ -426,9 +470,23 @@ const AssessmentDisplay: React.FC<{
           )}
         </div>
       )}
+        {showTimeUpModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>⏰ Time's Up!</h2>
+              <p>
+                Hi {userId?.split('@')[0] || 'Scholar'},you may still continue, but remember to practice more—this was the average expected completion time.
+              </p>
+              <button onClick={() => setShowTimeUpModal(false)} className="modal-close-btn">
+                Got it!
+              </button>
+            </div>
+          </div>
+        )}
     </div>
   );
 };
 
 export default AssessmentDisplay;
+
 
