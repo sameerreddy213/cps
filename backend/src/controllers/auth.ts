@@ -1,4 +1,4 @@
-/*Created by Nakshatra on 23/6/25 to add forgot password.*/
+/*Created by Nakshatra on 23/6/25 and 24/6/25 to add forgot password.*/
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
@@ -52,7 +52,7 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
-  const { email, code, newPassword } = req.body;
+  const { email, code, newPassword, confirmPassword } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -62,6 +62,12 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     if (user.resetCodeExpires && user.resetCodeExpires < new Date())
       return res.status(400).json({ message: 'Code expired' });
+
+    if (!newPassword || !confirmPassword)
+      return res.status(400).json({ message: 'Both password fields are required' });
+
+    if (newPassword !== confirmPassword)
+      return res.status(400).json({ message: 'Passwords do not match' });
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;

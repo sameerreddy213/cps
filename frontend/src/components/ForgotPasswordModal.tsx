@@ -1,4 +1,4 @@
-// Created by Nakshatra Bhandary 23/6/25
+// Created by Nakshatra Bhandary 23/6/25 and 24/6/25
 import React, { useState } from 'react';
 
 interface Props {
@@ -10,6 +10,7 @@ const ForgotPasswordModal: React.FC<Props> = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
 
   const sendCode = async () => {
@@ -45,7 +46,7 @@ const ForgotPasswordModal: React.FC<Props> = ({ onClose }) => {
     const res = await fetch('http://localhost:5000/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code, newPassword }),
+      body: JSON.stringify({ email, code, newPassword, confirmPassword }),
     });
     const data = await res.json();
     if (res.ok) {
@@ -92,6 +93,12 @@ const ForgotPasswordModal: React.FC<Props> = ({ onClose }) => {
               placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <button onClick={resetPassword}>Reset Password</button>
           </>
