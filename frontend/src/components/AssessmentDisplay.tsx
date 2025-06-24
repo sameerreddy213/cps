@@ -164,7 +164,7 @@ const AssessmentDisplay: React.FC<{
 
         setQuestions(transformed);
         setAssessmentStarted(true);
-        const totalTime = 15//data.questions.length * 1 * 60; // 1 minutes per question
+        const totalTime = data.questions.length * 1 * 60; // 1 minutes per question
         setTimeLeft(totalTime);
         setTotalTime(totalTime);
 
