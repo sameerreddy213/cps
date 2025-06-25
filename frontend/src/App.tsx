@@ -5,8 +5,9 @@
 /*Modified by Nakshatra on 19/6/25 for the automatic logout*/
 /*Nav bar componenet added by Nikita S Raj Kapini on 19/06/2025*/
 /*Modified by Nakshatra on 23/6/25 for the forgot password*/
+/*Updated by Nikita S Raj Kapini on 24/06/2025*/
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './utils/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
@@ -16,6 +17,8 @@ import AssessmentDisplay from './components/AssessmentDisplay';
 import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
 import PrivateRoute from './components/PrivateRoute';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from './hooks/useAuth';
 import Sidebar from './components/Sidebar';
 import './App.css';
@@ -26,8 +29,9 @@ interface Topic {
   category: string;
 }
 
+
 const AppContent = () => {
-//  useAuth();
+   //useAuth();
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const [shouldGenerateAssessment, setShouldGenerateAssessment] = useState(false);
 
@@ -118,6 +122,7 @@ const AppContent = () => {
   );
 };
 
+
 function App() {
   return (
     <ThemeProvider>
@@ -128,3 +133,4 @@ function App() {
   );
 }
 export default App; 
+

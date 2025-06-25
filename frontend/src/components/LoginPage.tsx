@@ -1,29 +1,29 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
 /*Modified by Nakshatra Bhandary (16/6/26) and (17/6/25) to connect to the backend*/
 /*Modified by Nakshatra Bhandary 23/6/25 to add forgot password*/
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+/*Updated by Nikita S Raj Kapini on 24/06/2025*/
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import './LoginPage.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginPage: React.FC = () => {
-  useEffect(() => {
-  // Disable scrolling
-  document.body.style.overflow = 'hidden';
-
-  return () => {
-    // Re-enable scrolling on unmount
-    document.body.style.overflow = 'auto';
-  };
-}, []);
-
   const [email, setEmail] = useState('');
-  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    // Disable scrolling
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-try {
+    try {
       const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -47,11 +47,22 @@ try {
         return;
       }
 
-      // Save token and redirect
       localStorage.setItem('token', data.token);
       setError('');
-      alert('Login successful!');
-      navigate('/dashboard');
+
+      toast.success('🎉 Login successful!!', {
+        position: 'top-right',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        theme: 'colored',
+      });
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     } catch (err) {
       setError('An error occurred. Please try again.');
     }
@@ -80,9 +91,8 @@ try {
 
         {error && <div className="login-error">{error}</div>}
 
-        <button type="submit" className="login-button">
-          Login
-        </button>
+        <button type="submit" className="login-button">Login</button>
+
         <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
           <span onClick={() => setShowForgotModal(true)} style={{ cursor: 'pointer', color: '#6366F1' }}>
             Forgot Password?
@@ -90,12 +100,14 @@ try {
         </p>
 
         <p style={{ fontSize: '0.9rem' }}>
-  Don't have an account?{' '}
-  <Link to="/register" style={{ color: '#6366F1' }}>Register here</Link>
-</p>
-
+          Don't have an account?{' '}
+          <Link to="/register" style={{ color: '#6366F1' }}>Register here</Link>
+        </p>
       </form>
+
       {showForgotModal && <ForgotPasswordModal onClose={() => setShowForgotModal(false)} />}
+
+      <ToastContainer />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
 import html2pdf from 'html2pdf.js';
 import { getUserEmailFromToken } from '../utils/userId';
+import { toast } from 'react-toastify';
 
 interface Topic {
   id: number;
@@ -221,7 +222,6 @@ const AssessmentDisplay: React.FC<{
       alert("Please login to continue.");
       return;
     }
-
     setShowResults(false);
     setLoading(true);
 
