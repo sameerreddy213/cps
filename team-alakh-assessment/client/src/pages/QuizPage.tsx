@@ -614,7 +614,7 @@ import {
   BookOpen,
   Eye,
 } from "lucide-react";
-import api from "../services/api";
+import api, { getAssessmentEvaluation } from "../services/api";
 
 interface Question {
   question: string;
@@ -775,18 +775,12 @@ const QuizPage: React.FC = () => {
 
   const fetchEvaluationData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await api.get(
-        `/api/question/session/${encodeURIComponent(topic!)}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const token = localStorage.getItem('token');
+      const response = await getAssessmentEvaluation(token!, topic!);
       setEvaluationData(response.data);
     } catch (err) {
-      console.error("Error fetching evaluation data:", err);
-      setError("Failed to load evaluation data.");
+      console.error('Error fetching evaluation data:', err);
+      setError('Failed to load evaluation data.');
     }
   };
 

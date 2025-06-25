@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const quizSessionSchema = new mongoose.Schema({
+const assessmentHistorySchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
   topic: { type: String, required: true },
   questions: [{
@@ -11,13 +11,9 @@ const quizSessionSchema = new mongoose.Schema({
   userAnswers: [{ type: Number }],
   score: { type: Number },
   passed: { type: Boolean },
-  completed: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
-  // Removed expiresAt to prevent automatic deletion
 });
 
-// Create compound index for efficient queries
-quizSessionSchema.index({ userEmail: 1, topic: 1 });
-quizSessionSchema.index({ userEmail: 1, completed: 1, createdAt: -1 });
+assessmentHistorySchema.index({ userEmail: 1, topic: 1, createdAt: -1 });
 
-export default mongoose.model('QuizSession', quizSessionSchema);
+export default mongoose.model('AssessmentHistory', assessmentHistorySchema); 

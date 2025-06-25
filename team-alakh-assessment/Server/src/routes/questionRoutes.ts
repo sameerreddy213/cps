@@ -175,9 +175,19 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
       });
     }
 
+    // Check if user has already passed this topic
+    const user = await User.findOne({ email: userEmail });
+    if (user && user.passedArray.includes(topic)) {
+      // Already mastered: do not allow failed result, always return passed
+      return res.json({
+        score: 10,
+        passed: true,
+        message: 'You have already mastered this topic!'
+      });
+    }
+
     // Generate the same questions to check answers
     const questions = await generateQuizQuestions(topic);
-    
     // Calculate score
     let correctAnswers = 0;
     answers.forEach((answer: number, index: number) => {
@@ -185,18 +195,14 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
         correctAnswers++;
       }
     });
-
     const passed = correctAnswers >= 7; // Need 7/10 to pass
-
     // Update user's passed array if they passed
     if (passed) {
-      const user = await User.findOne({ email: userEmail });
       if (user && !user.passedArray.includes(topic)) {
         user.passedArray.push(topic);
         await user.save();
       }
     }
-
     res.json({ 
       score: correctAnswers, 
       passed,
@@ -214,6 +220,7 @@ import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import QuizSession from '../models/QuizSession';
+import AssessmentHistory from '../models/AssessmentHistory';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -359,10 +366,17 @@ Make sure:
 }
 
 // GET /api/question/generate/:topic - Generate quiz questions for a topic and store in session
-router.get('/generate/:topic', authenticateToken, async (req: any, res: Response) => {
+router.get('/generate/:topic', authenticateToken, async (req: any, res: Response): Promise<void> => {
   try {
     const { topic } = req.params;
     const userEmail = req.user.email;
+
+    // Check if topic is already mastered
+    const user = await User.findOne({ email: userEmail });
+    if (user && user.passedArray.includes(topic)) {
+      res.status(403).json({ message: 'You have already mastered this topic.' });
+      return;
+    }
 
     // Check if there's an existing active session
     let existingSession = await QuizSession.findOne({ 
@@ -379,7 +393,6 @@ router.get('/generate/:topic', authenticateToken, async (req: any, res: Response
 
     // Generate new questions
     const questions = await generateQuizQuestions(topic);
-    
     // Create new quiz session
     const newSession = new QuizSession({
       userEmail,
@@ -388,9 +401,7 @@ router.get('/generate/:topic', authenticateToken, async (req: any, res: Response
       userAnswers: [],
       completed: false
     });
-
     await newSession.save();
-    
     res.json({ questions });
   } catch (error) {
     console.error('Error generating quiz:', error);
@@ -399,11 +410,36 @@ router.get('/generate/:topic', authenticateToken, async (req: any, res: Response
 });
 
 // POST /api/question/submit/:topic - Submit quiz answers and update user progress
-router.post('/submit/:topic', authenticateToken, async (req: any, res: Response) => {
+router.post('/submit/:topic', authenticateToken, async (req: any, res: Response): Promise<void> => {
   try {
     const { topic } = req.params;
     const { answers, cheatingDetected } = req.body;
     const userEmail = req.user.email;
+
+    // If cheating was detected, automatically fail
+    if (cheatingDetected) {
+      // Clean up any active session
+      await QuizSession.deleteMany({ userEmail, topic, completed: false });
+      res.json({ 
+        score: 0, 
+        passed: false, 
+        message: 'Quiz terminated due to suspicious activity' 
+      });
+      return;
+    }
+
+    // Check if topic is already mastered
+    const user = await User.findOne({ email: userEmail });
+    if (user && user.passedArray.includes(topic)) {
+      // Clean up any active session
+      await QuizSession.deleteMany({ userEmail, topic, completed: false });
+      res.json({
+        score: 10,
+        passed: true,
+        message: 'You have already mastered this topic!'
+      });
+      return;
+    }
 
     // Find the active quiz session
     const session = await QuizSession.findOne({ 
@@ -411,25 +447,8 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
       topic, 
       completed: false 
     });
-
     if (!session) {
       res.status(404).json({ message: 'No active quiz session found' });
-      return;
-    }
-
-    // If cheating was detected, automatically fail
-    if (cheatingDetected) {
-      session.userAnswers = answers;
-      session.score = 0;
-      session.passed = false;
-      session.completed = true;
-      await session.save();
-
-      res.json({ 
-        score: 0, 
-        passed: false, 
-        message: 'Quiz terminated due to suspicious activity' 
-      });
       return;
     }
 
@@ -440,25 +459,32 @@ router.post('/submit/:topic', authenticateToken, async (req: any, res: Response)
         correctAnswers++;
       }
     });
-
     const passed = correctAnswers >= 7; // Need 7/10 to pass
-
     // Update session with results
     session.userAnswers = answers;
     session.score = correctAnswers;
     session.passed = passed;
     session.completed = true;
     await session.save();
-
+    // Save to AssessmentHistory
+    await AssessmentHistory.create({
+      userEmail,
+      topic,
+      questions: session.questions,
+      userAnswers: answers,
+      score: correctAnswers,
+      passed,
+      createdAt: new Date()
+    });
+    // Delete the session
+    await QuizSession.deleteOne({ _id: session._id });
     // Update user's passed array if they passed
     if (passed) {
-      const user = await User.findOne({ email: userEmail });
       if (user && !user.passedArray.includes(topic)) {
         user.passedArray.push(topic);
         await user.save();
       }
     }
-
     res.json({ 
       score: correctAnswers, 
       passed,
@@ -516,6 +542,35 @@ router.delete('/cleanup/:topic', authenticateToken, async (req: any, res: Respon
   } catch (error) {
     console.error('Error cleaning up quiz session:', error);
     res.status(500).json({ message: 'Failed to clean up quiz session' });
+  }
+});
+
+// GET /api/assessment/evaluate/:topic - Get the most recent assessment for evaluation
+router.get('/assessment/evaluate/:topic', authenticateToken, async (req: any, res: Response) => {
+  try {
+    const { topic } = req.params;
+    const userEmail = req.user.email;
+
+    const assessment = await AssessmentHistory.findOne({
+      userEmail,
+      topic
+    }).sort({ createdAt: -1 });
+
+    if (!assessment) {
+      res.status(404).json({ message: 'No assessment found for this topic' });
+      return;
+    }
+
+    res.json({
+      questions: assessment.questions,
+      userAnswers: assessment.userAnswers,
+      score: assessment.score,
+      passed: assessment.passed,
+      createdAt: assessment.createdAt
+    });
+  } catch (error) {
+    console.error('Error fetching assessment evaluation:', error);
+    res.status(500).json({ message: 'Failed to fetch assessment evaluation' });
   }
 });
 

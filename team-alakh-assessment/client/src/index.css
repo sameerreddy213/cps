@@ -7,3 +7,25 @@
     @apply transition-colors duration-300 ease-in-out;
   }
 }
+
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.15), 0 0 16px 4px rgba(180,180,180,0.10); }
+  50% { box-shadow: 0 0 0 4px rgba(255,255,255,0.25), 0 0 32px 8px rgba(180,180,180,0.18); }
+}
+.animate-border-glow { animation: border-glow 2.5s infinite; }
+
+.hover-glow:hover, .hover-glow:focus {
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.18), 0 0 24px 8px rgba(180,180,180,0.18), 0 4px 32px 0 rgba(255,255,255,0.10), 0 1.5px 8px 0 rgba(80,80,80,0.10);
+  border-color: #e5e7eb !important;
+}
+
+@keyframes fade-in-scale {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in-scale {
+  animation: fade-in-scale 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.scroll-smooth {
+  scroll-behavior: smooth;
+}

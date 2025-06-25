@@ -329,17 +329,20 @@ router.get(
         .text(`Module: ${moduleTitle}`, { align: "center" });
       pdf.moveDown(2);
 
-    pdf
-      .font("Helvetica")
-      .fontSize(12)
-      .fillColor("black")
-      .text(moduleContent, { align: "justify", lineGap: 6 });
-//fixing the pdf bug
-    pdf.moveDown(2);
-    pdf
-      .fontSize(10)
-      .fillColor("gray")
-      .text(`Generated on: ${new Date().toLocaleDateString("en-IN")}`, { align: "right" });
+      // Module Content: This will automatically flow from the previous position
+      pdf
+        .font("Helvetica")
+        .fontSize(12)
+        .fillColor("black")
+        .text(moduleContent, { align: "justify", lineGap: 6 });
+
+      pdf.moveDown(2);
+      pdf
+        .fontSize(10)
+        .fillColor("gray")
+        .text(`Generated on: ${new Date().toLocaleDateString("en-IN")}`, {
+          align: "right",
+        });
 
       const range = pdf.bufferedPageRange();
       for (let i = 0; i < range.count; i++) {
