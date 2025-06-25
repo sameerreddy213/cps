@@ -514,7 +514,14 @@ const Dashboard: React.FC = () => {
 
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            
+            <div className="bg-gray-100 dark:bg-[#222] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
+              <button 
+                onClick={() => navigate('/learners')}
+                className="text-gray-800 dark:text-gray-200 text-sm font-medium hover:text-gray-900 dark:hover:text-white flex items-center space-x-1"
+              >
+                Track all
+              </button>
+            </div>
             {/* Profile Completion Alert */}
             {!profileComplete && (
               <div className="bg-gray-100 dark:bg-[#222] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800">

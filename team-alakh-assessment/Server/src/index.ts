@@ -45,7 +45,7 @@ import prereqRoutes from './routes/prereqRoutes';
 import questionRoutes from "./routes/questionRoutes";
 import learnRoutes from "./routes/learnRoutes";
 import topicsRoutes from './routes/topicsRoutes';
-
+import mentorRoutes from './routes/mentorRoutes';
 dotenv.config();
 
 const app = express();
@@ -65,6 +65,7 @@ app.use('/api/prerequisite', prereqRoutes);
 app.use("/api/question", questionRoutes);
 app.use("/api/learn", learnRoutes);
 app.use('/api/topics', topicsRoutes);
+app.use('/api/mentor',mentorRoutes)
 
 app.get('/',(req,res)=>{res.json('server is running')})
 
