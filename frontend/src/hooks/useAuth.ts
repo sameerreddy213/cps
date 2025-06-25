@@ -1,7 +1,7 @@
 /*Created by Nakshatra Bhandary on 19/6/25*/
 /*Updated by Nikita S Raj Kapini on 25/6/25*/
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,10 +11,7 @@ interface TokenPayload {
   email: string;
 }
 
-// export const useAuth = () => {
-//   const navigate = useNavigate();
-
-export const useAuth = (onSessionExpired?: () => void) => {
+export const useAuth = (onSessionExpired?: () => void, currentPath?: string) => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,7 +20,6 @@ export const useAuth = (onSessionExpired?: () => void) => {
       if (onSessionExpired) {
         onSessionExpired();
       } else {
-        //alert('Your session has expired. Please log in again.');
         navigate('/');
       }
     };
@@ -34,9 +30,7 @@ export const useAuth = (onSessionExpired?: () => void) => {
       const timeout = expiryTime - Date.now();
 
       if (timeout > 0) {
-        setTimeout(() => {
-          logout();
-        }, timeout);
+        setTimeout(() => logout(), timeout);
       } else {
         logout();
       }
@@ -50,9 +44,11 @@ export const useAuth = (onSessionExpired?: () => void) => {
         logout();
       }
     } else {
-      navigate('/');
+      // ✅ Only auto-navigate on protected routes
+      const publicRoutes = ['/', '/login', '/register'];
+      if (!publicRoutes.includes(currentPath || '')) {
+        navigate('/');
+      }
     }
-  }, [navigate]);
+  }, [navigate, currentPath]);
 };
-
-

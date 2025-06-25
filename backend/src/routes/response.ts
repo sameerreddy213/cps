@@ -83,6 +83,8 @@ router.post('/submit', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+
+
 // GET: Analyze performance to suggest weak prerequisite topics
 router.get('/analysis/:assessmentId', async (req: Request, res: Response) => {
   const assessmentId = req.params.assessmentId;
@@ -95,22 +97,50 @@ router.get('/analysis/:assessmentId', async (req: Request, res: Response) => {
 
   try {
     const response = await UserResponse.findOne({ userId: email, assessmentId });
-    if (!response) {
-      res.status(404).json({ error: 'User response not found' });
+    const assessment = await Assessment.findById(assessmentId);
+
+    if (!response || !assessment) {
+      res.status(404).json({ error: 'User response or assessment not found' });
       return;
     }
 
-    const weakTopics = response.responses
-      .filter(q => !q.isCorrect)
-      .map(q => q.topic_tested);
+    const conceptMap = new Map<string, string>(); // Map topic_tested => concept_area
 
-    const uniqueWeakTopics = [...new Set(weakTopics)];
+    assessment.questions.forEach((q) => {
+      if (typeof q.topic_tested === 'string' && typeof q.concept_area === 'string') {
+        conceptMap.set(q.question, `${q.topic_tested}|${q.concept_area}`);
+      }
+    });
+
+    const weakTopics: string[] = [];
+    const weakConcepts: string[] = [];
+
+    for (const q of response.responses) {
+        if (!q.isCorrect) {
+          if (Array.isArray(q.topic_tested)) {
+            weakTopics.push(...q.topic_tested);
+          } else if (typeof q.topic_tested === 'string') {
+            weakTopics.push(q.topic_tested);
+          }
+
+          // Match concept area from original assessment by question text
+          const match = conceptMap.get(q.questionText);
+          if (match) {
+            const [, concept] = match.split('|');
+            if (concept) weakConcepts.push(concept.trim());
+          }
+        }
+      }
+
+    const uniqueTopics = [...new Set(weakTopics)];
+    const uniqueConcepts = [...new Set(weakConcepts)];
 
     res.json({
       message: 'Analysis complete',
-      weakTopics,
-      recommendations: uniqueWeakTopics.length
-        ? `Please revisit the following prerequisite topics before continuing: ${uniqueWeakTopics.join(', ')}.`
+      weakTopics: uniqueTopics,
+      weakConcepts: uniqueConcepts,
+      recommendations: uniqueTopics.length
+        ? `Please revisit these topics and concepts: ${uniqueTopics.join(', ')} | ${uniqueConcepts.join(', ')}.`
         : 'Great job! You’re ready to move forward with the target topic.'
     });
   } catch (err) {
@@ -120,7 +150,3 @@ router.get('/analysis/:assessmentId', async (req: Request, res: Response) => {
 });
 
 export const responseRoutes = router;
-
-
-
-

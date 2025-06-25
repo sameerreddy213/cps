@@ -74,6 +74,8 @@ const AssessmentDisplay: React.FC<{
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [actualTimeSpent, setActualTimeSpent] = useState<number>(0);
+  const [isRetry, setIsRetry] = useState(false);
+
   const quotes = [
     "🌟 Success is built on consistent effort, not last-minute miracles.",
     "🧠 Every expert was once a student who chose not to give up.",
@@ -115,12 +117,13 @@ const AssessmentDisplay: React.FC<{
     clearInterval(timerRef.current);
     timerRef.current = null;
     }
+    setIsRetry(true);
     setShowResults(false);
     setUserAnswers({});
     setResponsesWithCorrectness([]);
-    setAssessmentStarted(true);
     setRevisitTopics([]);
     setActualTimeSpent(0);
+    setAssessmentStarted(true);
 
     // Reset timeLeft
     const totalTime = questions.length * 1 * 60; // 1 mins per question
@@ -301,7 +304,7 @@ const AssessmentDisplay: React.FC<{
 
       const analysisData = await analysisRes.json();
       setRevisitTopics(analysisData.weakTopics);
-      setShowResults(true);
+     setShowResults(true);
     } catch (err) {
       console.error('Error submitting assessment:', err);
     } finally {
@@ -457,6 +460,16 @@ const AssessmentDisplay: React.FC<{
                 const percentScore = (score / questions.length) * 100;
                 const total = questions.length;
                 const percentTime = ((totalTime - timeLeft) / totalTime) * 100;
+                if (isRetry) {
+                  return (
+                    <div className="revisit-topics mt-4">
+                      <h4 className="text-red-600">⚠️ Reminder</h4>
+                      <p>
+                        You've attempted this assessment again. Make sure to revisit <strong>all the topics involved</strong> before proceeding to "{targetTopic}". Consistent revision is key to mastery. 💡
+                      </p>
+                    </div>
+                  );
+                }
                 if (score === total) {
                       return (
                         <div className="positive-message">
@@ -487,7 +500,7 @@ const AssessmentDisplay: React.FC<{
                             ))}
                           </ul>
                           <p>
-                            Please revisit the above topics before proceeding further with "{targetTopic}".
+                            Please revisit all the above topics along with their associated concepts (shown below each question) before moving ahead with "{targetTopic}". Strengthening these areas will ensure you're fully prepared.
                           </p>
                         </div>
                       );
@@ -523,6 +536,8 @@ const AssessmentDisplay: React.FC<{
 
 export default AssessmentDisplay;
 
+
+        
 
         
 

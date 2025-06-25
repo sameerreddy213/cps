@@ -35,7 +35,7 @@ To assist learners by:
 * Add the following line to the `.env` file:
 
 ```env
-MONGO_URI = mongodb://localhost:27017/agenticAI
+MONGO_URI = <your_mongo_atlas_uri>(Create an atlas account, create a cluster and add its uri string here)
 OPENROUTER_API_KEY= your_openrouter_api_key
 JWT_SECRET=your_backend_secret_key(Please generate it from web)
 EMAIL_USER=your_gmail_id

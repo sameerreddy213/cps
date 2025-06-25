@@ -165,13 +165,16 @@ const AppContent = () => {
   const [shouldGenerateAssessment, setShouldGenerateAssessment] = useState(false);
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
 
-  useAuth(() => setShowSessionExpiredModal(true));
-
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
-
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+  useAuth(() => {
+      if (location.pathname === '/dashboard') {
+        setShowSessionExpiredModal(true);
+      }
+    }, location.pathname);
 
   const handleTopicSelect = (topicName: string | null) => {
     if (topicName) {

@@ -12,7 +12,7 @@ const UserResponseSchema = new mongoose.Schema({
       userAnswer: { type: [String], required: true },
       correctAnswer: { type: [String], required: true },
       isCorrect: { type: Boolean, required: true },
-      topic_tested: { type: String, required: true },
+      topic_tested: { type: [String], required: true },
     }
   ],
   percentage_score: Number,

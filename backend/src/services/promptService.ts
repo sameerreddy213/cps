@@ -8,7 +8,7 @@ Target Topic: ${targetTopic}
 Prerequisite Concepts: ${prereqs.join(', ')}
 
 Assessment Requirements:
-You must generate diagnostic questions based only on the listed prerequisite concepts — **not the target topic itself**.
+You must generate diagnostic questions based only on the listed prerequisite concepts — **not the target topic itself**. The **correct answer** must be one of the options provided.
 
 **Question Count Rules**:
 - If there are 4 or fewer prerequisite concepts, generate exactly 4 questions.
@@ -20,6 +20,11 @@ Allowed Question Types:
 - **single-correct-mcq**: one correct option from a list of 4 options
 - **multiple-correct-mcq**: **two or more** correct options from a list of 4 options
 - **true-false** (special case of MCQ): options must be exactly **["True", "False"]** with one correct answer
+
+✅ Options Format Rules:
+- Each options list must contain **exactly 4 items**
+- Each option must begin with a capital letter followed by a period and a space, e.g., "A. Definition", "B. Example", etc.
+- The correct_answer must match the **full text** of the correct options (including the letter prefix)
 
 ❌ Do NOT include:
 - Any numerical questions
@@ -43,7 +48,7 @@ Return your output in **this exact JSON format** and nothing else:
   "questions": [
     {
       "question": "...",
-      "options": ["..."],        // Required; must be clearly stated
+      "options": ["A. ...", "B. ...", "C. ...", "D. ..."], // Exactly four options, each prefixed with A. B. C. D.
       "correct_answer": ["..."], // One or more options from above
       "type": "single-correct-mcq" | "multiple-correct-mcq" | "true-false",
       "topic_tested": "...",
@@ -69,5 +74,7 @@ If the topic is not related to Machine Learning, return exactly:
 Double-check:
 - Output only the final JSON object — no explanations, comments, or extra formatting
 - Ensure the number of questions satisfies the rules based on the number of listed prerequisite concepts
-- The correct answer must be one of the options provided
+- Every option must begin with one of: "A. ", "B. ", "C. ", or "D. "
+- No options should be unlettered or unlabeled
+- The correct_answer must exactly match one or more values from the options array
 `;
