@@ -7,8 +7,8 @@ export interface IUserConceptProgress extends Document {
   userId: mongoose.Types.ObjectId;        // Reference to the user
   conceptId: mongoose.Types.ObjectId;     // Reference to the concept
   score: number;                   // Value from 0 (not mastered) to 1 (fully mastered)
-  // attempts: number;                       // Number of quiz attempts on this concept
-  // lastUpdated: Date;                      // Timestamp of last update
+  attempts: number;                       // Number of quiz attempts on this concept
+  lastUpdated: Date;                      // Timestamp of last update
 }
 
 /**
@@ -43,18 +43,18 @@ const UserConceptProgressSchema: Schema<IUserConceptProgress> = new Schema(
     },
 
     // // Number of attempts made by the user on this concept
-    // attempts: {
-    //   type: Number,
-    //   required: true,
-    //   default: 0,
-    // },
+    attempts: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
 
     // // When this progress was last updated
-    // lastUpdated: {
-    //   type: Date,
-    //   required: true,
-    //   default: Date.now,
-    // },
+    lastUpdated: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
   },
   {
     timestamps: true, // Adds createdAt and updatedAt timestamps automatically

@@ -15,7 +15,14 @@ export interface IQuizAttempt {
 
 export interface IConcept extends Document {
     title: string;
+    relatedConcepts?: string[];
     description: string;
+    level?: string;
+    category?: string;
+    conceptType?: string;
+    estLearningTimeHours?: number;
+    isFundamental?: boolean;
+    learningResources?:  string;
     contentBlocks: { type: string; data: string }[];
     prerequisites: Types.ObjectId[];
     quiz: IQuizQuestion[];
@@ -57,9 +64,8 @@ export interface IUser extends Document {
         masteryLevel: number;
         quizAttempts: IQuizAttempt[];
     }[];
-    // --- NEW FIELDS AND METHOD ---
-    resetPasswordToken?: string;
-    resetPasswordExpire?: Date;
+    resetPasswordToken?: string; // <-- New optional field
+    resetPasswordExpire?: Date; // <-- New optional field
     isModified: (field: string) => boolean;
-    getResetPasswordToken: () => string;
+    getResetPasswordToken: () => string; // <-- New method
 }

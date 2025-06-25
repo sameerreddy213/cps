@@ -54,7 +54,7 @@ app.listen(PORT, () => {
 // import bodyParser from "body-parser";
 
 // import quizRoutes from "./routes/quiz.routes";
-// import recommendationRoutes from "./routes/recommendationRoutes";
+// import recommendationRoutes from "./routes/recommendation.routes";
 
 // const app = express();
 // const PORT = 5000;
