@@ -1,4 +1,6 @@
 /*Created by Nakshatra Bhandary on 19/6/25*/
+/*Updated by Nikita S Raj Kapini on 25/6/25*/
+
 import React, { useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -9,14 +11,21 @@ interface TokenPayload {
   email: string;
 }
 
-export const useAuth = () => {
+// export const useAuth = () => {
+//   const navigate = useNavigate();
+
+export const useAuth = (onSessionExpired?: () => void) => {
   const navigate = useNavigate();
 
   useEffect(() => {
     const logout = () => {
       localStorage.removeItem('token');
-      alert('Your session has expired. Please log in again.');
-      navigate('/'); // SPA navigation, no reload
+      if (onSessionExpired) {
+        onSessionExpired();
+      } else {
+        //alert('Your session has expired. Please log in again.');
+        navigate('/');
+      }
     };
 
     const setAutoLogout = (token: string) => {

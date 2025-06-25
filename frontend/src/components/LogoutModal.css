@@ -10,31 +10,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .modal-content {
   background: var(--bg-color);
+  color: var(--text-color);
   padding: 2rem;
   border-radius: 12px;
   text-align: center;
+  width: 90%;
   max-width: 400px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  color: var(--text-color);
 }
 
 .modal-buttons {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 1rem; 
   margin-top: 1.5rem;
-}
-
-.yes-button, .no-button {
-  padding: 0.5rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .yes-button {

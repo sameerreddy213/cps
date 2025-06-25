@@ -16,9 +16,9 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onConfirm, onCancel }
     <div className="modal-overlay">
       <div className="modal-content">
         <h3>Are you sure you want to logout?</h3>
-        <div className="modal-buttons">
-          <button onClick={onConfirm} className="yes-button">Yes</button>
-          <button onClick={onCancel} className="no-button">No</button>
+        <div className='modal-buttons'>
+          <button className="modal-button yes-button" onClick={onConfirm}>Yes</button>
+          <button className="modal-button no-button" onClick={onCancel}>No</button>
         </div>
       </div>
     </div>
@@ -26,3 +26,6 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onConfirm, onCancel }
 };
 
 export default LogoutModal;
+
+
+
