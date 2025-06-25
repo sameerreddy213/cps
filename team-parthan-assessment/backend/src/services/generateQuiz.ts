@@ -1,3 +1,5 @@
+// Developed by Srishti Koni
+
 interface QuizQuestion {
   id: string;
   question: string;
@@ -14,27 +16,33 @@ export default async function generateQuiz(
   const prompt = `
 You are an expert in data structures and algorithms.
 
-Given the list of topics: ${topic}, generate exactly 5 multiple choice questions (MCQs) **per topic**, resulting in a total of 5 × number of topics.
+Given the list of topics: ${topic}, generate exactly 5 multiple choice questions (MCQs) per topic, resulting in a total of 5 × number of topics.
+
+Please not 5 questions per topic, not 5 questions in total.
 
 Each question must:
-- Have exactly 4 options.
-- Have only one correct option (use zero-based index).
-- Ensure the correct answer is **fully consistent with the explanation**.
-- Include the specific topic the question is related to (from the provided list).
 
-⚠️ Format your output strictly as **valid JSON**, like this:
+Be clearly related to the given topic.
+
+Have exactly 4 options.
+
+Have only one correct option, specified using zero-based indexing (0, 1, 2, or 3).
+
+Include a short, correct explanation that matches the selected answer.
+
+Be formatted strictly as a JSON array of objects, with this schema:
+
+
 [
   {
     "question": "Your question here?",
     "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correctAnswer": optionnumber as number,
-    "explanation": "Explain clearly why that option is correct.",
-    "topic": "Name of topic"
-  },
-  ...
+    "correctAnswer": 2,
+    "explanation": "Brief explanation of why this option is correct.",
+    "topic": "name of topic from ${topic}"
+  }
 ]
-
-Do not include any notes, comments, or markdown. Return only clean JSON. Be concise in explanation to reduce latency.
+⚠️ Return only the valid JSON array, without IDs, markdown, or extra comments.
 `;
 
   const res = await fetch("http://localhost:11434/api/generate", {
@@ -46,6 +54,8 @@ Do not include any notes, comments, or markdown. Return only clean JSON. Be conc
       stream: false,
     }),
   });
+
+  console.log(topic);
 
   const data = (await res.json()) as { response: string };
   const match = data.response.match(/\[\s*{[\s\S]*}\s*\]/);

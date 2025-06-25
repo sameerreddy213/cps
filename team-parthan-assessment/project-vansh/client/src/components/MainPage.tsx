@@ -502,7 +502,8 @@ const startCustomQuiz = async (contentId: string) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        prerequisites: concepts.prerequisites,
+        topic: concepts.prerequisites,
+        prerequisites: [],
       }),
     });
 
