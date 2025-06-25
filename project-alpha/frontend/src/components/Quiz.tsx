@@ -39,7 +39,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
   const [showNavigationPane, setShowNavigationPane] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const [showLearningPathModal, setShowLearningPathModal] = useState(false);
+  const [showLearningPathPage, setShowLearningPathPage] = useState(false);
   const [weeksInput, setWeeksInput] = useState('');
   const [learningPath, setLearningPath] = useState<LearningPathWeek[] | null>(null);
   const [learningPathLoading, setLearningPathLoading] = useState(false);
@@ -63,14 +63,14 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       modalOverlay: 'rgba(0, 0, 0, 0.8)',
       alertBackground: '#fef3c7',
       alertBorder: '#f59e0b',
-      alertText: '#b45309',
-      alertButton: '#f59e0b',
+      alertTextColor: '#b45309',
+      alertButtonBackground: '#f59e0b',
       passBackground: '#d1fae5',
-      passBorder: '#34d399',
-      passText: '#065f46',
-      failBackground: '#fee2e2',
-      failBorder: '#ef4444',
-      failText: '#991b1b',
+      passBorderColor: '#34d399',
+      passTextColor: '#065f46',
+      failBackgroundColor: '#fee2e2',
+      failBorderColor: '#ef4444',
+      failTextBackgroundColor: '#991b1b',
       boxGradientNeutral: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
       boxGradientCorrect: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
       boxGradientIncorrect: 'linear-gradient(135deg, #fee2e2, #fecaca)',
@@ -85,12 +85,14 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       progressRingPoor: '#ef4444',
       progressRingAverage: '#f59e0b',
       progressRingGood: '#10b981',
-      unattemptedColor: '#f59e0b',
+      unattemptedColor: '#f59d05',
       resultsHeading: '#2563eb',
       learningPathBackground: '#e0f2fe',
-      learningPathBorder: '#3b82f6',
-      learningPathText: '#1e40af',
-      learningPathHighlight: '#fef3c7',
+      learningBorderColor: '#3b82f6',
+      learningTextColor: '#1e40af',
+      learningHighlightColor: '#fef3c7',
+      timerIconFill: '#374151',
+      timerIconStroke: '#6366f1',
     },
     dark: {
       quizBackground: '#1f2937',
@@ -103,17 +105,17 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       buttonSuccess: '#34d399',
       buttonDisabled: '#4b5563',
       modalBackground: '#374151',
-      modalOverlay: 'rgba(0, 0, 0, 0.9)',
+      modalOverlay: 'rgba(0,0,0,0.9)',
       alertBackground: '#78350f',
       alertBorder: '#d97706',
-      alertText: '#fed7aa',
-      alertButton: '#d97706',
+      alertTextColor: '#fed7aa',
+      alertButtonBackground: '#d97706',
       passBackground: '#065f46',
-      passBorder: '#10b981',
-      passText: '#d1fae5',
-      failBackground: '#7f1d1d',
-      failBorder: '#ef4444',
-      failText: '#fee2e2',
+      passBorderColor: '#10b981',
+      passTextColor: '#d1fae5',
+      failBackgroundColor: '#7f1d1d',
+      failBorderColor: '#ef4444',
+      failTextBackgroundColor: '#fee2e2',
       boxGradientNeutral: 'linear-gradient(135deg, #4b5563, #6b7280)',
       boxGradientCorrect: 'linear-gradient(135deg, #065f46, #10b981)',
       boxGradientIncorrect: 'linear-gradient(135deg, #7f1d1d, #b91c1c)',
@@ -131,9 +133,11 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
       unattemptedColor: '#d97706',
       resultsHeading: '#60a5fa',
       learningPathBackground: '#1e3a8a',
-      learningPathBorder: '#60a5fa',
-      learningPathText: '#bfdbfe',
-      learningPathHighlight: '#78350f',
+      learningBorderColor: '#60a5fa',
+      learningTextColor: '#bfdbfe',
+      learningHighlightColor: '#78350f',
+      timerIconFill: '#e5e7eb',
+      timerIconStroke: '#818cf8',
     },
   };
 
@@ -159,7 +163,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
     setShowKeyPressAlert(false);
     setShowNavigationPane(false);
     setShowFeedback(false);
-    setShowLearningPathModal(false);
+    setShowLearningPathPage(false);
     setWeeksInput('');
     setLearningPath(null);
 
@@ -311,6 +315,15 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
     }
   };
 
+  const handleClearOption = (index: number) => {
+    if (!submitted && isFullScreen) {
+      const newAnswers = [...userAnswers];
+      newAnswers[index] = '';
+      setUserAnswers(newAnswers);
+      console.log(`Cleared answer for question ${index + 1} at ${new Date().toISOString()}`);
+    }
+  };
+
   const handleSubmit = () => {
     if (isFullScreen) {
       setSubmitted(true);
@@ -414,7 +427,6 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
         weeks,
       });
       setLearningPath(res.data.learningPath);
-      setShowLearningPathModal(false);
     } catch (err) {
       console.error('Error fetching learning path:', err);
       alert('Failed to generate learning path. Please try again.');
@@ -508,31 +520,62 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
         </div>
       )}
 
-      {showLearningPathModal && (
+      {showLearningPathPage && quizPassed && (
         <div
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
+            padding: '40px',
+            background: currentTheme.quizBackground,
+            borderRadius: '12px',
+            maxWidth: '1200px',
+            margin: '0 auto',
+            boxShadow: currentTheme.boxShadow,
+            overflowY: 'auto',
             height: '100vh',
-            backgroundColor: currentTheme.modalOverlay,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
+            boxSizing: 'border-box',
           }}
         >
-          <div
+          <h2 style={{
+            fontSize: '28px',
+            marginBottom: '20px',
+            textAlign: 'center',
+            color: currentTheme.resultsHeading,
+            fontWeight: 'bold',
+          }}>
+            🎉 Congratulations on Passing the {topic} Quiz!
+          </h2>
+          <p style={{
+            textAlign: 'center',
+            color: currentTheme.textPrimary,
+            marginBottom: '30px',
+            fontSize: '18px',
+          }}>
+            You're ready to embark on your learning journey for {topic}. Plan your path below.
+          </p>
+          <button
+            onClick={() => setShowLearningPathPage(false)}
             style={{
-              backgroundColor: currentTheme.modalBackground,
-              padding: '30px',
-              borderRadius: '12px',
-              textAlign: 'center',
-              maxWidth: '500px',
-              boxShadow: currentTheme.boxShadow,
+              display: 'block',
+              margin: '0 auto 30px',
+              padding: '12px 20px',
+              backgroundColor: currentTheme.buttonSecondary,
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
             }}
           >
+            Back to Quiz Results
+          </button>
+          <div style={{
+            backgroundColor: currentTheme.modalBackground,
+            padding: '30px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            maxWidth: '500px',
+            margin: '0 auto',
+            boxShadow: currentTheme.boxShadow,
+          }}>
             <h3 style={{ color: currentTheme.buttonPrimary, marginBottom: '20px' }}>
               📚 Plan Your Learning Journey
             </h3>
@@ -574,6 +617,65 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               </button>
             </form>
           </div>
+          {learningPath && (
+            <div style={{ marginTop: '40px', position: 'relative' }}>
+              <h2 style={{
+                fontSize: '28px',
+                marginBottom: '30px',
+                textAlign: 'center',
+                fontWeight: 'bold',
+              }}>
+                <span style={{ color: currentTheme.resultsHeading }}>Learning Path for</span>{' '}
+                <span style={{
+                  color: currentTheme.buttonSuccess,
+                  backgroundColor: currentTheme.learningHighlightColor,
+                  padding: '2px 8px',
+                  borderRadius: '8px',
+                }}>
+                  {topic}
+                </span>
+              </h2>
+              <div className="roadway" style={{
+                position: 'relative',
+                paddingLeft: '40px',
+                paddingRight: '20px',
+              }}>
+                {learningPath.map((week, index) => (
+                  <div key={week.week} className="roadway-item" style={{
+                    marginBottom: '20px',
+                    position: 'relative',
+                    padding: '10px 20px',
+                    background: currentTheme.learningPathBackground,
+                    border: `1px solid ${currentTheme.learningBorderColor}`,
+                    borderRadius: '8px',
+                    color: currentTheme.learningTextColor,
+                    boxShadow: currentTheme.boxShadow,
+                    animation: `fadeIn 0.5s ease-in-out ${index * 0.2}s forwards`,
+                    opacity: '0',
+                  }}>
+                    <h3 style={{
+                      fontSize: '20px',
+                      fontWeight: '600',
+                      marginBottom: '10px',
+                      color: currentTheme.textPrimary,
+                    }}>
+                      Week {week.week}
+                    </h3>
+                    <ul style={{
+                      paddingLeft: '20px',
+                      lineHeight: '1.8',
+                      listStyleType: 'disc',
+                      color: currentTheme.textPrimary,
+                    }}>
+                      {week.tasks.map((task, i) => (
+                        <li key={i} style={{ marginBottom: '6px' }}>{task}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -641,14 +743,14 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
             textAlign: 'center',
           }}
         >
-          <p style={{ color: currentTheme.alertText, marginBottom: '10px' }}>
+          <p style={{ color: currentTheme.alertTextColor, marginBottom: '10px' }}>
             ⚠️ Warning: Pressing Ctrl, Alt, Start (Windows key), PrintScreen, or attempting to copy is prohibited. Next occurrence will reduce your warnings ({renderWarningsLeft()}).
           </p>
           <button
             onClick={() => setShowKeyPressAlert(false)}
             style={{
               padding: '8px 16px',
-              backgroundColor: currentTheme.alertButton,
+              backgroundColor: currentTheme.alertButtonBackground,
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -660,142 +762,35 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-        {isFullScreen && !submitted && (
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ fontWeight: 'bold', color: overallTimeLeft <= 30 ? currentTheme.buttonSecondary : currentTheme.textPrimary }}>
-              Time Left: {formatTime(overallTimeLeft)}
-            </div>
-            <button
-              onClick={exitFullScreen}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: currentTheme.buttonSecondary,
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-              }}
-            >
-              Exit Full Screen
-            </button>
-          </div>
-        )}
-      </div>
-
-      {!submitted && isFullScreen && (
-        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', gap: '20px' }}>
-            <span style={{ fontWeight: 'bold', color: currentTheme.textPrimary }}>Total: {totalQuestions}</span>
-            <span style={{ fontWeight: 'bold', color: 'green' }}>Answered: {answeredQuestions}</span>
-            <span style={{ fontWeight: 'bold', color: currentTheme.unattemptedColor }}>Unanswered: {unattemptedQuestions}</span>
-            <span style={{ fontWeight: 'bold', color: warningsLeft <= 1 ? currentTheme.buttonSecondary : currentTheme.textPrimary }}>
-              Warnings Left: {renderWarningsLeft()}
-            </span>
-          </div>
-        </div>
-      )}
-
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        display: 'flex',
-        gap: '20px',
-        position: 'relative',
-      }}>
-        <div style={{ flex: 1 }}>
-          {mcqs.length > 0 && !submitted && (
-            <div
-              style={{
-                marginBottom: '20px',
-                padding: '16px',
-                background: currentTheme.questionBackground,
-                borderRadius: '8px',
-                boxShadow: currentTheme.boxShadow,
-                userSelect: 'none',
-              }}
-            >
-              <p style={{ fontWeight: 600, color: currentTheme.textPrimary }} dangerouslySetInnerHTML={{ __html: `${currentQuestionIndex + 1}. ${mcqs[currentQuestionIndex].question}` }} />
-              <div>
-                {mcqs[currentQuestionIndex].options.map((opt, j) => (
-                  <label key={j} style={{ display: 'block', margin: '6px 0', userSelect: 'none', color: currentTheme.textPrimary }}>
-                    <input
-                      type="radio"
-                      name={`q${currentQuestionIndex}`}
-                      value={opt}
-                      checked={userAnswers[currentQuestionIndex] === opt}
-                      onChange={() => handleOptionChange(currentQuestionIndex, opt)}
-                      disabled={submitted || !isFullScreen}
-                      style={{ marginRight: '8px' }}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-          {submitted && showFeedback && (
-            <div>
-              {mcqs.map((mcq, i) => (
-                <div
-                  key={mcq.id}
-                  style={{
-                    marginBottom: '20px',
-                    padding: '16px',
-                    background: currentTheme.questionBackground,
-                    borderRadius: '8px',
-                    boxShadow: currentTheme.boxShadow,
-                  }}
-                >
-                  <p style={{ fontWeight: 600, color: currentTheme.textPrimary }} dangerouslySetInnerHTML={{ __html: `${i + 1}. ${mcq.question}` }} />
-                  <div>
-                    {mcq.options.map((opt, j) => (
-                      <label key={j} style={{ display: 'block', margin: '6px 0', color: currentTheme.textPrimary }}>
-                        <input
-                          type="radio"
-                          name={`q${i}`}
-                          value={userAnswers[i] || ''}
-                          checked={userAnswers[i] === opt}
-                          disabled={true}
-                          style={{ marginRight: '8px' }}
-                        />
-                        {opt}
-                      </label>
-                    ))}
-                  </div>
-                  {userAnswers[i] ? (
-                    <p
-                      style={{
-                        color:
-                          userAnswers[i].trim().toLowerCase() === mcq.answer.trim().toLowerCase()
-                            ? 'green'
-                            : currentTheme.buttonSecondary,
-                        fontWeight: 500,
-                        marginTop: '6px',
-                      }}
-                    >
-                      {userAnswers[i].trim().toLowerCase() === mcq.answer.trim().toLowerCase()
-                        ? '✅ Correct'
-                        : `❌ Incorrect (Correct answer: ${mcq.answer})`}
-                    </p>
-                  ) : (
-                    <p
-                      style={{
-                        color: currentTheme.buttonSecondary,
-                        fontWeight: 500,
-                        marginTop: '6px',
-                      }}
-                    >
-                      ❌ Not Answered (Correct answer: {mcq.answer})
-                    </p>
-                  )}
+      {!showLearningPathPage && (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
+            {isFullScreen && !submitted && (
+              <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginLeft: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill={currentTheme.timerIconFill}
+                    stroke={currentTheme.timerIconStroke}
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="12" x2="12" y2="6" />
+                    <line x1="12" y1="12" x2="16" y2="12" />
+                  </svg>
+                  <span style={{
+                    fontWeight: 'bold',
+                    color: overallTimeLeft <= 30 ? currentTheme.buttonSecondary : currentTheme.textPrimary
+                  }}>
+                    {formatTime(overallTimeLeft)}
+                  </span>
                 </div>
-              ))}
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
                 <button
-                  onClick={() => setShowFeedback(false)}
+                  onClick={exitFullScreen}
                   style={{
-                    padding: '12px 20px',
+                    padding: '8px 16px',
                     backgroundColor: currentTheme.buttonSecondary,
                     color: 'white',
                     border: 'none',
@@ -803,447 +798,551 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
                     cursor: 'pointer',
                   }}
                 >
-                  Close
+                  Exit Full Screen
                 </button>
+              </div>
+            )}
+          </div>
+
+          {!submitted && isFullScreen && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <span style={{ fontWeight: 'bold', color: currentTheme.textPrimary }}>Total: {totalQuestions}</span>
+                <span style={{ fontWeight: 'bold', color: 'green' }}>Answered: {answeredQuestions}</span>
+                <span style={{ fontWeight: 'bold', color: currentTheme.unattemptedColor }}>Unanswered: {unattemptedQuestions}</span>
+                <span style={{ fontWeight: 'bold', color: warningsLeft <= 1 ? currentTheme.buttonSecondary : currentTheme.textPrimary }}>
+                  Warnings Left: {renderWarningsLeft()}
+                </span>
               </div>
             </div>
           )}
-          {submitted && !showFeedback && (
-            <div style={{ marginTop: '20px' }}>
-              <h2 style={{
-                textAlign: 'center',
-                fontSize: '28px',
-                marginBottom: '30px',
-                color: currentTheme.resultsHeading,
-                fontWeight: 'bold',
-              }}>
-                Quiz Results for {topic}
-              </h2>
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
-                <svg
-                  width="150"
-                  height="150"
-                  viewBox="0 0 150 150"
+
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            display: 'flex',
+            gap: '20px',
+            position: 'relative',
+          }}>
+            <div style={{ flex: 1 }}>
+              {mcqs.length > 0 && !submitted && (
+                <div
                   style={{
-                    transition: 'transform 0.2s ease-in-out',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
+                    marginBottom: '20px',
+                    padding: '16px',
+                    background: currentTheme.questionBackground,
+                    borderRadius: '8px',
+                    boxShadow: currentTheme.boxShadow,
+                    userSelect: 'none',
                   }}
                 >
-                  <circle
-                    cx="75"
-                    cy="75"
-                    r={radius}
-                    fill="none"
-                    stroke={currentTheme.progressRingBackground}
-                    strokeWidth="10"
-                  />
-                  <circle
-                    cx="75"
-                    cy="75"
-                    r={radius}
-                    fill="none"
-                    stroke={currentTheme[`progressRing${getPerformanceLabel()}`]}
-                    strokeWidth="10"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    transform="rotate(-90 75 75)"
-                  />
-                  <text
-                    x="75"
-                    y="70"
-                    textAnchor="middle"
-                    fontSize="24"
-                    fontWeight="bold"
-                    fill={currentTheme[`progressRing${getPerformanceLabel()}`]}
+                  <p style={{ fontWeight: 600, color: currentTheme.textPrimary }} dangerouslySetInnerHTML={{ __html: `${currentQuestionIndex + 1}. ${mcqs[currentQuestionIndex].question}` }} />
+                  <div>
+                    {mcqs[currentQuestionIndex].options.map((opt, j) => (
+                      <label key={j} style={{ display: 'block', margin: '6px 0', userSelect: 'none', color: currentTheme.textPrimary }}>
+                        <input
+                          type="radio"
+                          name={`q${currentQuestionIndex}`}
+                          value={opt}
+                          checked={userAnswers[currentQuestionIndex] === opt}
+                          onChange={() => handleOptionChange(currentQuestionIndex, opt)}
+                          disabled={submitted || !isFullScreen}
+                          style={{ marginRight: '8px' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                    <button
+                      onClick={() => handleClearOption(currentQuestionIndex)}
+                      disabled={submitted || !isFullScreen || !userAnswers[currentQuestionIndex]}
+                      style={{
+                        marginTop: '12px',
+                        padding: '8px 16px',
+                        backgroundColor: (submitted || !isFullScreen || !userAnswers[currentQuestionIndex]) ? currentTheme.buttonDisabled : currentTheme.buttonSecondary,
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: (submitted || !isFullScreen || !userAnswers[currentQuestionIndex]) ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+              {submitted && showFeedback && (
+                <div>
+                  {mcqs.map((mcq, i) => (
+                    <div
+                      key={mcq.id}
+                      style={{
+                        marginBottom: '20px',
+                        padding: '16px',
+                        background: currentTheme.questionBackground,
+                        borderRadius: '8px',
+                        boxShadow: currentTheme.boxShadow,
+                      }}
+                    >
+                      <p style={{ fontWeight: 600, color: currentTheme.textPrimary }} dangerouslySetInnerHTML={{ __html: `${i + 1}. ${mcq.question}` }} />
+                      <div>
+                        {mcq.options.map((opt, j) => (
+                          <label key={j} style={{ display: 'block', margin: '6px 0', color: currentTheme.textPrimary }}>
+                            <input
+                              type="radio"
+                              name={`q${i}`}
+                              value={userAnswers[i] || ''}
+                              checked={userAnswers[i] === opt}
+                              disabled={true}
+                              style={{ marginRight: '8px' }}
+                            />
+                            {opt}
+                          </label>
+                        ))}
+                      </div>
+                      {userAnswers[i] ? (
+                        <p
+                          style={{
+                            color:
+                              userAnswers[i].trim().toLowerCase() === mcq.answer.trim().toLowerCase()
+                                ? 'green'
+                                : currentTheme.buttonSecondary,
+                            fontWeight: 500,
+                            marginTop: '6px',
+                          }}
+                        >
+                          {userAnswers[i].trim().toLowerCase() === mcq.answer.trim().toLowerCase()
+                            ? '✅ Correct'
+                            : `❌ Incorrect (Correct answer: ${mcq.answer})`}
+                        </p>
+                      ) : (
+                        <p
+                          style={{
+                            color: currentTheme.buttonSecondary,
+                            fontWeight: 500,
+                            marginTop: '6px',
+                          }}
+                        >
+                          ❌ Not Answered (Correct answer: {mcq.answer})
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                    <button
+                      onClick={() => setShowFeedback(false)}
+                      style={{
+                        padding: '12px 20px',
+                        backgroundColor: currentTheme.buttonSecondary,
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
+              {submitted && !showFeedback && (
+                <div style={{ marginTop: '20px' }}>
+                  <h2 style={{
+                    textAlign: 'center',
+                    fontSize: '28px',
+                    marginBottom: '30px',
+                    color: currentTheme.resultsHeading,
+                    fontWeight: 'bold',
+                  }}>
+                    Quiz Results for {topic}
+                  </h2>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
+                    <svg
+                      width="150"
+                      height="150"
+                      viewBox="0 0 150 150"
+                      style={{
+                        transition: 'transform 0.2s ease-in-out',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
+                    >
+                      <circle
+                        cx="75"
+                        cy="75"
+                        r={radius}
+                        fill="none"
+                        stroke={currentTheme.progressRingBackground}
+                        strokeWidth="10"
+                      />
+                      <circle
+                        cx="75"
+                        cy="75"
+                        r={radius}
+                        fill="none"
+                        stroke={currentTheme[`progressRing${getPerformanceLabel()}`]}
+                        strokeWidth="10"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        transform="rotate(-90 75 75)"
+                      />
+                      <text
+                        x="75"
+                        y="70"
+                        textAnchor="middle"
+                        fontSize="24"
+                        fontWeight="bold"
+                        fill={currentTheme[`progressRing${getPerformanceLabel()}`]}
+                      >
+                        {getScorePercentage().toFixed(2)}%
+                      </text>
+                      <text
+                        x="75"
+                        y="90"
+                        textAnchor="middle"
+                        fontSize="16"
+                        fontWeight="bold"
+                        fill={currentTheme.textPrimary}
+                      >
+                        {getPerformanceLabel()}
+                      </text>
+                    </svg>
+                  </div>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                      gap: '20px',
+                      marginBottom: '20px',
+                    }}
                   >
-                    {getScorePercentage().toFixed(2)}%
-                  </text>
-                  <text
-                    x="75"
-                    y="90"
-                    textAnchor="middle"
-                    fontSize="16"
-                    fontWeight="bold"
-                    fill={currentTheme.textPrimary}
-                  >
-                    {getPerformanceLabel()}
-                  </text>
-                </svg>
-              </div>
-              <div
+                    <div
+                      style={{
+                        padding: '20px',
+                        background: currentTheme.boxGradientNeutral,
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        boxShadow: currentTheme.boxShadow,
+                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                      }}
+                    >
+                      <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>📝 Attempted</p>
+                      <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonPrimary }}>{answeredQuestions}</p>
+                    </div>
+                    <div
+                      style={{
+                        padding: '20px',
+                        background: currentTheme.boxGradientNeutral,
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        boxShadow: currentTheme.boxShadow,
+                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                      }}
+                    >
+                      <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>🚫 Unattempted</p>
+                      <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.unattemptedColor }}>{unattemptedQuestions}</p>
+                    </div>
+                    <div
+                      style={{
+                        padding: '20px',
+                        background: currentTheme.boxGradientCorrect,
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        boxShadow: currentTheme.boxShadow,
+                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                      }}
+                    >
+                      <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>✅ Correct</p>
+                      <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonSuccess }}>{correctAnswers}</p>
+                    </div>
+                    <div
+                      style={{
+                        padding: '20px',
+                        background: currentTheme.boxGradientIncorrect,
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        boxShadow: currentTheme.boxShadow,
+                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                      }}
+                    >
+                      <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>❌ Incorrect</p>
+                      <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonSecondary }}>{incorrectAnswers}</p>
+                    </div>
+                    <div
+                      style={{
+                        padding: '20px',
+                        background: currentTheme.boxGradientNeutral,
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        boxShadow: currentTheme.boxShadow,
+                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                      }}
+                    >
+                      <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>⏳ Time Spent</p>
+                      <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonPrimary }}>{formatTime(timeSpent)}</p>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <button
+                      onClick={() => setShowFeedback(true)}
+                      style={{
+                        padding: '12px 20px',
+                        background: currentTheme.buttonPrimaryGradient,
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        marginRight: '10px',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                        e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      Review Questions
+                    </button>
+                    {quizPassed && learningPath && (
+                      <button
+                        onClick={() => setShowLearningPathPage(true)}
+                        style={{
+                          padding: '12px 20px',
+                          background: currentTheme.buttonSuccess,
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '16px',
+                          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.boxShadow = currentTheme.boxShadow;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
+                        View Learning Path
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {!submitted && isFullScreen && (
+              <button
+                onClick={() => setShowNavigationPane(!showNavigationPane)}
+                title={showNavigationPane ? 'Collapse Navigation' : 'Expand Navigation'}
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                  gap: '20px',
-                  marginBottom: '20px',
+                  position: 'absolute',
+                  right: showNavigationPane ? '210px' : '0px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: currentTheme.buttonPrimary,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  boxShadow: currentTheme.boxShadow,
+                  zIndex: 999,
+                  transition: 'right 0.3s ease-in-out',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
                 }}
               >
-                <div
-                  style={{
-                    padding: '20px',
-                    background: currentTheme.boxGradientNeutral,
-                    borderRadius: '12px',
-                    textAlign: 'center',
-                    boxShadow: currentTheme.boxShadow,
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadow;
-                  }}
-                >
-                  <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>📝 Attempted</p>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonPrimary }}>{answeredQuestions}</p>
-                </div>
-                <div
-                  style={{
-                    padding: '20px',
-                    background: currentTheme.boxGradientNeutral,
-                    borderRadius: '12px',
-                    textAlign: 'center',
-                    boxShadow: currentTheme.boxShadow,
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadow;
-                  }}
-                >
-                  <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>🚫 Unattempted</p>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.unattemptedColor }}>{unattemptedQuestions}</p>
-                </div>
-                <div
-                  style={{
-                    padding: '20px',
-                    background: currentTheme.boxGradientCorrect,
-                    borderRadius: '12px',
-                    textAlign: 'center',
-                    boxShadow: currentTheme.boxShadow,
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadow;
-                  }}
-                >
-                  <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>✅ Correct</p>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonSuccess }}>{correctAnswers}</p>
-                </div>
-                <div
-                  style={{
-                    padding: '20px',
-                    background: currentTheme.boxGradientIncorrect,
-                    borderRadius: '12px',
-                    textAlign: 'center',
-                    boxShadow: currentTheme.boxShadow,
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadow;
-                  }}
-                >
-                  <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>❌ Incorrect</p>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonSecondary }}>{incorrectAnswers}</p>
-                </div>
-                <div
-                  style={{
-                    padding: '20px',
-                    background: currentTheme.boxGradientNeutral,
-                    borderRadius: '12px',
-                    textAlign: 'center',
-                    boxShadow: currentTheme.boxShadow,
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                    cursor: 'default',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadowHover;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadow;
-                  }}
-                >
-                  <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '16px', marginBottom: '8px' }}>⏳ Time Spent</p>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: currentTheme.buttonPrimary }}>{formatTime(timeSpent)}</p>
-                </div>
+                {showNavigationPane ? '»' : '«'}
+              </button>
+            )}
+
+            {isFullScreen && !submitted && (
+              <div
+                style={{
+                  width: showNavigationPane ? '200px' : '0',
+                  background: currentTheme.navigationBackground,
+                  padding: showNavigationPane ? '10px' : '0',
+                  borderRadius: '8px',
+                  boxShadow: showNavigationPane ? currentTheme.boxShadow : 'none',
+                  overflow: 'hidden',
+                  transition: 'width 0.3s ease-in-out, padding 0.3s ease-in-out',
+                  position: 'fixed',
+                  right: '20px',
+                  top: '100px',
+                  maxHeight: 'calc(100vh - 120px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                  flexShrink: 0,
+                  zIndex: 900,
+                }}
+              >
+                {showNavigationPane && (
+                  <>
+                    <div style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: `1px solid ${currentTheme.navigationBorder}` }}>
+                      <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '14px', marginBottom: '5px' }}>
+                        🚫 Prohibited Actions:
+                      </p>
+                      <ul style={{ listStyleType: 'disc', marginLeft: '15px', fontSize: '12px', color: currentTheme.textSecondary }}>
+                        <li>Pressing Ctrl, Alt, Meta (Windows key), PrintScreen.</li>
+                        <li>Attempting to copy text.</li>
+                        <li>Exiting Full-Screen mode (e.g., via Esc key).</li>
+                        <li>Switching browser tabs.</li>
+                      </ul>
+                      <p style={{ fontWeight: 'bold', color: currentTheme.buttonSecondary, fontSize: '12px', marginTop: '5px' }}>
+                        After 3 warnings (⚡⚡⚡), the quiz will auto-submit silently.
+                      </p>
+                    </div>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))',
+                      gap: '10px',
+                      overflowY: 'auto',
+                      paddingRight: '5px',
+                      flexGrow: 1,
+                    }}>
+                      {mcqs.map((mcq, index) => (
+                        <button
+                          key={mcq.id}
+                          onClick={() => handleGoToQuestion(index)}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: userAnswers[index] ? currentTheme.buttonSuccess : (index === currentQuestionIndex ? currentTheme.buttonPrimary : currentTheme.buttonSecondary),
+                            color: 'white',
+                            border: index === currentQuestionIndex ? '2px solid #000' : 'none',
+                            borderRadius: '50%',
+                            cursor: submitted || !isFullScreen ? 'not-allowed' : 'pointer',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            opacity: submitted || !isFullScreen ? 0.5 : 1,
+                            pointerEvents: submitted || !isFullScreen ? 'none' : 'auto',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                          disabled={submitted || !isFullScreen}
+                        >
+                          {index + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-              <div style={{ textAlign: 'center' }}>
+            )}
+          </div>
+
+          {!submitted && isFullScreen && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '10px' }}>
                 <button
-                  onClick={() => setShowFeedback(true)}
+                  onClick={handlePrevQuestion}
+                  disabled={currentQuestionIndex === 0 || submitted || !isFullScreen}
                   style={{
                     padding: '12px 20px',
-                    background: currentTheme.buttonPrimaryGradient,
+                    backgroundColor: currentQuestionIndex === 0 || submitted || !isFullScreen ? currentTheme.buttonDisabled : currentTheme.buttonPrimary,
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = currentTheme.boxShadow;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    cursor: currentQuestionIndex === 0 || submitted || !isFullScreen ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  Review Questions
+                  Previous
+                </button>
+                <button
+                  onClick={handleNextQuestion}
+                  disabled={currentQuestionIndex === mcqs.length - 1 || submitted || !isFullScreen}
+                  style={{
+                    padding: '12px 20px',
+                    backgroundColor: currentQuestionIndex === mcqs.length - 1 || submitted || !isFullScreen ? currentTheme.buttonDisabled : currentTheme.buttonPrimary,
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: currentQuestionIndex === mcqs.length - 1 || submitted || !isFullScreen ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  Next
                 </button>
               </div>
-              {learningPath && (
-                <div style={{ marginTop: '40px', position: 'relative' }}>
-                  <h2 style={{
-                    fontSize: '28px',
-                    marginBottom: '30px',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                  }}
-                  >
-                    <span style={{ color: currentTheme.resultsHeading }}
-                    >Learning Path for</span>{' '}
-                    <span style={{
-                      color: currentTheme.buttonSuccess,
-                      backgroundColor: currentTheme.learningPathHighlight,
-                      padding: '2px 8px',
-                      borderRadius: '8px',
-                    }}>
-                      {topic}
-                    </span>
-                  </h2>
-                  <div className="roadway" style={{
-                    position: 'relative',
-                    paddingLeft: '40px',
-                    paddingRight: '20px',
-                  }}>
-                    {learningPath.map((week, index) => (
-                      <div key={week.week} className="roadway-item" style={{
-                        marginBottom: '20px',
-                        position: 'relative',
-                        padding: '10px 20px',
-                        background: currentTheme.learningPathBackground,
-                        border: `1px solid ${currentTheme.learningPathBorder}`,
-                        borderRadius: '8px',
-                        color: currentTheme.learningPathText,
-                        boxShadow: currentTheme.boxShadow,
-                        animation: `fadeIn 0.5s ease-in-out ${index * 0.2}s forwards`,
-                        opacity: '0',
-                      }}
-                    >
-                      <h3 style={{
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        marginBottom: '10px',
-                        color: currentTheme.textPrimary,
-                      }}>
-                        Week {week.week}
-                      </h3>
-                      <ul style={{
-                        paddingLeft: '20px',
-                        lineHeight: '1.8',
-                        listStyleType: 'disc',
-                        color: currentTheme.textPrimary,
-                      }}>
-                        {week.tasks.map((task, i) => (
-                          <li key={i} style={{ marginBottom: '6px' }}
-                          >{task}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    ))}
-                  </div>
-              </div>
-              )}
-          </div>
+              <button
+                onClick={handleSubmit}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: currentTheme.buttonSuccess,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                Submit Quiz
+              </button>
+            </div>
           )}
-        </div>
-
-        {!submitted && isFullScreen && (
-          <button
-            onClick={() => setShowNavigationPane(!showNavigationPane)}
-            title={showNavigationPane ? 'Collapse Navigation' : 'Expand Navigation'}
-            style={{
-              position: 'absolute',
-              right: showNavigationPane ? '210px' : '0px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              backgroundColor: currentTheme.buttonPrimary,
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-              boxShadow: currentTheme.boxShadow,
-              zIndex: 999,
-              transition: 'right 0.3s ease-in-out',
-              fontSize: '20px',
-              fontWeight: 'bold',
-            }}
-          >
-            {showNavigationPane ? '»' : '«'}
-          </button>
-        )}
-
-        {isFullScreen && !submitted && (
-          <div
-            style={{
-              width: showNavigationPane ? '200px' : '0',
-              background: currentTheme.navigationBackground,
-              padding: showNavigationPane ? '10px' : '0',
-              borderRadius: '8px',
-              boxShadow: showNavigationPane ? currentTheme.boxShadow : 'none',
-              overflow: 'hidden',
-              transition: 'width 0.3s ease-in-out, padding 0.3s ease-in-out',
-              position: 'fixed',
-              right: '20px',
-              top: '100px',
-              maxHeight: 'calc(100vh - 120px)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              flexShrink: 0,
-              zIndex: 900,
-            }}
-          >
-            {showNavigationPane && (
-              <>
-                <div style={{ marginBottom: '10px', paddingBottom: '10px', borderBottom: `1px solid ${currentTheme.navigationBorder}` }}>
-                  <p style={{ fontWeight: 'bold', color: currentTheme.textPrimary, fontSize: '14px', marginBottom: '5px' }}>
-                    🚫 Prohibited Actions:
-                  </p>
-                  <ul style={{ listStyleType: 'disc', marginLeft: '15px', fontSize: '12px', color: currentTheme.textSecondary }}>
-                    <li>Pressing Ctrl, Alt, Meta (Windows key), PrintScreen.</li>
-                    <li>Attempting to copy text.</li>
-                    <li>Exiting Full-Screen mode (e.g., via Esc key).</li>
-                    <li>Switching browser tabs.</li>
-                  </ul>
-                  <p style={{ fontWeight: 'bold', color: currentTheme.buttonSecondary, fontSize: '12px', marginTop: '5px' }}>
-                    After 3 warnings (⚡⚡⚡), the quiz will auto-submit silently.
-                  </p>
-                </div>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))',
-                  gap: '10px',
-                  overflowY: 'auto',
-                  paddingRight: '5px',
-                  flexGrow: 1,
-                }}>
-                  {mcqs.map((mcq, index) => (
-                    <button
-                      key={mcq.id}
-                      onClick={() => handleGoToQuestion(index)}
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        backgroundColor: userAnswers[index] ? currentTheme.buttonSuccess : (index === currentQuestionIndex ? currentTheme.buttonPrimary : currentTheme.buttonSecondary),
-                        color: 'white',
-                        border: index === currentQuestionIndex ? '2px solid #000' : 'none',
-                        borderRadius: '50%',
-                        cursor: submitted || !isFullScreen ? 'not-allowed' : 'pointer',
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        opacity: submitted || !isFullScreen ? 0.5 : 1,
-                        pointerEvents: submitted || !isFullScreen ? 'none' : 'auto',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                      disabled={submitted || !isFullScreen}
-                    >
-                      {index + 1}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-
-      {!submitted && isFullScreen && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={handlePrevQuestion}
-              disabled={currentQuestionIndex === 0 || submitted || !isFullScreen}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: currentQuestionIndex === 0 || submitted || !isFullScreen ? currentTheme.buttonDisabled : currentTheme.buttonPrimary,
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: currentQuestionIndex === 0 || submitted || !isFullScreen ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Previous
-            </button>
-            <button
-              onClick={handleNextQuestion}
-              disabled={currentQuestionIndex === mcqs.length - 1 || submitted || !isFullScreen}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: currentQuestionIndex === mcqs.length - 1 || submitted || !isFullScreen ? currentTheme.buttonDisabled : currentTheme.buttonPrimary,
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: currentQuestionIndex === mcqs.length - 1 || submitted || !isFullScreen ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Next
-            </button>
-          </div>
-          <button
-            onClick={handleSubmit}
-            style={{
-              padding: '12px 20px',
-              backgroundColor: currentTheme.buttonSuccess,
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-            }}
-          >
-            Submit Quiz
-          </button>
-        </div>
+        </>
       )}
-
-      {submitted && (
+      {submitted && !showLearningPathPage && (
         <div style={{ marginTop: '20px', fontWeight: 'bold', textAlign: 'center' }}>
           {warningsLeft <= 0 && (
             <p style={{ color: currentTheme.buttonSecondary, marginTop: '10px' }}>
@@ -1254,8 +1353,8 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
           {quizPassed ? (
             <div style={{
               backgroundColor: currentTheme.passBackground,
-              border: `1px solid ${currentTheme.passBorder}`,
-              color: currentTheme.passText,
+              border: `1px solid ${currentTheme.passBorderColor}`,
+              color: currentTheme.passTextColor,
               padding: '15px',
               borderRadius: '8px',
               marginTop: '20px',
@@ -1268,7 +1367,7 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
               </p>
               {!learningPath && (
                 <button
-                  onClick={() => setShowLearningPathModal(true)}
+                  onClick={() => setShowLearningPathPage(true)}
                   style={{
                     padding: '12px 20px',
                     backgroundColor: currentTheme.buttonPrimary,
@@ -1286,9 +1385,9 @@ const Quiz: React.FC<Props> = ({ mcqs, quizId, onRestartQuiz, onSubmitQuiz, canA
             </div>
           ) : (
             <div style={{
-              backgroundColor: currentTheme.failBackground,
-              border: `1px solid ${currentTheme.failBorder}`,
-              color: currentTheme.failText,
+              backgroundColor: currentTheme.failBackgroundColor,
+              border: `1px solid ${currentTheme.failBorderColor}`,
+              color: currentTheme.failTextBackgroundColor,
               padding: '15px',
               borderRadius: '8px',
               marginTop: '20px',
