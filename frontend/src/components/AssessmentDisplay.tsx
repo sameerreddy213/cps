@@ -8,7 +8,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
 import html2pdf from 'html2pdf.js';
 import { getUserEmailFromToken } from '../utils/userId';
-import { toast } from 'react-toastify';
 
 interface Topic {
   id: number;
@@ -75,7 +74,24 @@ const AssessmentDisplay: React.FC<{
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [actualTimeSpent, setActualTimeSpent] = useState<number>(0);
+  const quotes = [
+    "🌟 Success is built on consistent effort, not last-minute miracles.",
+    "🧠 Every expert was once a student who chose not to give up.",
+    "💪 Challenges are what make learning interesting — overcoming them makes it meaningful.",
+    "🛡️ True strength is doing the right thing, even when no one is watching.",
+    "📚 Honest effort is more valuable than perfect answers.",
+    "🚀 Progress, not perfection — that's the goal.",
+    "🔐 Integrity is doing your best without shortcuts. Cheating steals your own growth.",
+    "🌱 Mistakes are the stepping stones to mastery — embrace them.",
+    "⏳ Time spent learning the right way lasts a lifetime. Cheating lasts a moment.",
+    "🔥 Real success feels better than any shortcut ever could.",
+    "🌍 Be your own hero. Push your limits, not the rules.",
+    "📝 The mind grows stronger every time it solves, not copies.",
+    "🎯 Focus on progress. Every click brings you closer to your potential.",
+    "🚫 Cheating may get you past today, but it steals your future."
+  ];
 
+  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
   const userId = getUserEmailFromToken();
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -126,6 +142,21 @@ const AssessmentDisplay: React.FC<{
     }, 1000);
   };
 
+  useEffect(() => {
+      if (loading) {
+        const quoteInterval = setInterval(() => {
+          setCurrentQuote(prev => {
+            const currentIndex = quotes.indexOf(prev);
+            const nextIndex = (currentIndex + 1) % quotes.length;
+            return quotes[nextIndex];
+          });
+        }, 5000); // change every 5 seconds
+
+        return () => clearInterval(quoteInterval); // cleanup
+      }
+    }, [loading]);
+
+ 
   useEffect(() => {
     const generateAssessment = async () => {
       const topic = selectedTopics[0]?.name;
@@ -307,7 +338,10 @@ const AssessmentDisplay: React.FC<{
       ) : loading ? (
         <div className="loading-indicator">
           <div className="spinner"></div>
-          <p>Generating your assessment...</p>
+          <p className="generating-text">Generating your assessment...</p>
+          <div className="quote-container">
+            <p className="quote-text">💡 {currentQuote}</p>
+          </div>
         </div>
       ) : (
         <div className="assessment-content">
@@ -490,3 +524,6 @@ const AssessmentDisplay: React.FC<{
 export default AssessmentDisplay;
 
 
+        
+
+        
