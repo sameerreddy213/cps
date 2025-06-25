@@ -56,3 +56,27 @@ export function getFullLearningPath(
   path.unshift(startId); // Add the starting concept
   return path;
 }
+
+// All paths from start to end, including all prerequisites 
+
+export function getAllPaths(graph: Graph, start: string, end: string): string[][] {
+  const allPaths: string[][] = [];
+
+  const dfs = (node: string, path: string[]) => {
+    path.push(node);
+    if (node === end) {
+      allPaths.push([...path]);
+    } else {
+      const neighbors = graph.successors(node) || [];
+      for (const neighbor of neighbors) {
+        if (!path.includes(neighbor)) {
+          dfs(neighbor, path);
+        }
+      }
+    }
+    path.pop();
+  };
+
+  dfs(start, []);
+  return allPaths;
+}
