@@ -367,7 +367,7 @@ const AssessmentDisplay: React.FC<{
       ) : (
         <div className="assessment-content">
           {!showResults ? (
-            <div className="questions-container">
+            <div className="questions-container no-select">
                   <div className="timer-display mb-4 text-lg font-semibold text-red-600">
                     ⏳ Time Left: {Math.floor(timeLeft / 60)}:
                     {(timeLeft % 60).toString().padStart(2, '0')}
