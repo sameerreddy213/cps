@@ -1,7 +1,7 @@
 /*CREATED BY NIKITA S RAJ KAPINI(20/06/2025)*/
 
 import React, { useState } from 'react';
-import './ChangePassword.css';
+import './changepassword.css';
 
 const ChangePassword: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [oldPassword, setOldPassword] = useState('');

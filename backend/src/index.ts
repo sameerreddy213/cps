@@ -13,7 +13,10 @@ dotenv.config();
 
 const app = express();
 //app.use(cors({ origin: 'https://EduAssess.netlify.app' }));
-app.use(cors());
+app.use(cors({
+  origin: 'https://cpseduassess.netlify.app.netlify.app', // or '*', if you're testing
+  credentials: true
+}));
 app.use(express.json());
 app.get('/', (_, res) => {
   res.send('API is running!');
