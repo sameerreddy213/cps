@@ -78,6 +78,7 @@ const AssessmentDisplay: React.FC<{
   const [actualTimeSpent, setActualTimeSpent] = useState<number>(0);
   const [isRetry, setIsRetry] = useState(false);
   const [noPrerequisitesMessage, setNoPrerequisitesMessage] = useState<string | null>(null);
+  const modalShownRef = useRef(false);
 
   const quotes = [
     "🌟 Success is built on consistent effort, not last-minute miracles.",
@@ -129,6 +130,8 @@ const AssessmentDisplay: React.FC<{
     setAssessmentStarted(true); 
     updateAssessmentStatus(true); 
     setNoPrerequisitesMessage(null);
+    modalShownRef.current = false;
+
 
     // Reset timeLeft
     const totalTime = questions.length * 1 * 60; // 1 mins per question
@@ -137,17 +140,19 @@ const AssessmentDisplay: React.FC<{
 
     // Restart timer
     timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          setShowTimeUpModal(true);
-          return 0;
+    setTimeLeft((prev) => {
+      if (prev <= 1) {
+        if (!modalShownRef.current) {
+          modalShownRef.current = true; // Mark it as shown
+          setShowTimeUpModal(true);     // Trigger modal
         }
-        return prev - 1;
-      });
+        return 0;
+      }
+      return prev - 1;
+    });
 
-      setActualTimeSpent((prev) => prev + 1); // ✅ increment every second
-    }, 1000);
+    setActualTimeSpent((prev) => prev + 1);
+  }, 1000);
   };
 
   useEffect(() => {
@@ -221,15 +226,18 @@ const AssessmentDisplay: React.FC<{
         if (timerRef.current) clearInterval(timerRef.current);
 
         timerRef.current = setInterval(() => {
-          setTimeLeft((prev) => {
-            if (prev <= 1) {
-              clearInterval(timerRef.current!);
-              setShowTimeUpModal(true);
-              return 0;
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (!modalShownRef.current) {
+              modalShownRef.current = true; // Mark it as shown
+              setShowTimeUpModal(true);     // Trigger modal
             }
-            return prev - 1;
-          });
-       setActualTimeSpent((prev) => prev + 1); // Always increment, even after timeLeft is 0
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        setActualTimeSpent((prev) => prev + 1);
       }, 1000);
       } catch (err) {
         console.error('Error generating assessment:', err);
@@ -264,7 +272,9 @@ const AssessmentDisplay: React.FC<{
 
   const handleSubmit = async () => {
   if (timerRef.current) 
-    {clearInterval(timerRef.current);}
+    {clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
   const token = localStorage.getItem('token');
     if (!token) {
       alert("Please login to continue.");
@@ -272,6 +282,8 @@ const AssessmentDisplay: React.FC<{
     }
     setShowResults(false);
     setLoading(true);
+    modalShownRef.current = false;
+
 
     try {
       const payload = {
