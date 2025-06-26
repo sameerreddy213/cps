@@ -1,12 +1,14 @@
 //Author:Yeddula Pushkala             Date:12-06-25
 /* AUTHOR(UI and components) - SHREYAS MENE (CREATED ON 12/06/2025) */
+/*Updated by Nikita S Raj Kapini on 26/06/2025*/
+
 import React, { useState, useRef, useEffect } from 'react';
 import { EnhancedChatbotService } from '../services';
 import { ConversationMemoryManager } from '../services/conversationMemory';
 import type { ConversationContext, Message } from '../services/conversationMemory';
 import './Chatbot.css';
 
-const Chatbot: React.FC = () => {
+const Chatbot: React.FC<{ disabled?: boolean }> = ({ disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -94,10 +96,10 @@ const Chatbot: React.FC = () => {
         onClick={toggleChat}
         className={`chat-toggle ${isOpen ? 'open' : ''}`}
         aria-label="Toggle chat"
+        disabled={disabled} // <-- ADD THIS
       >
         {isOpen ? '✕' : '🤖'}
       </button>
-
       {/* Chat Window */}
       {isOpen && (
         <div className="chatbot-container">
@@ -145,6 +147,7 @@ const Chatbot: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="chatbot-input-form">
             <input
+              disabled={isLoading || !serviceReady || disabled}
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
@@ -153,12 +156,11 @@ const Chatbot: React.FC = () => {
                 : "Initializing chatbot services..."
               }
               className="chatbot-input"
-              disabled={isLoading || !serviceReady}
             />
             <button 
+              disabled={isLoading || !inputText.trim() || !serviceReady || disabled}
               type="submit" 
               className="chatbot-send-button"
-              disabled={isLoading || !inputText.trim() || !serviceReady}
             >
               {isLoading ? '⏳' : '📤'}
             </button>
@@ -189,5 +191,4 @@ const getConfidenceLevel = (confidence: number): string => {
   if (confidence > 0.4) return 'medium';
   return 'low';
 };
-
 export default Chatbot;

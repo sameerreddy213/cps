@@ -60,16 +60,17 @@ const AssessmentDisplay: React.FC<{
   selectedTopics: Topic[];
   shouldGenerateAssessment: boolean;
   onAssessmentGenerated: () => void;
-}> = ({ selectedTopics, shouldGenerateAssessment, onAssessmentGenerated }) => {
+  updateAssessmentStatus: (val: boolean) => void;
+}> = ({ selectedTopics, shouldGenerateAssessment, onAssessmentGenerated, updateAssessmentStatus }) => {
   const [assessmentId, setAssessmentId] = useState<string>('');
   const [targetTopic, setTargetTopic] = useState<string>('');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<number, string[]>>({});
   const [responsesWithCorrectness, setResponsesWithCorrectness] = useState<ResponseWithCorrectness[]>([]);
   const [revisitTopics, setRevisitTopics] = useState<string[]>([]);
-  const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [assessmentStarted, setAssessmentStarted] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [assessmentStarted,setAssessmentStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(0); // in seconds
   const [totalTime, setTotalTime] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -125,7 +126,8 @@ const AssessmentDisplay: React.FC<{
     setResponsesWithCorrectness([]);
     setRevisitTopics([]);
     setActualTimeSpent(0);
-    setAssessmentStarted(true);
+    setAssessmentStarted(true); 
+    updateAssessmentStatus(true); 
     setNoPrerequisitesMessage(null);
 
     // Reset timeLeft
@@ -209,7 +211,8 @@ const AssessmentDisplay: React.FC<{
         }));
 
         setQuestions(transformed);
-        setAssessmentStarted(true);
+        setAssessmentStarted(true);  // when assessment starts
+        updateAssessmentStatus(true); // when assessment ends
         const totalTime = data.questions.length * 1 * 60; // 1 minutes per question
         setTimeLeft(totalTime);
         setTotalTime(totalTime);
@@ -315,7 +318,8 @@ const AssessmentDisplay: React.FC<{
 
       const analysisData = await analysisRes.json();
       setRevisitTopics(analysisData.weakTopics);
-     setShowResults(true);
+      setShowResults(true);
+      updateAssessmentStatus(false);
     } catch (err) {
       console.error('Error submitting assessment:', err);
     } finally {

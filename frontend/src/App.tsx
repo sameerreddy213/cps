@@ -5,7 +5,7 @@
 /*Modified by Nakshatra on 19/6/25 for the automatic logout*/
 /*Nav bar componenet added by Nikita S Raj Kapini on 19/06/2025*/
 /*Modified by Nakshatra on 23/6/25 for the forgot password*/
-/*Updated by Nikita S Raj Kapini on 24/06/2025*/
+/*Updated by Nikita S Raj Kapini on 24/06/2025 and 26/06/2025*/
 
 import React, { useState,useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -37,6 +37,7 @@ const AppContent = () => {
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const [shouldGenerateAssessment, setShouldGenerateAssessment] = useState(false);
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
+  const [assessmentOngoing, setAssessmentOngoing] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -127,6 +128,7 @@ const AppContent = () => {
                             selectedTopics={selectedTopics}
                             shouldGenerateAssessment={shouldGenerateAssessment}
                             onAssessmentGenerated={handleAssessmentGenerated}
+                            updateAssessmentStatus={setAssessmentOngoing} // <-- PASS HERE
                           />
                         </div>
                     </div>
@@ -136,7 +138,7 @@ const AppContent = () => {
           </Routes>
         </main>
 
-        {!isAuthPage && <Chatbot />}
+        {!isAuthPage && <Chatbot disabled={assessmentOngoing} />}
       </div>
     </div>
   );
@@ -153,4 +155,3 @@ function App() {
   );
 }
 export default App; 
-
