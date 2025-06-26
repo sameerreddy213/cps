@@ -13,11 +13,9 @@ import './config/passport-setup';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import conceptRoutes from './routes/conceptRoutes';
-// import recommendationRoutes from './routes/recommendationRoutes';
 import adminRoutes from './routes/adminRoutes';
 import quizRoutes from './routes/quizRoutes';
 import recommendationRoutes from './routes/recommendation.routes';
-// import { getRecommendation } from './controllers/recommendationController';
 
 const app: Express = express();
 
@@ -51,31 +49,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running in '${process.env.NODE_ENV || 'development'}' mode on port ${PORT}`);
 });
-
-// import express from "express";
-// import mongoose from "mongoose";
-// import cors from "cors";
-// import bodyParser from "body-parser";
-
-// import quizRoutes from "./routes/quiz.routes";
-// import recommendationRoutes from "./routes/recommendation.routes";
-
-// const app = express();
-// const PORT = 5000;
-
-// app.use(cors());
-// app.use(bodyParser.json());
-
-// // Connect to MongoDB
-// mongoose.connect("mongodb://localhost:27017/personalized_learning")
-//   .then(() => console.log("MongoDB connected"))
-//   .catch(err => console.error("MongoDB connection error:", err));
-
-// // Mount routes
-// app.use("/api/quiz", quizRoutes);
-// app.use("/api/recommendation", recommendationRoutes);
-
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
