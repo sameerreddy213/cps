@@ -1,7 +1,7 @@
 /*AUTHOR-MANDA RANI(created on 14/06/25)*/
 /*Modified by Nakshatra Bhandary on 16/6/25 to update UI and routes/navigation */
 /*Modified by Nakshatra Bhandary on (17/6/25) to connect to the backend*/
-/*Updated by Nikita S Raj Kapini on 24/06/2025*/
+/*Updated by Nikita S Raj Kapini on 24/06/2025 and 26/06/2025*/
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -31,11 +31,6 @@ const RegistrationPage: React.FC = () => {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
     try {
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -47,6 +42,11 @@ const RegistrationPage: React.FC = () => {
 
       if (!res.ok) {
         setError(data.message || 'Registration failed.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
         return;
       }
 
