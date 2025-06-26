@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import AssessmentHistory from '../models/AssessmentHistory'; // ✅ Imported your model
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -60,6 +61,22 @@ router.get('/:email', async (req: Request, res: Response) => {
     res.json(learner);
   } catch (error) {
     console.error('Error fetching learner profile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ✅ GET /api/mentor/:email/assessment-history
+router.get('/:email/assessment-history', async (req: Request, res: Response) => {
+  const user = await getUserFromToken(req);
+  if (!user || user.role !== 'mentor') {
+    return res.status(403).json({ message: 'Access denied: Mentor role required' });
+  }
+
+  try {
+    const assessments = await AssessmentHistory.find({ userEmail: req.params.email }).sort({ createdAt: -1 });
+    res.json(assessments);
+  } catch (error) {
+    console.error('Error fetching assessment history:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
