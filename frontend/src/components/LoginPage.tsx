@@ -2,6 +2,7 @@
 /*Modified by Nakshatra Bhandary (16/6/26) and (17/6/25) to connect to the backend*/
 /*Modified by Nakshatra Bhandary 23/6/25 to add forgot password*/
 /*Updated by Nikita S Raj Kapini on 24/06/2025*/
+/*Modified by Nakshatra on 26/6/25 to prevent navigation to login page after loggin in*/
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -18,12 +19,16 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard'); // redirect if already logged in
+    }
     // Disable scrolling
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
