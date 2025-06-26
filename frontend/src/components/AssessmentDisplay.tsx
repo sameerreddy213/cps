@@ -178,7 +178,7 @@ const AssessmentDisplay: React.FC<{
       setLoading(true);
       setActualTimeSpent(0);
       setNoPrerequisitesMessage(null);
-
+      setIsRetry(false);
       try {
         const res = await fetch('http://localhost:5000/api/assessment/generate', {
           method: 'POST',
