@@ -138,7 +138,7 @@ const AppContent = () => {
           </Routes>
         </main>
 
-        {!isAuthPage && <Chatbot disabled={assessmentOngoing} />}
+        {isDashboard && <Chatbot disabled={assessmentOngoing} />}
       </div>
     </div>
   );
