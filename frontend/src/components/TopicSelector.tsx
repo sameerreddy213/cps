@@ -1,5 +1,6 @@
 /* AUTHOR - SHREYAS MENE (CREATED ON 12/06/2025) */
 /*AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 16/06/2025)*/
+/*AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 25/06/2025)*/
 
 import React, { useState } from 'react';
 import './TopicSelector.css';
@@ -90,19 +91,23 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicSelect, onGenerate
               placeholder="Search for a topic..."
               className="topic-input"
             />
-            {isDropdownOpen && filteredTopics.length > 0 && (
-              <ul className="dropdown-list">
-                {filteredTopics.map(topic => (
-                  <li
-                    key={topic}
-                    onClick={() => handleTopicSelect(topic)}
-                    className="dropdown-item"
-                  >
-                    {topic}
-                  </li>
-                ))}
-              </ul>
-            )}
+            {isDropdownOpen && (
+                  <ul className="dropdown-list">
+                    {filteredTopics.length > 0 ? (
+                      filteredTopics.map(topic => (
+                        <li
+                          key={topic}
+                          onClick={() => handleTopicSelect(topic)}
+                          className="dropdown-item"
+                        >
+                          {topic}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="dropdown-item no-match">No matches found</li>
+                    )}
+                  </ul>
+                )}
           </div>
         ) : (
           <div className="selected-topic-display">

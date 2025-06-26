@@ -2,7 +2,8 @@
 /* UPDATED BY NIKITA S RAJ KAPINI ON 16/06/2025 AND 17/06/2025 */
 /*Modified by Nakshatra Bhandary on 18/6/25 to add the timer*/
 /* UPDATED BY NIKITA S RAJ KAPINI ON 18/06/2025 */
-/* UPDATED BY NIKITA S RAJ KAPINI ON 24/06/2025 */
+/* UPDATED BY NIKITA S RAJ KAPINI ON 25/06/2025 */
+/* UPDATED BY NIKITA S RAJ KAPINI ON 26/06/2025 */
 
 import React, { useEffect, useRef, useState } from 'react';
 import './AssessmentDisplay.css';
@@ -75,6 +76,7 @@ const AssessmentDisplay: React.FC<{
   const [showTimeUpModal, setShowTimeUpModal] = useState(false);
   const [actualTimeSpent, setActualTimeSpent] = useState<number>(0);
   const [isRetry, setIsRetry] = useState(false);
+  const [noPrerequisitesMessage, setNoPrerequisitesMessage] = useState<string | null>(null);
 
   const quotes = [
     "🌟 Success is built on consistent effort, not last-minute miracles.",
@@ -124,6 +126,7 @@ const AssessmentDisplay: React.FC<{
     setRevisitTopics([]);
     setActualTimeSpent(0);
     setAssessmentStarted(true);
+    setNoPrerequisitesMessage(null);
 
     // Reset timeLeft
     const totalTime = questions.length * 1 * 60; // 1 mins per question
@@ -172,6 +175,7 @@ const AssessmentDisplay: React.FC<{
       setRevisitTopics([]); 
       setLoading(true);
       setActualTimeSpent(0);
+      setNoPrerequisitesMessage(null);
 
       try {
         const res = await fetch('http://localhost:5000/api/assessment/generate', {
@@ -182,6 +186,13 @@ const AssessmentDisplay: React.FC<{
 
         const data: AssessmentResponse = await res.json();
         setAssessmentId(data._id);
+
+          if (data.prerequisites.length === 0) {
+            setNoPrerequisitesMessage(`There are no specific prerequisite topics to be covered before studying "${topic}". The basics you already know should be enough. 🚀 Please proceed with confidence!`);
+            setQuestions([]);
+            setAssessmentStarted(false);
+            return; // skip loading questions
+          }
 
         const transformed: Question[] = data.questions.map((q, idx) => ({
           id: idx + 1,
@@ -331,6 +342,13 @@ const AssessmentDisplay: React.FC<{
         <h2>Assessment</h2>
         <p className="selected-topic">{targetTopic ? `Target Topic: ${targetTopic}` : 'No topic selected'}</p>
       </div>
+
+      {noPrerequisitesMessage && (
+        <div className="no-prereq-message">
+          <h3>🎓 You're Ready!</h3>
+          <p>{noPrerequisitesMessage}</p>
+        </div>
+      )}
 
       {!assessmentStarted && !loading ? (
         <div className="placeholder-content">
@@ -536,6 +554,12 @@ const AssessmentDisplay: React.FC<{
 
 export default AssessmentDisplay;
 
+
+        
+
+        
+
+        
 
         
 

@@ -1,5 +1,5 @@
 /* AUTHOR - NIKITA S RAJ KAPINI (CREATED ON 10/06/2025) */
-/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 14/06/2025) */
+/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 14/06/2025) and 26/06/2025 */
 import express from 'express';
 import { Request, Response } from 'express';
 import { getPrerequisites } from '../services/prereqService';
@@ -16,6 +16,16 @@ router.post('/generate', async (req: Request, res: Response): Promise<void> => {
 
   console.log('Target Topic:', target);
   console.log('Prereqs:', prereqs);
+
+  if (!prereqs || prereqs.length === 0) {
+    res.json({
+      _id: '', // optionally return null or empty
+      targetTopic: target,
+      prerequisites: [],
+      questions: []
+    });
+    return;
+  }
 
   let finalAssessment = null;
   const MAX_RETRIES = 3;

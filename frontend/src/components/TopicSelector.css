@@ -1,5 +1,6 @@
 /* AUTHOR - SHREYAS MENE (CREATED ON 12/06/2025) */
 /* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 16/06/2025) */
+/* AUTHOR - NIKITA S RAJ KAPINI (UPDATED ON 25/06/2025) */
 
 .topic-selector-container {
   background: var(--background-color);
@@ -214,4 +215,10 @@
 .generate-btn:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--hover-color);
+}
+
+.dropdown-item.no-match {
+  color: #888;
+  cursor: default;
+  font-style: italic;
 }

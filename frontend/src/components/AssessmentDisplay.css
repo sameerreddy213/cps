@@ -2,7 +2,7 @@
 /* UPDATED BY NIKITA S RAJ KAPINI ON 17/06/2025 */
 /*Modified by Nakshatra Bhandary on 18/6/25 to create the timer*/
 /* UPDATED BY NIKITA S RAJ KAPINI ON 24/06/2025 */
-/* UPDATED BY NIKITA S RAJ KAPINI ON 25/06/2025 */
+/* UPDATED BY NIKITA S RAJ KAPINI ON 25/06/2025 adn 26/06/2025*/
 
 .assessment-display {
   background: var(--background-color);
@@ -394,3 +394,12 @@
 }
 
 
+.no-prereq-message {
+  background-color: #94e2aa;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #b2f5ea;
+  color: #276749;
+  text-align: center;
+  margin: 2rem 0;
+}
