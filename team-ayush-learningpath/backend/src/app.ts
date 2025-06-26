@@ -13,9 +13,11 @@ import './config/passport-setup';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import conceptRoutes from './routes/conceptRoutes';
-import recommendationRoutes from './routes/recommendationRoutes';
+// import recommendationRoutes from './routes/recommendationRoutes';
 import adminRoutes from './routes/adminRoutes';
 import quizRoutes from './routes/quizRoutes';
+import recommendationRoutes from './routes/recommendation.routes';
+// import { getRecommendation } from './controllers/recommendationController';
 
 const app: Express = express();
 
@@ -38,9 +40,11 @@ app.use(passport.initialize());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/concepts', conceptRoutes);
-app.use('/api/quizzes', quizRoutes);
-app.use('/api/recommendations', recommendationRoutes);
+// app.use('/api/quizzes', quizRoutes);
 app.use('/api/admin', adminRoutes);
+app.use("/api/quiz", quizRoutes);
+app.use("/api/recommendation", recommendationRoutes);
+
 
 // --- Server Initialization ---
 const PORT = process.env.PORT || 5000;

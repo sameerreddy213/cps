@@ -481,6 +481,11 @@ export const getRecommendation = async (req: Request, res: Response) => {
     const { userId, goalConceptId } = req.params;
     const currentConceptId = req.query.currentConceptId as string;
 
+console.log("userId:", userId);
+console.log("goalConceptId:", goalConceptId);
+console.log("currentConceptId:", currentConceptId);
+
+
     if (!userId || !goalConceptId || !currentConceptId) {
       return res.status(400).json({ error: "Missing userId, goalConceptId, or currentConceptId" });
     }
@@ -508,6 +513,8 @@ export const getRecommendation = async (req: Request, res: Response) => {
     userProgress.forEach(p => {
       masteryMap[p.conceptId.toString()] = p.score;
     });
+    console.log("User Progress:", userProgress);
+
 
     // Build concept lookup
     const conceptMap: Record<string, { title: string; prerequisites: string[] }> = {};
