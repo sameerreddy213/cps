@@ -9,9 +9,10 @@ import conceptGraph from '../conceptGraph.json';
 interface TopicSelectorProps {
   onTopicSelect: (topic: string | null) => void;
   onGenerateAssessment: (topic: string | null) => void;
+  warningMessage?: string | null;
 }
 
-const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicSelect, onGenerateAssessment }) => {
+const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicSelect, onGenerateAssessment,warningMessage }) => {
   const allTopics = Object.keys(conceptGraph);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -55,9 +56,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicSelect, onGenerate
   };
 
   const handleGenerateClick = () => {
-    if (selectedTopic) {
-      onGenerateAssessment(selectedTopic);
-    }
+    onGenerateAssessment(null); // always call it
   };
 
   const handleClearSelection = () => {
@@ -119,6 +118,12 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicSelect, onGenerate
         )}
       </div>
 
+      {warningMessage && (
+          <p className="warning-text" style={{ color: 'red', marginTop: '0.5rem' }}>
+            {warningMessage}
+          </p>
+        )}
+
       {selectedTopic && (
         <div className="prerequisites-section">
           <h3>All Prerequisites</h3>
@@ -134,12 +139,12 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onTopicSelect, onGenerate
             )}
           </div>
         </div>
-      )}
+      )}   
 
+  
       <button
         className="generate-btn"
         onClick={handleGenerateClick}
-        disabled={!selectedTopic}
       >
         Generate Assessment
       </button>

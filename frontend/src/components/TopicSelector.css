@@ -222,3 +222,9 @@
   cursor: default;
   font-style: italic;
 }
+
+.warning-text {
+  color: #e53935;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}

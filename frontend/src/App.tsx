@@ -38,6 +38,7 @@ const AppContent = () => {
   const [shouldGenerateAssessment, setShouldGenerateAssessment] = useState(false);
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
   const [assessmentOngoing, setAssessmentOngoing] = useState(false);
+  const [showTopicWarning, setShowTopicWarning] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,6 +54,7 @@ const AppContent = () => {
   const handleTopicSelect = (topicName: string | null) => {
     if (topicName) {
       setSelectedTopics([{ id: 1, name: topicName, category: 'default' }]); // adjust id/category as needed
+      setShowTopicWarning(false);
     } else {
       setSelectedTopics([]);
     }
@@ -61,9 +63,14 @@ const AppContent = () => {
 
 
   const handleGenerateAssessment = () => {
+    if (selectedTopics.length === 0 || !selectedTopics[0]?.name) {
+      setShowTopicWarning(true);
+      return;
+    }
+    setShowTopicWarning(false); 
     setShouldGenerateAssessment(true);
   };
-
+ 
   const handleAssessmentGenerated = () => {
     setShouldGenerateAssessment(false);
   };
@@ -123,6 +130,7 @@ const AppContent = () => {
                           <TopicSelector
                             onTopicSelect={handleTopicSelect}
                             onGenerateAssessment={handleGenerateAssessment}
+                            warningMessage={showTopicWarning ? '⚠️ Please select a target topic before generating an assessment.' : null}
                           />
                           <AssessmentDisplay
                             selectedTopics={selectedTopics}
