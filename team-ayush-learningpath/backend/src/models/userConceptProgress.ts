@@ -15,51 +15,38 @@ export interface IUserConceptProgress extends Document {
  * Schema for tracking an individual user's progress on a specific concept.
  * This enables personalized learning path recommendations.
  */
-const UserConceptProgressSchema: Schema<IUserConceptProgress> = new Schema(
-  {
-    // Reference to the User model
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      index: true, // Improves query performance
-    },
-
-    // Reference to the Concept model
-    conceptId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Concept',
-      required: true,
-      index: true, // Improves query performance
-    },
-
-    // Score from 0.0 to 1.0 representing mastery level
-    score: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 1,
-      default: 0,
-    },
-
-    // // Number of attempts made by the user on this concept
-    attempts: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-
-    // // When this progress was last updated
-    lastUpdated: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
+const UserConceptProgressSchema = new Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true, // one doc per user
   },
-  {
-    timestamps: true, // Adds createdAt and updatedAt timestamps automatically
-  }
-);
+  concepts: [
+    {
+      conceptId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Concept',
+        required: true,
+      },
+      score: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 1,
+      },
+      attempts: {
+        type: Number,
+        default: 0,
+      },
+      lastUpdated: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+}, { timestamps: true });
+
 
 // Ensure a user can't have duplicate progress records for the same concept
 UserConceptProgressSchema.index({ userId: 1, conceptId: 1 }, { unique: true });
