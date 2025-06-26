@@ -22,7 +22,11 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
+<<<<<<< Fix_deployment_merge_conflict
+    "exclude": [
+=======
   "exclude": [
+>>>>>>> main
     "**/*.test.tsx",
     "**/*.test.ts",
     "**/__tests__/**",
