@@ -1,5 +1,6 @@
 /* AUTHOR - NIKITA S RAJ KAPINI (CREATED ON 10/06/2025) */
 /*Modified by Nakshatra Bhandary on 17/6/25 to add user login and registration*/
+/*Modified by Nakshatra for deployment*/
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -11,8 +12,12 @@ import chatRoutes from './routes/chat';
 dotenv.config();
 
 const app = express();
+//app.use(cors({ origin: 'https://EduAssess.netlify.app' }));
 app.use(cors());
 app.use(express.json());
+app.get('/', (_, res) => {
+  res.send('API is running!');
+});
 app.use('/api/assessment', assessmentRoutes);
 app.use('/api/response', responseRoutes);
 app.use('/api/chat', chatRoutes);
