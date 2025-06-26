@@ -502,7 +502,7 @@ const startCustomQuiz = async (contentId: string) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        topic: concepts.prerequisites,
+        topic: concepts.prerequisites.filter(t => topics.some(topic => (topic.name === t && topic.status !== 'mastered'))),
         prerequisites: [],
       }),
     });
@@ -1068,6 +1068,7 @@ const startCustomQuiz = async (contentId: string) => {
                 setConcepts={setConcepts}
                 loading={loadingConcepts}
                 setLoading={setLoadingConcepts}
+                topics={topics}
               />
         </div>
       )}
@@ -1115,6 +1116,7 @@ const startCustomQuiz = async (contentId: string) => {
                 setConcepts={setConcepts}
                 loading={loadingConcepts}
                 setLoading={setLoadingConcepts}
+                topics={topics}
               />
         </div>
       )}
@@ -1221,6 +1223,8 @@ const startCustomQuiz = async (contentId: string) => {
                 }}
                 onClose={closeQuizModal}
                 isTopicMastered={currentQuiz.topicId && currentQuiz.score >= 70}
+                topics={topics}
+                startQuiz={(id) => startQuizForTopic(id)}
               />
             </div>
           </div>
@@ -1434,6 +1438,4 @@ const startCustomQuiz = async (contentId: string) => {
 
 export default MainPage;
 
-function setUploadedFile(arg0: File | null) {
-  throw new Error('Function not implemented.');
-}
+
