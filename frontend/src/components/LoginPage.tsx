@@ -86,7 +86,10 @@ const LoginPage: React.FC = () => {
           placeholder="Password"
           className="login-input"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError('');
+          }}
         />
 
         {error && <div className="login-error">{error}</div>}

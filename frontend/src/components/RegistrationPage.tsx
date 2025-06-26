@@ -31,6 +31,11 @@ const RegistrationPage: React.FC = () => {
       return;
     }
 
+    if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
+
     try {
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -42,11 +47,6 @@ const RegistrationPage: React.FC = () => {
 
       if (!res.ok) {
         setError(data.message || 'Registration failed.');
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        setError('Passwords do not match.');
         return;
       }
 
@@ -90,7 +90,10 @@ const RegistrationPage: React.FC = () => {
           placeholder="Password"
           className="login-input"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError('');
+          }}
         />
 
         <input
@@ -98,7 +101,10 @@ const RegistrationPage: React.FC = () => {
           placeholder="Confirm Password"
           className="login-input"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            setError('');
+          }}
         />
 
         <button type="submit" className="login-button">
