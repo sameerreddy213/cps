@@ -1,23 +1,40 @@
-// Created by : @Nabarupa Banik
+// Created by : @Nabarupa Banik, @ Sai Lokesh Mondi
 import React from 'react';
 import { Topic, AIRecommendation } from '../types';
-import { TopicCard } from './TopicCard';
 import { Brain, Sparkles, TrendingUp } from 'lucide-react';
 
 interface RecommendedTopicsProps {
   topics: Topic[];
   recommendations: AIRecommendation[];
-  onStartTopic: (topicId: string) => void;
+  onStartTopic?: (topicId: string) => void;
+  loading?: boolean;
 }
 
 export const RecommendedTopics: React.FC<RecommendedTopicsProps> = ({ 
   topics, 
   recommendations, 
-  onStartTopic 
+  onStartTopic,
+  loading = false
 }) => {
-  const recommendedTopics = topics.filter(topic => 
-    recommendations.some(rec => rec.topicId === topic.id)
-  );
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+            <Brain className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">AI Recommendations</h3>
+            <p className="text-sm text-gray-600">Personalized learning path based on your progress</p>
+          </div>
+        </div>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Generating personalized recommendations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -33,11 +50,11 @@ export const RecommendedTopics: React.FC<RecommendedTopicsProps> = ({
 
       <div className="space-y-4">
         {recommendations.map((rec, index) => {
-          const topic = topics.find(t => t.id === rec.topicId);
+          const topic = topics.find(t => t.name === rec.topicName);
           if (!topic) return null;
 
           return (
-            <div key={rec.topicId} className="border border-purple-100 rounded-lg p-4 bg-gradient-to-r from-purple-50 to-pink-50">
+            <div key={rec.topicName} className="border border-purple-100 rounded-lg p-4 bg-gradient-to-r from-purple-50 to-pink-50">
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                   <span className="text-sm font-bold text-purple-600">#{index + 1}</span>
@@ -72,13 +89,6 @@ export const RecommendedTopics: React.FC<RecommendedTopicsProps> = ({
                         {rec.prereqsMet ? 'Prerequisites met' : 'Some prerequisites missing'}
                       </div>
                     </div>
-                    
-                    <button 
-                      onClick={() => onStartTopic(topic.id)}
-                      className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
-                    >
-                      Start Now
-                    </button>
                   </div>
                 </div>
               </div>
