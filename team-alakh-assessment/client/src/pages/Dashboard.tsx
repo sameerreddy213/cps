@@ -180,7 +180,7 @@ const Dashboard: React.FC = () => {
             timestamp: new Date()
           });
         }
-      } catch (err) {
+      } catch {
         console.log(`No prerequisites found for ${topic}`);
       }
     }
@@ -829,8 +829,8 @@ const Dashboard: React.FC = () => {
                             <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-white">{prereq}</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Prerequisite #{index + 1}</p>
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-800">{prereq}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-500">Prerequisite #{index + 1}</p>
                           </div>
                         </div>
                       </div>
@@ -956,7 +956,7 @@ const Dashboard: React.FC = () => {
                 {!profileComplete && (
                   <button
                     onClick={() => setShowProfile(true)}
-                    className={`${getPrereqColor('')} text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+                    className={`${getPrereqColor('')} text-gray-900 dark:text-red-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
                   >
                     Complete Profile
                   </button>

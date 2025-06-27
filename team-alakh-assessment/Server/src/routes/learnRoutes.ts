@@ -274,7 +274,8 @@ router.get(
       const instituteName = "PreAssess - Smart Learning Platform"; 
 
       //Rectangle for the header background
-      pdf.rect(0, 0, pdf.page.width, headerHeight).fill("#F0F0F0"); // Light gray background
+      pdf.rect(0, 0, pdf.page.width, headerHeight).fill("#C8AD7F"); // Deep tan background
+      pdf.rect(0, headerHeight, pdf.page.width, pdf.page.height-headerHeight).fill("#F5EAD6"); // sepia background
 
       //logo
       try {
@@ -296,7 +297,7 @@ router.get(
       pdf
         .font("Helvetica-Bold")
         .fontSize(16)
-        .fillColor("#800000")
+        .fillColor("black")
         .text(instituteName,60, 30, { align: "center" });
 
       // line under the header for separation 
@@ -349,7 +350,7 @@ router.get(
         pdf.switchToPage(i);
         pdf
           .fontSize(8)
-          .text(`Page ${i + 1} of ${range.count}`, 0, pdf.page.height - 40, {
+          .text(`Page ${i + 1} of ${range.count}`, 0, pdf.page.height - 60, {
             align: "center",
           });
       }
