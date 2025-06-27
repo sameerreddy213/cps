@@ -215,7 +215,7 @@ ${text.slice(0, 4000)}
 
   try {
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash", // or "gemini-2.5-flash" if available in your region
+      model: "gemini-1.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
