@@ -9,6 +9,7 @@ dist/
 # Environment files
 .env
 backend/.env
+frontend/.env
 
 # OS junk
 .DS_Store
