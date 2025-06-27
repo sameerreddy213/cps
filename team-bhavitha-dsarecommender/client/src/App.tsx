@@ -8,6 +8,11 @@ import QuizSelectPage from "./pages/QuizSelectPage";
 import HomePage from './pages/HomePage';
 import Navbar from './components/Navbar';
 import ExploreTopicPage from "./pages/ExploreTopicPage";
+import axios from "axios";
+
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+axios.defaults.withCredentials = true;
+
 
 // Inside <Routes>...
 
