@@ -24,7 +24,7 @@ function getUserFromToken(req: express.Request): JwtPayload | null {
     return null;
   }
 }
-
+//added the query routes to enable instructor to access the student queries
 // Student: Create query
 router.post('/', upload.array('attachments', 5), async (req, res) => {
   const user = getUserFromToken(req) as JwtPayload | null;
