@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 //app.use(cors({ origin: 'https://EduAssess.netlify.app' }));
 app.use(cors({
-  origin: 'https://cpseduassess.netlify.app', // or '*', if you're testing
+  origin: ['https://cpseduassess.netlify.app','http://localhost:5173'], // or '*', if you're testing
   credentials: true
 }));
 app.use(express.json());
