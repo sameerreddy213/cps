@@ -31,3 +31,11 @@ body {
   color: #aaaaaa; /* A clear, light grey */
   opacity: 1; /* Ensure opacity is 1, as some browsers reduce it by default */
 }
+/* New style for clickable badges in Mastery Levels Breakdown */
+.clickable-badge {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.clickable-badge:hover {
+    background-color: #555555 !important; /* Lighter dark on hover */
+}

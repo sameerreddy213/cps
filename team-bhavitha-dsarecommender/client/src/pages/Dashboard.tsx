@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
-import LearnedConceptCard from "../components/LearnedConceptCard";
-import QuizCard from "../components/QuizCard";
+import LearnedConceptCard from "../components/LearnedConceptCard"; // Assuming this component exists
+import QuizCard from "../components/QuizCard"; // Assuming this component exists
 import {
   LineChart,
   Line,
@@ -15,20 +15,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import * as bootstrap from 'bootstrap';
+
+
 interface QuizHistoryEntry {
   topic: string;
   score: number;
-  mastery: number;
+  mastery: number; // 0 to 1, where 0 is mastered and 1 is no mastery
   createdAt: string;
 }
 
+// Define MasteryLevels interface for clarity
+interface MasteryLevels {
+  "Needs Review": string[];
+  "Developing": string[];
+  "Proficient": string[];
+  "Mastered": string[];
+}
+
 const Dashboard = () => {
-  const logout = useAuthStore((state) => state.logout);
+  const logout = useAuthStore((state) => state.logout); // Logout function is unused here but kept for context
   const clearProfile = useUserStore((state) => state.clearProfile);
   const username = useUserStore((state) => state.username);
-  const mastery = useUserStore((state) => state.mastery);
-  const progress = useUserStore((state) => state.progress);
-  const recommendations = useUserStore((state) => state.recommendations);
+  const mastery = useUserStore((state) => state.mastery); // Mastery is an object: { "topicName": score }
+  const progress = useUserStore((state) => state.progress); // Progress is an array of learned topic names
+  const recommendations = useUserStore((state) => state.recommendations); // Array of recommended topic names
 
   const navigate = useNavigate();
 
@@ -38,16 +49,35 @@ const Dashboard = () => {
   const [recommendedPath, setRecommendedPath] = useState<string[]>([]);
   const [pathError, setPathError] = useState<string | null>(null);
 
-  const handleLogout = () => {
-    logout();
-    clearProfile();
-    navigate("/");
-  };
 
+  // --- Tooltip Initialization Effect ---
+  useEffect(() => {
+    // Initialize all tooltips on the page
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Cleanup tooltips when component unmounts
+    return () => {
+      tooltipList.forEach(tooltip => tooltip.dispose());
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+
+  // --- Data Fetching and Handlers ---
+
+  // Handle taking a quiz
   const handleTakeQuiz = (selectedTopic: string) => {
     navigate(`/quiz/${encodeURIComponent(selectedTopic)}`);
   };
 
+  // Handle exploring a topic
+  const handleExploreTopic = (topicName: string) => {
+    navigate(`/explore/${encodeURIComponent(topicName)}`);
+  };
+
+  // Fetch quiz history
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -62,6 +92,7 @@ const Dashboard = () => {
     if (username) fetchHistory();
   }, [username]);
 
+  // Get recommendation path
   const handleGetPath = async () => {
     setPathError(null);
     if (!startConcept.trim() || !endConcept.trim()) {
@@ -86,23 +117,100 @@ const Dashboard = () => {
     }
   };
 
+  // --- Data Transformation for UI ---
+
+  // Prepare chart data (mastery score is 0 to 1, convert to confidence 0-100)
   const chartData = quizHistory.map((entry) => ({
     topic: entry.topic,
-    mastery: (1 - entry.mastery) * 100,
+    mastery: (1 - entry.mastery) * 100, // Convert to percentage confidence for display
     date: new Date(entry.createdAt).toLocaleDateString(),
   }));
 
+  // Group mastery by level for visual representation (0-1 score, 0=mastered, 1=not mastered)
+  const masteryLevels: MasteryLevels = {
+    "Needs Review": [],
+    "Developing": [],
+    "Proficient": [],
+    "Mastered": [],
+  };
+
+  Object.entries(mastery).forEach(([topic, score]) => {
+    const confidence = (1 - score) * 100; // Calculate confidence percentage
+    if (confidence < 40) {
+      masteryLevels["Needs Review"].push(topic);
+    } else if (confidence < 70) {
+      masteryLevels["Developing"].push(topic);
+    } else if (confidence < 90) {
+      masteryLevels["Proficient"].push(topic);
+    } else {
+      masteryLevels["Mastered"].push(topic);
+    }
+  });
+
+  // --- Component Render ---
+
   return (
     <div className="container py-4 bg-dark text-white rounded shadow-lg">
-      <h2 className="text-center mb-4 text-purple">Welcome, {username}!</h2>
-      <p className="text-center text-white mb-5">This is your personalized dashboard.</p>
+      {/* Welcome Section */}
+      <div className="text-center mb-5 p-4 bg-gradient rounded">
+        <h2 className="text-white mb-2 display-4">Welcome, <span className="text-purple fw-bold">{username}!</span></h2>
+        <p className="text-white-50 lead">Your personalized learning journey starts here.</p>
+      </div>
+
+      <hr className="my-5 border-secondary border-dashed" />
+      {/* Overall Progress Snapshot */}
+      <div className="dashboard-section mb-5 pt-3">
+        <h3 className="text-center mb-4 text-info">Your Learning Snapshot</h3>
+        <div className="row text-center">
+          <div className="col-md-6 mb-3">
+            <div className="card bg-secondary-subtle text-dark-contrast p-3 shadow-sm h-100">
+              <div className="card-body">
+                {/* Main icon moved inside h5, d-flex on h5 */}
+                <h5 className="card-title d-flex align-items-center justify-content-center mb-3">
+                  <i className="bi bi-book-fill fs-1 text-primary me-2"></i> {/* Added me-2 for spacing */}
+                  Topics Learned
+                  <i
+                    className="bi bi-info-circle ms-2"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Concepts you have successfully completed or marked as learned."
+                    style={{ cursor: 'help' }}
+                  ></i>
+                </h5>
+                <p className="card-text fs-3 fw-bold">{progress.length}</p>
+                <p className="card-text text-muted">Concepts marked as completed</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 mb-3">
+            <div className="card bg-secondary-subtle text-dark-contrast p-3 shadow-sm h-100">
+              <div className="card-body">
+                 {/* Main icon moved inside h5, d-flex on h5 */}
+                <h5 className="card-title d-flex align-items-center justify-content-center mb-3">
+                  <i className="bi bi-patch-check-fill fs-1 text-success me-2"></i> {/* Added me-2 for spacing */}
+                  Topics Mastered
+                  <i
+                    className="bi bi-info-circle ms-2"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Concepts where your confidence score is 90% or higher based on quiz performance."
+                    style={{ cursor: 'help' }}
+                  ></i>
+                </h5>
+                <p className="card-text fs-3 fw-bold">{masteryLevels["Mastered"].length}</p>
+                <p className="card-text text-muted">Concepts with high confidence</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <hr className="my-5 border-secondary border-dashed" />
       {/* Mastery Progress Line Chart */}
       <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Mastery Over Time</h3>
         {chartData.length === 0 ? (
-          <p className="text-center text-white mt-3">No data available yet to show mastery progression.</p>
+          <p className="text-center text-white mt-3">No data available yet to show mastery progression. Take some quizzes!</p>
         ) : (
           <div className="chart-container bg-dark-subtle p-3 rounded shadow">
             <ResponsiveContainer width="100%" height={400}>
@@ -122,21 +230,48 @@ const Dashboard = () => {
       </div>
 
       <hr className="my-5 border-secondary border-dashed" />
-      {/* Current Mastery Levels */}
+      {/* Mastery Levels Breakdown */}
       <div className="dashboard-section mb-5 pt-3">
-        <h3 className="text-center mb-4 text-info">Current Mastery Levels</h3>
+        <h3 className="text-center mb-4 text-info">Current Mastery Levels Breakdown</h3>
         {Object.keys(mastery).length === 0 ? (
-          <p className="text-center text-white mt-3">No mastery data available. Take some quizzes to get started!</p>
+           <p className="text-center text-white mt-3">No mastery data available yet. Take some quizzes to see your progress here!</p>
         ) : (
-          <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
-            {Object.entries(mastery).map(([topic, score]) => (
-              <li key={topic} className="list-group-item bg-secondary-subtle border-start border-5 border-success rounded mb-3 shadow-sm d-flex justify-content-between align-items-center text-dark">
-                <strong>{topic}</strong> <span className="badge bg-primary text-white fs-6">{(1 - score).toFixed(2)} Confidence</span>
-              </li>
+          <div className="row g-3 justify-content-center">
+            {Object.entries(masteryLevels).map(([level, topicsArray]) => (
+              <div key={level} className="col-sm-6 col-md-4 col-lg-3">
+                <div className={`card h-100 p-3 shadow-sm ${
+                  level === "Needs Review" ? "bg-danger-subtle text-danger" :
+                  level === "Developing" ? "bg-warning-subtle text-warning" :
+                  level === "Proficient" ? "bg-info-subtle text-info" :
+                  "bg-success-subtle text-success"
+                }`}>
+                  <div className="card-body text-center d-flex flex-column">
+                    <h5 className="card-title mb-2">{level}</h5>
+                    <p className="card-text fs-4 fw-bold flex-grow-1">{topicsArray.length}</p>
+                    {topicsArray.length > 0 ? (
+                      <div className="d-flex flex-wrap justify-content-center gap-1">
+                        {topicsArray.map((topic, i) => (
+                          <span
+                            key={i}
+                            className="badge bg-dark-contrast text-white px-2 py-1 clickable-badge"
+                            onClick={() => handleExploreTopic(topic)}
+                            title={`Click to explore ${topic}`}
+                          >
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted small mt-auto">No topics here!</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
+
 
       <hr className="my-5 border-secondary border-dashed" />
       {/* Topics Learned */}
@@ -168,6 +303,7 @@ const Dashboard = () => {
                 <QuizCard
                   topic={topic}
                   onTakeQuiz={handleTakeQuiz}
+                  title={`Recommended because it's a natural next step in ${topic} or a prerequisite for topics you're exploring.`}
                 />
               </div>
             ))
@@ -232,17 +368,28 @@ const Dashboard = () => {
       <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Quiz History</h3>
         {quizHistory.length === 0 ? (
-          <p className="text-center text-white mt-3">No quiz attempts recorded yet.</p>
+          <p className="text-center text-white mt-3">No quiz attempts recorded yet. Take a quiz to see your history!</p>
         ) : (
-          // Changed to row and col-md-6 for 2-column layout on medium screens and up
           <div className="row row-cols-1 row-cols-md-2 g-3 justify-content-center">
             {quizHistory.map((entry, i) => (
               <div className="col" key={i}>
-                <li className="list-group-item bg-secondary-subtle border-start border-5 border-primary rounded shadow-sm text-start text-dark-contrast h-100 p-3">
-                  <strong>{entry.topic}</strong> — Score: {entry.score}% — Mastery Weight: {entry.mastery}
-                  <br />
-                  <small className="text-muted">{new Date(entry.createdAt).toLocaleString()}</small>
-                </li>
+                <div className="card bg-secondary-subtle border-start border-5 border-primary rounded shadow-sm text-start text-dark-contrast h-100 p-3 d-flex flex-column">
+                  <div>
+                    <h5 className="card-title text-primary mb-1">{entry.topic}</h5>
+                    <p className="mb-1">Score: <span className="fw-bold">{entry.score}%</span></p>
+                    <p className="mb-0"><small className="text-muted">Mastery Weight: {entry.mastery.toFixed(2)}</small></p>
+                  </div>
+                  <div className="mt-auto d-flex justify-content-between align-items-end pt-2">
+                    <small className="text-muted fst-italic">{new Date(entry.createdAt).toLocaleString()}</small>
+                    <button
+                      onClick={() => handleTakeQuiz(entry.topic)}
+                      className="btn btn-outline-primary btn-sm ms-2"
+                      title={`Re-take quiz on ${entry.topic}`}
+                    >
+                      Re-take <i className="bi bi-arrow-clockwise ms-1"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
