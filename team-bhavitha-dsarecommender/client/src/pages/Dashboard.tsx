@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 import LearnedConceptCard from "../components/LearnedConceptCard";
 import QuizCard from "../components/QuizCard";
@@ -23,8 +22,6 @@ interface QuizHistoryEntry {
 }
 
 const Dashboard = () => {
-  const logout = useAuthStore((state) => state.logout);
-  const clearProfile = useUserStore((state) => state.clearProfile);
   const username = useUserStore((state) => state.username);
   const mastery = useUserStore((state) => state.mastery);
   const progress = useUserStore((state) => state.progress);
@@ -37,12 +34,6 @@ const Dashboard = () => {
   const [endConcept, setEndConcept] = useState("");
   const [recommendedPath, setRecommendedPath] = useState<string[]>([]);
   const [pathError, setPathError] = useState<string | null>(null);
-
-  const handleLogout = () => {
-    logout();
-    clearProfile();
-    navigate("/");
-  };
 
   const handleTakeQuiz = (selectedTopic: string) => {
     navigate(`/quiz/${encodeURIComponent(selectedTopic)}`);
