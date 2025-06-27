@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain,Network, Clock, CheckCircle, AlertCircle,User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink, Search} from 'lucide-react';
+import { Brain, Network, Clock, CheckCircle, AlertCircle, User, RotateCcw, Upload, Youtube, FileText, Image, Loader, Plus, X, ExternalLink, Search, Trophy, BarChart3, Target, Play } from 'lucide-react';
 import { TOPIC_QUIZ_DATA } from './data/quizData';
 import type { Topic, UserProfile, CustomContent, Quiz, QuizQuestion, QuizState } from '../interface/types';
 import TopicCard from './TopicCard';
@@ -26,6 +26,12 @@ import downloadReviewAsPDF from "../services/reviewDownload";
 import { mutate } from 'swr';
 import { submitQuiz } from '../services/progressUpdate';
 
+interface CustomQuizScores {
+  [contentId: string]: {
+    total: number;
+    correct: number;
+  };
+}
 
 const MainPage: React.FC = () => {
   // const [selectedTopic, setSelectedTopic] = useState<string>('');
@@ -39,17 +45,18 @@ const MainPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'topics' | 'custom'>('topics');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [quizHistory, setQuizHistory] = useState<QuizState[]>([]);
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [currentQuiz, setCurrentQuiz] = useState<QuizState | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewQuiz, setReviewQuiz] = useState<QuizState | null>(null);
-const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [customQuizScores, setCustomQuizScores] = useState<CustomQuizScores>({});
 
 
 
-const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   //const [typeofinput, setTypeofInput] = useState("pdf");
   const [concepts, setConcepts] = useState<{ mainTopic: string[]; prerequisites: string[] } | null>(null);
   const [loadingConcepts, setLoadingConcepts] = useState(false);
@@ -86,12 +93,12 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     streak: 0,
   });
   useEffect(() => {
-  const setstreak = async () => {
-    await api.get("/me/streak");
-    mutate("/me");
-  };
-  setstreak();
-}, []); 
+    const setstreak = async () => {
+      await api.get("/me/streak");
+      mutate("/me");
+    };
+    setstreak();
+  }, []);
   useEffect(() => {
     const profile = async () => {
       try {
@@ -158,24 +165,24 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   // Timer effect for quiz
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (currentQuiz && !currentQuiz.isCompleted && currentQuiz.timeRemaining > 0) {
       interval = setInterval(() => {
         setCurrentQuiz(prev => {
           if (!prev || prev.isCompleted) return prev;
-          
+
           const newTimeRemaining = prev.timeRemaining - 1;
-          
+
           if (newTimeRemaining <= 0) {
             completeQuiz();
             return { ...prev, timeRemaining: 0 };
           }
-          
+
           return { ...prev, timeRemaining: newTimeRemaining };
         });
       }, 1000);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -193,7 +200,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   };
 
 
-   const simulateQuizGeneration = async() => {
+  const simulateQuizGeneration = async () => {
     setLoader(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setLoader(false);
@@ -202,7 +209,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   // Generate quiz questions from extracted text
   const generateQuestionsFromText = (text: string, fileName: string): QuizQuestion[] => {
     const questions: QuizQuestion[] = [];
-    
+
     if (text.toLowerCase().includes('array')) {
       questions.push({
         id: '1',
@@ -212,7 +219,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
         explanation: 'Arrays provide constant time O(1) access because elements are stored in contiguous memory locations.'
       });
     }
-    
+
     if (text.toLowerCase().includes('linked list')) {
       questions.push({
         id: '2',
@@ -222,7 +229,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
         explanation: 'Linked lists provide dynamic memory allocation, allowing the data structure to grow and shrink at runtime.'
       });
     }
-    
+
     if (text.toLowerCase().includes('stack')) {
       questions.push({
         id: '3',
@@ -232,7 +239,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
         explanation: 'Stacks follow the LIFO (Last In First Out) principle where the last element added is the first one to be removed.'
       });
     }
-    
+
     if (text.toLowerCase().includes('tree')) {
       questions.push({
         id: '4',
@@ -242,7 +249,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
         explanation: 'Trees are hierarchical data structures with parent-child relationships between nodes.'
       });
     }
-    
+
     if (text.toLowerCase().includes('binary search')) {
       questions.push({
         id: '5',
@@ -252,7 +259,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
         explanation: 'Binary search has O(log n) time complexity as it divides the search space in half with each comparison.'
       });
     }
-    
+
     if (questions.length === 0) {
       questions.push({
         id: '1',
@@ -262,7 +269,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
         explanation: 'Time complexity is crucial for algorithm analysis as it determines how the algorithm scales with input size.'
       });
     }
-    
+
     return questions.slice(0, 5);
   };
 
@@ -345,7 +352,7 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     await simulateQuizGeneration();
     try {
       const extractedText = await processFileContent(file);
-      
+
       setTimeout(() => {
         setCustomContents(prev =>
           prev.map(content =>
@@ -381,6 +388,11 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const removeCustomContent = (id: string) => {
     setCustomContents(prev => prev.filter(content => content.id !== id));
     setGeneratedQuizzes(prev => prev.filter(quiz => quiz.contentId !== id));
+    setCustomQuizScores(prev => {
+      const newScores = { ...prev };
+      delete newScores[id];
+      return newScores;
+    });
   };
 
   const getContentIcon = (type: string) => {
@@ -410,56 +422,56 @@ const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     // return shuffledQuestions.slice(0, 5);
 
     setLoader(true);
-  try {
-    const res = await fetch("http://localhost:5000/api/generate-quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic: [topicId], prerequisites: [] })
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/generate-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: [topicId], prerequisites: [] })
+      });
 
-    if (!res.ok) throw new Error("Failed to analyze file");
-    
-    const data = await res.json();
-    const topicData = data.quiz as QuizQuestion[];
-if (!Array.isArray(topicData) || topicData.length === 0) {
- 
-      throw new Error("Invalid or empty quiz data");
-    }
+      if (!res.ok) throw new Error("Failed to analyze file");
 
-    return topicData as QuizQuestion[]; 
-  } catch (err) {
-    console.error("Error:", err);
-    return [
-      {
-        id: '1',
-        question: `What is a key concept in ${topics.find(t => t.id === topicId)?.name}?`,
-        options: ['Concept A', 'Concept B', 'Concept C', 'All of the above'],
-        correctAnswer: 3,
-        explanation: 'This is a placeholder question. More questions will be added for this topic.'
+      const data = await res.json();
+      const topicData = data.quiz as QuizQuestion[];
+      if (!Array.isArray(topicData) || topicData.length === 0) {
+
+        throw new Error("Invalid or empty quiz data");
       }
-    ];
-  } finally {
-    setLoader(false);
-  }
+
+      return topicData as QuizQuestion[];
+    } catch (err) {
+      console.error("Error:", err);
+      return [
+        {
+          id: '1',
+          question: `What is a key concept in ${topics.find(t => t.id === topicId)?.name}?`,
+          options: ['Concept A', 'Concept B', 'Concept C', 'All of the above'],
+          correctAnswer: 3,
+          explanation: 'This is a placeholder question. More questions will be added for this topic.'
+        }
+      ];
+    } finally {
+      setLoader(false);
+    }
 
   };
 
-  const startQuizForTopic = async(topicId: string) => {
+  const startQuizForTopic = async (topicId: string) => {
     const topic = topics.find(t => t.id === topicId);
     if (!topic) return;
     //await simulateQuizGeneration();
     // Update topic status to in-progress if it's the first time
     if (topic.status === 'not-started' || (topic.status === 'ready' && !topic.attempts)) {
-      setTopics(prev => prev.map(t => 
-        t.id === topicId 
-          ? { 
-              ...t, 
-              status: 'in-progress',
-              totalQuestions: 5,
-              attempts: 0,
-              bestScore: 0,
-              score: 0
-            }
+      setTopics(prev => prev.map(t =>
+        t.id === topicId
+          ? {
+            ...t,
+            status: 'in-progress',
+            totalQuestions: 5,
+            attempts: 0,
+            bestScore: 0,
+            score: 0
+          }
           : t
       ));
     }
@@ -468,7 +480,7 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
     if (!questions || questions.length === 0) return;
     const timeLimit = questions.length * 60;
     const attemptNumber = (topic.attempts || 0) + 1;
-    
+
     const newQuiz: QuizState = {
       topicId,
       questions,
@@ -489,14 +501,25 @@ if (!Array.isArray(topicData) || topicData.length === 0) {
 
 
 
-const startCustomQuiz = async (contentId: string) => {
-  if (!concepts?.prerequisites?.length) {
-    console.warn("No prerequisites found");
-    return;
-  }
+  const startCustomQuiz = async (contentId: string) => {
+    if (!concepts?.prerequisites?.length) {
+      console.warn("No prerequisites found");
+      return;
+    }
 
-  setLoader(true);
+    setLoader(true);
 
+<<<<<<< HEAD
+    try {
+      const res = await fetch("http://localhost:5000/api/generate-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: concepts.prerequisites,
+          prerequisites: [],
+        }),
+      });
+=======
   try {
     const res = await fetch("http://localhost:5000/api/generate-quiz", {
       method: "POST",
@@ -506,44 +529,45 @@ const startCustomQuiz = async (contentId: string) => {
         prerequisites: [],
       }),
     });
+>>>>>>> 08a83dfabc0efc7d4b1e6c82742f9bf7cafe5837
 
-    if (!res.ok) throw new Error("Quiz generation failed");
+      if (!res.ok) throw new Error("Quiz generation failed");
 
-    const result = await res.json();
+      const result = await res.json();
 
-    console.log(result);
+      console.log(result);
 
-    const data = result.quiz;
+      const data = result.quiz;
 
-    console.log(data);
+      console.log(data);
 
-    const allQuestions: QuizQuestion[] = data.map((q: any, index: any) => ({
-      ...q,
-      id: `${index + 1}`, 
-    }));
+      const allQuestions: QuizQuestion[] = data.map((q: any, index: any) => ({
+        ...q,
+        id: `${index + 1}`,
+      }));
 
-    const timeLimit = allQuestions.length * 60;
+      const timeLimit = allQuestions.length * 60;
 
-    const newQuiz: QuizState = {
-      contentId,
-      questions: allQuestions,
-      currentQuestionIndex: 0,
-      userAnswers: new Array(allQuestions.length).fill(undefined),
-      score: 0,
-      isCompleted: false,
-      timeStarted: new Date(),
-      timeLimit,
-      timeRemaining: timeLimit,
-    };
+      const newQuiz: QuizState = {
+        contentId,
+        questions: allQuestions,
+        currentQuestionIndex: 0,
+        userAnswers: new Array(allQuestions.length).fill(undefined),
+        score: 0,
+        isCompleted: false,
+        timeStarted: new Date(),
+        timeLimit,
+        timeRemaining: timeLimit,
+      };
 
-    setCurrentQuiz(newQuiz);
-    setShowQuizModal(true);
-  } catch (err) {
-    console.error("Custom Quiz generation failed:", err);
-  } finally {
-    setLoader(false);
-  }
-};
+      setCurrentQuiz(newQuiz);
+      setShowQuizModal(true);
+    } catch (err) {
+      console.error("Custom Quiz generation failed:", err);
+    } finally {
+      setLoader(false);
+    }
+  };
 
 
   const handleQuizAnswer = (answerIndex: number) => {
@@ -582,41 +606,48 @@ const startCustomQuiz = async (contentId: string) => {
 
 
   const completeCustomQuiz = () => {
-  if (!currentQuiz) return;
+    if (!currentQuiz) return;
 
-  let correctAnswers = 0;
-  const scoreByTopic: Record<string, { total: number; correct: number }> = {};
+    let correctAnswers = 0;
+    const scoreByTopic: Record<string, { total: number; correct: number }> = {};
 
-  currentQuiz.questions.forEach((question, index) => {
-    const isCorrect = currentQuiz.userAnswers[index] === question.correctAnswer;
-    if (isCorrect) correctAnswers++;
+    currentQuiz.questions.forEach((question, index) => {
+      const isCorrect = currentQuiz.userAnswers[index] === question.correctAnswer;
+      if (isCorrect) correctAnswers++;
 
-    const topic = question.topic || 'Unknown';
-    if (!scoreByTopic[topic]) scoreByTopic[topic] = { total: 0, correct: 0 };
-    scoreByTopic[topic].total++;
-    if (isCorrect) scoreByTopic[topic].correct++;
-  });
+      const topic = question.topic || 'Unknown';
+      if (!scoreByTopic[topic]) scoreByTopic[topic] = { total: 0, correct: 0 };
+      scoreByTopic[topic].total++;
+      if (isCorrect) scoreByTopic[topic].correct++;
+    });
 
-  const overallScore = Math.round((correctAnswers / currentQuiz.questions.length) * 100);
+    const overallScore = Math.round((correctAnswers / currentQuiz.questions.length) * 100);
 
-  const completedQuiz: QuizState = {
-    ...currentQuiz,
-    score: overallScore,
-    isCompleted: true,
-    timeCompleted: new Date(),
-   
+    const completedQuiz: QuizState = {
+      ...currentQuiz,
+      score: overallScore,
+      isCompleted: true,
+      timeCompleted: new Date(),
+
+    };
+
+    console.log(scoreByTopic);
+    setCustomQuizScores(prev => ({
+      ...prev,
+      [completedQuiz.contentId!]: {
+        total: completedQuiz.questions.length,
+        correct: correctAnswers
+      }
+    }));
+    setQuizHistory(prev => [...prev, completedQuiz]);
+    setCurrentQuiz(completedQuiz);
   };
- 
-  console.log(scoreByTopic);
-  setQuizHistory(prev => [...prev, completedQuiz]);
-  setCurrentQuiz(completedQuiz);
-};
 
 
   const completeQuiz = async () => {
     if (!currentQuiz) return;
 
-    if(currentQuiz.contentId) {
+    if (currentQuiz.contentId) {
       completeCustomQuiz();
       return;
     }
@@ -645,7 +676,7 @@ const startCustomQuiz = async (contentId: string) => {
     //       const newAttempts = (topic.attempts || 0) + 1;
     //       const newBestScore = Math.max(topic.bestScore || 0, score);
     //       const newStatus = score >= 70 ? 'mastered' : 'in-progress';
-          
+
     //       return {
     //         ...topic,
     //         status: newStatus,
@@ -702,13 +733,38 @@ const startCustomQuiz = async (contentId: string) => {
   const retakeQuiz = (topicId: string) => {
     startQuizForTopic(topicId);
   };
-   const filteredTopics = topics.filter(topic =>
+  const filteredTopics = topics.filter(topic =>
     topic.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+
+  const getScoreColor = (percentage: number) => {
+    if (percentage >= 80) return 'text-green-600';
+    if (percentage >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getScoreBadgeColor = (percentage: number) => {
+    if (percentage >= 80) return 'bg-green-100 text-green-800';
+    if (percentage >= 60) return 'bg-yellow-100 text-yellow-800';
+    return 'bg-red-100 text-red-800';
+  };
+
+  const showCustomQuizReview = (contentId: string) => {
+    const customQuizHistory = quizHistory.filter(quiz =>
+      quiz.contentId === contentId && quiz.isCompleted
+    );
+
+    const latestQuiz = customQuizHistory[customQuizHistory.length - 1];
+    if (latestQuiz) {
+      setReviewQuiz(latestQuiz);
+      setShowReviewModal(true);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {
-        <Loading isVisible={showLoader}/>
+        <Loading isVisible={showLoader} />
       }
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
@@ -724,13 +780,13 @@ const startCustomQuiz = async (contentId: string) => {
               </div>
             </div>
             <div className='ml-auto'>
-              <MobileNav 
+              <MobileNav
                 userProfile={userProfile}
                 onUploadClick={() => setShowUploadModal(true)}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
-                customContents = {customContents}
-                topics = {topics}
+                customContents={customContents}
+                topics={topics}
               />
             </div>
             <div className="flex items-center space-x-2 md:space-x-4">
@@ -779,7 +835,7 @@ const startCustomQuiz = async (contentId: string) => {
                   className={`py-2 px-1 border-b-2 font-medium text-sm md:text-base transition-colors ${activeTab === 'topics'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   Standard Learning Path
                 </button>
@@ -788,7 +844,7 @@ const startCustomQuiz = async (contentId: string) => {
                   className={`py-2 px-1 border-b-2 font-medium text-sm md:text-base transition-colors ${activeTab === 'custom'
                     ? 'border-indigo-500 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   Custom Content Quizzes
                   {customContents.length > 0 && (
@@ -860,72 +916,152 @@ const startCustomQuiz = async (contentId: string) => {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-4">
-                    {customContents.map((content) => (
-                      <div key={content.id} className="bg-white p-4 md:p-6 rounded-xl border-2 border-gray-200 hover:border-indigo-200 transition-colors">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-3">
-                            {getContentIcon(content.type)}
-                            <div>
-                              <h4 className="font-semibold text-gray-900 truncate text-sm md:text-base">{content.title}</h4>
-                              <p className="text-xs md:text-sm text-gray-600">
-                                {content.type === 'youtube' ? 'YouTube Video' : content.type.toUpperCase()}
-                              </p>
+                  <div className="grid grid-cols-1 gap-6">
+                    {customContents.map((content) => {
+                      const hasScore = customQuizScores[content.id];
+                      const scorePercentage = hasScore ? Math.round((hasScore.correct / hasScore.total) * 100) : 0;
+                      const hasQuizHistory = quizHistory.some(quiz => quiz.contentId === content.id && quiz.isCompleted);
+
+                      return (
+                        <div
+                          key={content.id}
+                          className="bg-white p-6 rounded-2xl border border-gray-200 hover:border-indigo-200 hover:shadow-lg transition-all duration-300"
+                        >
+                          {/* Header Section */}
+                          <div className="flex items-start justify-between mb-6">
+                            <div className="flex items-center space-x-4">
+                              <div className="p-3 bg-indigo-50 rounded-xl">
+                                {getContentIcon(content.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-gray-900 text-lg truncate">{content.title}</h4>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {content.type === 'youtube' ? 'YouTube Video' : content.type.toUpperCase()}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                          <button
-                            onClick={() => removeCustomContent(content.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        {content.url && (
-                          <div className="mb-4">
-                            <a
-                              href={content.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 text-sm flex items-center space-x-1"
+                            <button
+                              onClick={() => removeCustomContent(content.id)}
+                              className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all duration-200"
                             >
-                              <ExternalLink className="w-3 h-3" />
-                              <span className="truncate">View original content</span>
-                            </a>
+                              <X className="w-5 h-5" />
+                            </button>
                           </div>
-                        )}
 
-                        <div className="mb-4">
-                          <div className={`inline-flex items-center px-2 py-1 rounded text-xs ${
-                            content.status === 'ready' ? 'bg-green-100 text-green-800' :
-                            content.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {content.status === 'processing' && <Loader className="w-3 h-3 mr-1 animate-spin" />}
-                            {content.status === 'ready' && <CheckCircle className="w-3 h-3 mr-1" />}
-                            {content.status === 'failed' && <AlertCircle className="w-3 h-3 mr-1" />}
-                            {content.status === 'processing' ? 'AI Analyzing...' :
-                              content.status === 'ready' ? 'Quiz Ready' : 'Processing Failed'}
+                          {/* URL Section */}
+                          {content.url && (
+                            <div className="mb-6">
+                              <a
+                                href={content.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm font-medium hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                                <span>View original content</span>
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Status and Score Section */}
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center space-x-3">
+                              <div className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-medium ${content.status === 'ready' ? 'bg-green-100 text-green-800' :
+                                  content.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                }`}>
+                                {content.status === 'processing' && <Loader className="w-4 h-4 mr-2 animate-spin" />}
+                                {content.status === 'ready' && <CheckCircle className="w-4 h-4 mr-2" />}
+                                {content.status === 'failed' && <AlertCircle className="w-4 h-4 mr-2" />}
+                                {content.status === 'processing' ? 'AI Analyzing...' :
+                                  content.status === 'ready' ? 'Quiz Ready' : 'Processing Failed'}
+                              </div>
+                            </div>
+
+                            {/* Score Display */}
+                            {hasScore && (
+                              <div className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-medium ${getScoreBadgeColor(scorePercentage)}`}>
+                                <Trophy className="w-4 h-4 mr-2" />
+                                <span>{hasScore.correct}/{hasScore.total} ({scorePercentage}%)</span>
+                              </div>
+                            )}
                           </div>
+
+                          {/* Score Details */}
+                          {hasScore && (
+                            <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+                              <div className="flex items-center justify-between mb-3">
+                                <h5 className="font-medium text-gray-900 flex items-center">
+                                  <BarChart3 className="w-4 h-4 mr-2" />
+                                  Quiz Performance
+                                </h5>
+                                <span className={`text-2xl font-bold ${getScoreColor(scorePercentage)}`}>
+                                  {scorePercentage}%
+                                </span>
+                              </div>
+
+                              <div className="flex items-center space-x-4 text-sm">
+                                <div className="flex items-center space-x-1">
+                                  <Target className="w-4 h-4 text-gray-500" />
+                                  <span className="text-gray-600">Total Questions:</span>
+                                  <span className="font-medium text-gray-900">{hasScore.total}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                  <span className="text-gray-600">Correct:</span>
+                                  <span className="font-medium text-green-600">{hasScore.correct}</span>
+                                </div>
+                              </div>
+
+                              {/* Progress Bar */}
+                              <div className="mt-3">
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className={`h-2 rounded-full transition-all duration-500 ${scorePercentage >= 80 ? 'bg-green-500' :
+                                        scorePercentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                                      }`}
+                                    style={{ width: `${scorePercentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Upload Date */}
+                          <div className="text-sm text-gray-500 mb-6">
+                            Uploaded: {new Date(content.uploadDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </div>
+
+                          {/* Action Buttons */}
+                          {content.status === 'ready' && content.quizGenerated && (
+                            <div className="space-y-3">
+                              <button
+                                onClick={() => startCustomQuiz(content.id)}
+                                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 px-6 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg flex items-center justify-center space-x-2"
+                              >
+                                <Play className="w-4 h-4" />
+                                <span>{hasScore ? 'Retake AI Generated Quiz' : 'Take AI Generated Quiz'}</span>
+                              </button>
+
+                              {/* Review Button */}
+                              {hasQuizHistory && (
+                                <button
+                                  onClick={() => showCustomQuizReview(content.id)}
+                                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-6 rounded-xl text-sm font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+                                >
+                                  <FileText className="w-4 h-4" />
+                                  <span>Review Last Attempt</span>
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
-
-                        <div className="text-xs text-gray-500 mb-4">
-                          Uploaded: {new Date(content.uploadDate).toLocaleDateString()}
-                        </div>
-
-                        {content.status === 'ready' && content.quizGenerated && (
-
-                          <button 
-                            onClick={() => startCustomQuiz(content.id)}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors"
-                          >
-
-
-                            Take AI Generated Quiz
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -935,7 +1071,7 @@ const startCustomQuiz = async (contentId: string) => {
           {/* Sidebar */}
           <div className="hidden lg:block space-y-6">
             {/* Processing Status */}
-            {isProcessing && !showLoader  && (
+            {isProcessing && !showLoader && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                 <div className="flex items-center space-x-3">
                   <Loader className="w-5 h-5 text-yellow-600 animate-spin" />
@@ -962,12 +1098,12 @@ const startCustomQuiz = async (contentId: string) => {
                 </button>
               </div>
               <div className="space-y-3">
-                {topics.filter(t => t.lastAttempt).sort((a, b) => 
+                {topics.filter(t => t.lastAttempt).sort((a, b) =>
                   new Date(b.lastAttempt!).getTime() - new Date(a.lastAttempt!).getTime()
                 ).slice(0, 5).map(topic => (
                   <div key={topic.id} className="flex items-center justify-between text-sm">
                     <div className="flex items-center space-x-2">
-                      {topic.status === 'mastered' ? 
+                      {topic.status === 'mastered' ?
                         <CheckCircle className="w-4 h-4 text-green-500" /> :
                         <Clock className="w-4 h-4 text-yellow-500" />
                       }
@@ -990,76 +1126,86 @@ const startCustomQuiz = async (contentId: string) => {
       </div>
 
 
-       {/* Upload Modal */}
+      {/* Upload Modal */}
       <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-  <DialogContent className="max-w-md w-full max-h-[90vh] overflow-y-auto p-6 md:p-8">
-    <DialogHeader className="mb-6">
-      <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900">
-        Create Custom Quiz
-      </DialogTitle>
-    </DialogHeader>
+        <DialogContent className="max-w-md w-full max-h-[90vh] overflow-y-auto p-6 md:p-8">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-xl md:text-2xl font-bold text-gray-900">
+              Create Custom Quiz
+            </DialogTitle>
+          </DialogHeader>
 
-    <div className="space-y-6">
-      {/* Content Type Selection */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Choose Content Type
-        </label>
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => setUploadType("youtube")}
-            className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
-              uploadType === "youtube"
-                ? "border-red-500 bg-red-50"
-                : "border-gray-200 hover:border-gray-300"
-            }`}
-          >
-            <Youtube className="w-6 h-6 md:w-8 md:h-8 text-red-500 mx-auto mb-2" />
-            <div className="text-xs md:text-sm font-medium">YouTube</div>
-          </button>
-          <button
-            onClick={() => setUploadType("pdf")}
-            className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
-              uploadType === "pdf"
-                ? "border-red-500 bg-red-50"
-                : "border-gray-200 hover:border-gray-300"
-            }`}
-          >
-            <FileText className="w-6 h-6 md:w-8 md:h-8 text-red-500 mx-auto mb-2" />
-            <div className="text-xs md:text-sm font-medium">PDF</div>
-          </button>
-          <button
-            onClick={() => setUploadType("image")}
-            className={`p-3 md:p-4 rounded-lg border-2 transition-all ${
-              uploadType === "image"
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-            }`}
-          >
-            <Image className="w-6 h-6 md:w-8 md:h-8 text-blue-500 mx-auto mb-2" />
-            <div className="text-xs md:text-sm font-medium">Image</div>
-          </button>
-        </div>
-      </div>
+          <div className="space-y-6">
+            {/* Content Type Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Choose Content Type
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => setUploadType("youtube")}
+                  className={`p-3 md:p-4 rounded-lg border-2 transition-all ${uploadType === "youtube"
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-200 hover:border-gray-300"
+                    }`}
+                >
+                  <Youtube className="w-6 h-6 md:w-8 md:h-8 text-red-500 mx-auto mb-2" />
+                  <div className="text-xs md:text-sm font-medium">YouTube</div>
+                </button>
+                <button
+                  onClick={() => setUploadType("pdf")}
+                  className={`p-3 md:p-4 rounded-lg border-2 transition-all ${uploadType === "pdf"
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-200 hover:border-gray-300"
+                    }`}
+                >
+                  <FileText className="w-6 h-6 md:w-8 md:h-8 text-red-500 mx-auto mb-2" />
+                  <div className="text-xs md:text-sm font-medium">PDF</div>
+                </button>
+                <button
+                  onClick={() => setUploadType("image")}
+                  className={`p-3 md:p-4 rounded-lg border-2 transition-all ${uploadType === "image"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                    }`}
+                >
+                  <Image className="w-6 h-6 md:w-8 md:h-8 text-blue-500 mx-auto mb-2" />
+                  <div className="text-xs md:text-sm font-medium">Image</div>
+                </button>
+              </div>
+            </div>
 
 
-      {/* Content Input */}
-      {uploadType === "youtube" && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            YouTube Video URL
-          </label>
-          <input
-            type="url"
-            value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          />
-          <p className="text-xs text-gray-500 mt-2">
-            Our AI will analyze the video content and generate relevant DSA questions
-          </p>
+            {/* Content Input */}
+            {uploadType === "youtube" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  YouTube Video URL
+                </label>
+                <input
+                  type="url"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Our AI will analyze the video content and generate relevant DSA questions
+                </p>
 
+<<<<<<< HEAD
+                {/* Analyzer */}
+                <ConceptAnalyzer
+                  youtubeUrl={youtubeUrl}
+                  typeofinput={uploadType}
+                  concepts={concepts}
+                  setConcepts={setConcepts}
+                  loading={loadingConcepts}
+                  setLoading={setLoadingConcepts}
+                />
+              </div>
+            )}
+=======
           {/* Analyzer */}
               <ConceptAnalyzer
                 youtubeUrl={youtubeUrl}
@@ -1072,22 +1218,102 @@ const startCustomQuiz = async (contentId: string) => {
               />
         </div>
       )}
+>>>>>>> 08a83dfabc0efc7d4b1e6c82742f9bf7cafe5837
 
-      {(uploadType === "pdf" || uploadType === "image") && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload {uploadType === "pdf" ? "PDF Document" : "Image"}
-          </label>
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
-          >
-            <Upload className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</p>
-            <p className="text-xs text-gray-500">
-              {uploadType === "pdf" ? "PDF files up to 10MB" : "PNG, JPG, GIF up to 5MB"}
-            </p>
+            {(uploadType === "pdf" || uploadType === "image") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Upload {uploadType === "pdf" ? "PDF Document" : "Image"}
+                </label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 md:p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                >
+                  <Upload className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</p>
+                  <p className="text-xs text-gray-500">
+                    {uploadType === "pdf" ? "PDF files up to 10MB" : "PNG, JPG, GIF up to 5MB"}
+                  </p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={uploadType === "pdf" ? ".pdf" : "image/*"}
+                  onChange={(e) => {
+                    handleFileUpload(e.target.files);
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setUploadedFile(file);
+                      setConcepts(null);
+                    }
+                  }
+
+                  }
+                  className="hidden"
+                />
+                {uploadedFile && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    Selected file: <span className="font-medium">{uploadedFile.name}</span>
+                  </p>
+                )}
+                {/* Analyzer */}
+                <ConceptAnalyzer
+                  file={uploadedFile}
+                  typeofinput={uploadType}
+                  concepts={concepts}
+                  setConcepts={setConcepts}
+                  loading={loadingConcepts}
+                  setLoading={setLoadingConcepts}
+                />
+              </div>
+            )}
+
+
+
+            {/* AI Features Info */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <Brain className="w-6 h-6 text-indigo-600 mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-1">
+                    AI-Powered Quiz Generation
+                  </h3>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Analyzes content to identify key concepts</li>
+                    <li>• Generates contextual DSA questions</li>
+                    <li>• Creates explanations for each answer</li>
+                    <li>• Adapts difficulty based on content complexity</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            {/* Action Buttons */}
+            <div className="flex space-x-4 pt-2">
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (uploadType === "youtube") {
+                    handleYouTubeUpload();
+                  } else {
+                    fileInputRef.current?.click();
+                  }
+                }}
+                disabled={uploadType === "youtube" && !youtubeUrl.trim()}
+                className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white py-3 rounded-lg font-medium transition-all disabled:cursor-not-allowed"
+              >
+                {uploadType === "youtube" ? "Generate Quiz" : "Upload & Generate"}
+              </button>
+            </div>
           </div>
+<<<<<<< HEAD
+        </DialogContent>
+      </Dialog>
+=======
           <input
             ref={fileInputRef}
             type="file"
@@ -1165,6 +1391,7 @@ const startCustomQuiz = async (contentId: string) => {
     </div>
   </DialogContent>
 </Dialog>
+>>>>>>> 08a83dfabc0efc7d4b1e6c82742f9bf7cafe5837
 
       {/* Quiz Modal - Active Quiz */}
       {showQuizModal && currentQuiz && !currentQuiz.isCompleted && (
@@ -1174,7 +1401,7 @@ const startCustomQuiz = async (contentId: string) => {
           onNext={nextQuizQuestion}
           onPrevious={previousQuizQuestion}
           onClose={closeQuizModal}
-          title={currentQuiz.topicId 
+          title={currentQuiz.topicId
             ? topics.find(t => t.id === currentQuiz.topicId)?.name || 'Quiz'
             : customContents.find(c => c.id === currentQuiz.contentId)?.title || 'Custom Quiz'}
         />
@@ -1188,8 +1415,8 @@ const startCustomQuiz = async (contentId: string) => {
               <div>
                 <h2 className="text-lg md:text-2xl font-bold text-gray-900">Quiz Complete!</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  {currentQuiz.topicId 
-                    ? topics.find(t => t.id === currentQuiz.topicId)?.name 
+                  {currentQuiz.topicId
+                    ? topics.find(t => t.id === currentQuiz.topicId)?.name
                     : customContents.find(c => c.id === currentQuiz.contentId)?.title} Assessment
                 </p>
               </div>
@@ -1201,12 +1428,12 @@ const startCustomQuiz = async (contentId: string) => {
               </button>
             </div>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto px-4 md:px-8 py-8">
               <QuizResults
                 quiz={currentQuiz}
-                title={currentQuiz.topicId 
+                title={currentQuiz.topicId
                   ? topics.find(t => t.id === currentQuiz.topicId)?.name || 'Quiz'
                   : customContents.find(c => c.id === currentQuiz.contentId)?.title || 'Custom Quiz'}
                 onReview={() => {
@@ -1239,8 +1466,8 @@ const startCustomQuiz = async (contentId: string) => {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-lg md:text-2xl font-bold text-gray-900">
-                  Review: {reviewQuiz.topicId 
-                    ? topics.find(t => t.id === reviewQuiz.topicId)?.name 
+                  Review: {reviewQuiz.topicId
+                    ? topics.find(t => t.id === reviewQuiz.topicId)?.name
                     : customContents.find(c => c.id === reviewQuiz.contentId)?.title} Quiz
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
@@ -1268,13 +1495,13 @@ const startCustomQuiz = async (contentId: string) => {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       <span>Questions: {reviewQuiz.questions.length}</span>
                       <span>Correct: {reviewQuiz.questions.filter((q, i) => reviewQuiz.userAnswers[i] === q.correctAnswer).length}</span>
-                      <span>Time: {reviewQuiz.timeCompleted 
+                      <span>Time: {reviewQuiz.timeCompleted
                         ? Math.round((reviewQuiz.timeCompleted.getTime() - reviewQuiz.timeStarted.getTime()) / 1000)
                         : reviewQuiz.timeLimit - reviewQuiz.timeRemaining}s</span>
                     </div>
                   </div>
                   <div className={`text-3xl font-bold mt-4 md:mt-0 ${reviewQuiz.score >= 80 ? 'text-green-600' :
-                      reviewQuiz.score >= 60 ? 'text-yellow-600' : 'text-red-600'
+                    reviewQuiz.score >= 60 ? 'text-yellow-600' : 'text-red-600'
                     }`}>
                     {reviewQuiz.score}%
                   </div>
@@ -1314,18 +1541,18 @@ const startCustomQuiz = async (contentId: string) => {
                             <div
                               key={optionIndex}
                               className={`p-4 rounded-lg border-2 ${isCorrectAnswer
-                                  ? 'border-green-500 bg-green-50'
-                                  : isUserAnswer
-                                    ? 'border-red-500 bg-red-50'
-                                    : 'border-gray-200'
+                                ? 'border-green-500 bg-green-50'
+                                : isUserAnswer
+                                  ? 'border-red-500 bg-red-50'
+                                  : 'border-gray-200'
                                 }`}
                             >
                               <div className="flex items-center space-x-4">
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isCorrectAnswer
-                                    ? 'border-green-500 bg-green-500'
-                                    : isUserAnswer
-                                      ? 'border-red-500 bg-red-500'
-                                      : 'border-gray-300'
+                                  ? 'border-green-500 bg-green-500'
+                                  : isUserAnswer
+                                    ? 'border-red-500 bg-red-500'
+                                    : 'border-gray-300'
                                   }`}>
                                   {(isCorrectAnswer || isUserAnswer) && (
                                     <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
@@ -1364,12 +1591,12 @@ const startCustomQuiz = async (contentId: string) => {
           <div className="bg-white border-t border-gray-200 px-4 md:px-8 py-6">
             <div className="max-w-4xl mx-auto flex justify-center space-x-4">
 
-                <button
-  onClick={() => downloadReviewAsPDF(reviewQuiz)}
-  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-medium transition-colors text-lg"
->
-  Download as PDF
-</button>
+              <button
+                onClick={() => downloadReviewAsPDF(reviewQuiz)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-medium transition-colors text-lg"
+              >
+                Download as PDF
+              </button>
 
 
               <button
@@ -1412,7 +1639,7 @@ const startCustomQuiz = async (contentId: string) => {
             </div>
           </div>
           <div className="mt-3 flex space-x-2">
-            <button 
+            <button
               onClick={() => {
                 const latestQuiz = generatedQuizzes[generatedQuizzes.length - 1];
                 if (latestQuiz.contentId) {
