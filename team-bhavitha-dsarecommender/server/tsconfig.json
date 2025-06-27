@@ -114,7 +114,6 @@
   "include": ["src/**/*"],
   "exclude": [
   "src/scripts",        
-  "data",
   "standalone_tests",
   "types",
   "node_modules",
