@@ -19,6 +19,7 @@ export interface IConcept extends Document {
     description: string;
     level?: string;
     category?: string;
+    complexity?: number; // added complexity field
     conceptType?: string;
     estLearningTimeHours?: number;
     isFundamental?: boolean;
