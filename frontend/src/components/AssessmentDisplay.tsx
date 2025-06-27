@@ -185,7 +185,7 @@ const AssessmentDisplay: React.FC<{
       setNoPrerequisitesMessage(null);
       setIsRetry(false);
       try {
-        const res = await fetch('http://localhost:5000/api/assessment/generate', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/assessment/generate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ target: topic })
@@ -296,7 +296,7 @@ const AssessmentDisplay: React.FC<{
       };
 
 
-      const response = await fetch('http://localhost:5000/api/response/submit', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/response/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -321,7 +321,7 @@ const AssessmentDisplay: React.FC<{
 
       setResponsesWithCorrectness(enriched);
 
-      const analysisRes = await fetch(`http://localhost:5000/api/response/analysis/${assessmentId}`, {
+      const analysisRes = await fetch(`${import.meta.env.VITE_API_URL}/api/response/analysis/${assessmentId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`

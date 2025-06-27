@@ -1,5 +1,5 @@
 export class LLMChatService {
-  private readonly backendApiUrl = 'http://localhost:5000/api';
+  private readonly backendApiUrl = `${import.meta.env.VITE_API_URL}/api`;
 
   async generateChatResponse(userInput: string): Promise<string> {
     try {

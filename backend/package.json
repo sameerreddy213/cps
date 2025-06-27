@@ -1,9 +1,11 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "ts-node -r tsconfig-paths/register src/index.ts",
+  "main": "dist/index.js",
+  "scripts":  {
+    "start": "node dist/index.js",
+    "build": "tsc && copy src\\conceptGraph.json dist\\conceptGraph.json",
+    "dev": "ts-node -r tsconfig-paths/register src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

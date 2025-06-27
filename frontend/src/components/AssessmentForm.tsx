@@ -9,7 +9,7 @@ export default function AssessmentForm() {
   const [result, setResult] = useState<any>(null);
 
   const handleSubmit = async () => {
-    const res = await axios.post('http://localhost:5000/api/assessment/generate', { target: topic });
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/assessment/generate`, { target: topic });
     setResult(res.data);
   };
 
