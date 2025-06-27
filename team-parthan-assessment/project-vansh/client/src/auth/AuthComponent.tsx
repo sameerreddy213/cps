@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "../components/ui/dialog";
 import { useNavigate } from 'react-router-dom';
+import ForgotPasswordDialog from './ForgotPassword';
 
 const AuthComponent: React.FC<AuthComponentProps> = ({
   onLogin,
@@ -30,6 +31,7 @@ const AuthComponent: React.FC<AuthComponentProps> = ({
     confirmPassword: '',
     name: ''
   });
+  const [forgotOpen,setForgotOpen]=useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -256,11 +258,14 @@ const AuthComponent: React.FC<AuthComponentProps> = ({
                   <button
                     type="button"
                     className="text-sm text-blue-600 hover:text-blue-800 focus:outline-none"
-                    onClick={() => console.log('Forgot password clicked')}
+                    onClick={() => {setForgotOpen(true)}}
                   >
                     Forgot Password?
                   </button>
                 </div>
+              )}
+              {forgotOpen&&(
+                <ForgotPasswordDialog open={forgotOpen} setOpen={setForgotOpen}/>
               )}
 
               {/* Submit Button */}
