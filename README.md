@@ -1,16 +1,9 @@
-# Dependency-Aware Assessment Generator
+# EduAssess: ML Prerequisite Assessment Platform
+(Recommendation System for Education - Dependency-Aware Assessment Generator)
 
-An experimental **agentic AI system** designed to generate targeted assessments based on a learner’s desired concept. By leveraging a **concept graph**, the system first identifies prerequisite knowledge and then uses AI to generate diagnostic questions — ensuring foundational understanding before progression.
+**EduAssess** is a smart web-based tool designed to help learners assess their knowledge of prerequisites(identified using concept graph) before diving into a **Machine Learning (ML)** topic. It generates targeted quizzes based on selected topics, evaluates user performance, and suggests areas to revisit.
 
-This project is under active development and aims to integrate **LangGraph-based agentic reasoning** with the **MERN stack** for scalable educational applications.
-
----
-
-## Status
-
-> This project is currently in early development. Features and APIs are subject to frequent changes.
-> Both **frontend** and **backend** are independently functional.  
-> **Integration between frontend and backend is in progress.** Current workflows are being tested in isolation.
+> [Live Demo](https://cpseduassess.netlify.app/)
 
 ---
 
@@ -20,22 +13,40 @@ This project is under active development and aims to integrate **LangGraph-based
 
 To assist learners by:
 - Automatically determining the prerequisites for any given concept using a structured knowledge graph.
-- Using an agentic AI workflow to generate **diagnostic assessments** tailored to those prerequisites.
+- Using AI workflow to generate **diagnostic assessments** tailored to those prerequisites.
 - Encouraging mastery learning by identifying gaps before a learner advances.
 
+## Features
+
+- Auto-generates MCQ assessments based on topic prerequisites
+- Instant scoring and detailed feedback
+- Chatbot integration for concept help
+- Auth system (Register/Login/Change/Forgot Password)
+- Deployed using netlify(frontend) and render(backend)
+  
 ---
 
-## How to Run the Project
+## Tech Stack
+
+| Layer         | Technology                          |
+|---------------|--------------------------------------|
+| **Frontend**  | React + TypeScript + Vite            |
+| **Backend**   | Node.js + Express + TypeScript       |
+| **Database**  | MongoDB (via Mongoose)               |
+| **AI**        | OpenRouter API           |
+| **Deployment**| Frontend: Netlify<br>Backend: Render |
+
+---
+## How to Run the Project Locally
 
 ### 1. Clone the Repository
 
-### 2. Add Your Hugging Face Token
-
-* Create a `.env` file in the **`backend/`** directory.
+### 2. Create the env files 
+*Create a `.env` file in the **`backend/`** directory.
 * Add the following line to the `.env` file:
 
 ```env
-MONGO_URI = <your_mongo_atlas_uri>(Create an atlas account, create a cluster and add its uri string here)
+MONGO_URI = <your_mongo_atlas_uri>(Create an atlas account, create a cluster and add its uri string here or if using compass use the appropriate uri)
 OPENROUTER_API_KEY= your_openrouter_api_key
 JWT_SECRET=your_backend_secret_key(Please generate it from web)
 EMAIL_USER=your_gmail_id
@@ -47,9 +58,11 @@ EMAIL_PASS=your_gmail_app_password
 
 * Create another `.env` file in the **`frontend/`** directory.
 * Add the following line to the `.env` file:
+```env
 VITE_API_URL = link_to_express_framework
-
-> Note that if you are running it locally, the link will be http://localhost:5000
+```
+> Note that if you are running it locally, the link will be "http://localhost:5000"
+> If you want to directly use the deployed backend, the link will be "http://Eduassess-mzz3.onrender.com"
 > Note that the accepted localhost frontend runs on port 5173. Change it in index.ts to your desired port.
 
 ---
@@ -75,34 +88,27 @@ npm install
 npm run build
 npm run start
 ```
+If you are using the deployed link for backend, no need to run these commands.
 
 ---
+
 ## Deployment
 Modify the backend/package.json to change scripts build from the windows specific copy to a general cp function instead. 
 Deployment is on Render and Netlify.
 
-## What Happens Now
-
-In the current development state:
-
-- The frontend allows concept input and renders UI components.
-
-- The backend generates diagnostic questions, scores responses, stores questions and answers in MongoDB, and identifies weak prerequisite topics.
-
-> The connection between frontend input and backend services is wired together for specific features, but both parts function correctly when tested separately for all features.
-
 ---
+
 ## Contributions
 
-- **Nikita S Raj Kapini** : Building the backend for question generation, data storage with MongoDB, and response analysis; Integration of frontend with backend
+- **Nikita S Raj Kapini** : Building the backend for question generation, data storage with MongoDB, and response analysis; Integration of frontend with backend; Adding navbar component to UI; Added change password feature;Confirmation messages using toast notifications; Minor UI/UX fixes
 
-- **Shreyas Mene** : Developing the frontend user interface using Vite + React
+- **Shreyas Mene** : Developing the frontend user interface using Vite + React and concpt graph creation
 
 - **Yeddalu Pushkala** : Developing and integrating a chatbot (help assistant) with the frontend interface
 
 - **Manda Rani** : Designing UI components for registration and login pages  
 
-- **Nakshtra Bandary** : Preparing project documentation, including UML diagrams, SRS, and system design documentation ; Integrating the UI of login and registration with the dashboard and developing backend functionality to ensure seamless authentication and user management.
+- **Nakshtra Bandary** : Preparing project documentation, including UML diagrams, SRS, and system design documentation ; Integrating the UI of login and registration with the dashboard and developing backend functionality to ensure seamless authentication and user management; Added the timer for assessment; Deployment of project using render and netlify
 
 
 ---
@@ -112,11 +118,9 @@ In the current development state:
 * UML diagrams for the system architecture and flow are available in the `Documentation/` folder.
 
 ---
+## Acknowledgements
 
-## Tech Stack
+This project was developed as part of a research internship under the guidance of  
+**Prof Sudarshan Iyengar**, Dept of CSE, IIT Ropar and **Meenakshi V**, DLED Labs, IIT Ropar.
 
-* **Frontend**: React (TypeScript)
-* **Backend**: Node.js + Express
-* **Database**: MongoDB
-* **AI/LLM**: Hugging Face and Open Router Model (via API)
-* **Agent Framework**: LangGraph (planned)
+Their support, insights, and encouragement throughout the development of EduAssess were invaluable.  
