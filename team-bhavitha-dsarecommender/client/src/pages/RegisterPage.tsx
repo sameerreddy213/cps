@@ -29,7 +29,7 @@ const RegisterPage = () => {
         progress: topics.split(",").map((topic) => topic.trim()).filter(Boolean),
       };
 
-      const res = await axios.post("http://localhost:5000/api/register", userPayload);
+      const res = await axios.post("/register", userPayload);
 
       if (res.status === 201) {
         const userData = res.data.user;
