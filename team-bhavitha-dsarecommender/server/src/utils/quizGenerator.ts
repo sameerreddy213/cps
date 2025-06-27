@@ -178,7 +178,8 @@
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+//dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config();
 
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -215,7 +216,7 @@ ${text.slice(0, 4000)}
 
   try {
     const result = await ai.models.generateContent({
-      model: "gemini-1.5-flash", // or "gemini-2.5-flash" if available in your region
+      model: "gemini-1.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 

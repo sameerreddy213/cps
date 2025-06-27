@@ -14,8 +14,8 @@ import recommendationRoutes from "./routes/recommendation";
 import exploreRoutes from "./routes/explore";
 import path from "path";
 
-dotenv.config({ path: path.join(__dirname, "../../.env") });
-
+//dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config();
 
 const app = express();
 const PORT = 5000;
