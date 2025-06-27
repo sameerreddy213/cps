@@ -25,9 +25,10 @@ import api from "../services/api";
 import downloadReviewAsPDF from "../services/reviewDownload";
 import { mutate } from 'swr';
 import { submitQuiz } from '../services/progressUpdate';
+import CustomQuizResult, { type TopicStats } from './CustomResult';
 
 interface CustomQuizScores {
-  [contentId: string]: {
+  [topic: string]: {
     total: number;
     correct: number;
   };
@@ -509,17 +510,6 @@ const MainPage: React.FC = () => {
 
     setLoader(true);
 
-<<<<<<< HEAD
-    try {
-      const res = await fetch("http://localhost:5000/api/generate-quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: concepts.prerequisites,
-          prerequisites: [],
-        }),
-      });
-=======
   try {
     const res = await fetch("http://localhost:5000/api/generate-quiz", {
       method: "POST",
@@ -529,7 +519,6 @@ const MainPage: React.FC = () => {
         prerequisites: [],
       }),
     });
->>>>>>> 08a83dfabc0efc7d4b1e6c82742f9bf7cafe5837
 
       if (!res.ok) throw new Error("Quiz generation failed");
 
@@ -605,11 +594,11 @@ const MainPage: React.FC = () => {
   };
 
 
-  const completeCustomQuiz = () => {
+  const completeCustomQuiz = async () => {
     if (!currentQuiz) return;
 
     let correctAnswers = 0;
-    const scoreByTopic: Record<string, { total: number; correct: number }> = {};
+    const scoreByTopic: Record<string, TopicStats> = {};
 
     currentQuiz.questions.forEach((question, index) => {
       const isCorrect = currentQuiz.userAnswers[index] === question.correctAnswer;
@@ -623,13 +612,56 @@ const MainPage: React.FC = () => {
 
     const overallScore = Math.round((correctAnswers / currentQuiz.questions.length) * 100);
 
+    
     const completedQuiz: QuizState = {
       ...currentQuiz,
       score: overallScore,
       isCompleted: true,
       timeCompleted: new Date(),
+      scoreByTopic: scoreByTopic
 
     };
+
+    const topicSubmissions: {
+      courseId: string;
+      passed: boolean;
+      score: number;
+      total: number;
+    }[] = Object.entries(scoreByTopic)
+    .map(([topicName, stats]) => {
+      const topicObj = topics.find(t => t.name === topicName); 
+      if (!topicObj) return null;
+
+      const score = stats.correct;
+      const scorePercentage = (score / stats.total) * 100;
+      const passed = scorePercentage >= 70;
+      const total = stats.total;
+      return {
+        courseId: topicObj.id,
+        passed,
+        score,
+        total,
+      };
+    })
+    .filter(Boolean) as {
+      courseId: string;
+      passed: boolean;
+      score: number;
+      total: number;
+    }[];
+
+    try {
+    const updated = await submitQuiz(topicSubmissions);
+    const fixed = updated.map((t) => ({
+      ...t,
+      lastAttempt: t.lastAttempt ? new Date(t.lastAttempt) : undefined,
+    }));
+    setTopics(fixed);
+  } catch (err) {
+    console.error("Error submitting topic scores:", err);
+  }
+
+
 
     console.log(scoreByTopic);
     setCustomQuizScores(prev => ({
@@ -696,9 +728,13 @@ const MainPage: React.FC = () => {
     if (completedQuiz.topicId) {
       try {
         const updated = await submitQuiz(
-          completedQuiz.topicId,
-          passed,
-          correctAnswers
+          [
+      {
+        courseId: completedQuiz.topicId,
+        passed,
+        score: correctAnswers
+      }
+    ]
         );
         const fixed = updated.map((t) => ({
           ...t,
@@ -1024,6 +1060,7 @@ const MainPage: React.FC = () => {
                                   ></div>
                                 </div>
                               </div>
+                              <CustomQuizResult results={quizHistory.find(quiz => quiz.contentId === content.id)?.scoreByTopic || {}} />
                             </div>
                           )}
 
@@ -1193,19 +1230,6 @@ const MainPage: React.FC = () => {
                   Our AI will analyze the video content and generate relevant DSA questions
                 </p>
 
-<<<<<<< HEAD
-                {/* Analyzer */}
-                <ConceptAnalyzer
-                  youtubeUrl={youtubeUrl}
-                  typeofinput={uploadType}
-                  concepts={concepts}
-                  setConcepts={setConcepts}
-                  loading={loadingConcepts}
-                  setLoading={setLoadingConcepts}
-                />
-              </div>
-            )}
-=======
           {/* Analyzer */}
               <ConceptAnalyzer
                 youtubeUrl={youtubeUrl}
@@ -1218,7 +1242,6 @@ const MainPage: React.FC = () => {
               />
         </div>
       )}
->>>>>>> 08a83dfabc0efc7d4b1e6c82742f9bf7cafe5837
 
             {(uploadType === "pdf" || uploadType === "image") && (
               <div>
@@ -1264,6 +1287,7 @@ const MainPage: React.FC = () => {
                   setConcepts={setConcepts}
                   loading={loadingConcepts}
                   setLoading={setLoadingConcepts}
+                  topics={topics}
                 />
               </div>
             )}
@@ -1310,88 +1334,8 @@ const MainPage: React.FC = () => {
               </button>
             </div>
           </div>
-<<<<<<< HEAD
         </DialogContent>
       </Dialog>
-=======
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={uploadType === "pdf" ? ".pdf" : "image/*"}
-            onChange={(e) => {handleFileUpload(e.target.files);
-              const file = e.target.files?.[0];
-                      if (file) {
-                        setUploadedFile(file);
-                        setConcepts(null);
-                      }
-            }
-              
-            }
-            className="hidden"
-          />
-          {uploadedFile && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      Selected file: <span className="font-medium">{uploadedFile.name}</span>
-                    </p>
-                  )}
-                  {/* Analyzer */}
-              <ConceptAnalyzer
-                file={uploadedFile}
-                typeofinput={uploadType}
-                concepts={concepts}
-                setConcepts={setConcepts}
-                loading={loadingConcepts}
-                setLoading={setLoadingConcepts}
-                topics={topics}
-              />
-        </div>
-      )}
-
-       
-
-      {/* AI Features Info */}
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
-        <div className="flex items-start space-x-3">
-          <Brain className="w-6 h-6 text-indigo-600 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-gray-900 mb-1">
-              AI-Powered Quiz Generation
-            </h3>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Analyzes content to identify key concepts</li>
-              <li>• Generates contextual DSA questions</li>
-              <li>• Creates explanations for each answer</li>
-              <li>• Adapts difficulty based on content complexity</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      {/* Action Buttons */}
-      <div className="flex space-x-4 pt-2">
-        <button
-          onClick={() => setShowUploadModal(false)}
-          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            if (uploadType === "youtube") {
-              handleYouTubeUpload();
-            } else {
-              fileInputRef.current?.click();
-            }
-          }}
-          disabled={uploadType === "youtube" && !youtubeUrl.trim()}
-          className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white py-3 rounded-lg font-medium transition-all disabled:cursor-not-allowed"
-        >
-          {uploadType === "youtube" ? "Generate Quiz" : "Upload & Generate"}
-        </button>
-      </div>
-    </div>
-  </DialogContent>
-</Dialog>
->>>>>>> 08a83dfabc0efc7d4b1e6c82742f9bf7cafe5837
 
       {/* Quiz Modal - Active Quiz */}
       {showQuizModal && currentQuiz && !currentQuiz.isCompleted && (

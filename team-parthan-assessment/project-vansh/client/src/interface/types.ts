@@ -58,4 +58,5 @@ export interface QuizState {
   timeLimit: number;
   timeRemaining: number;
   attempt?: number;
+  scoreByTopic?: Record<string, { total: number; correct: number }>;
 }
