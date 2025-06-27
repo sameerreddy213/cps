@@ -375,7 +375,7 @@ const AssessmentDisplay: React.FC<{
       ) : loading ? (
         <div className="loading-indicator">
           <div className="spinner"></div>
-          <p className="generating-text">Generating your assessment...</p>
+          <p className="generating-text">Processing your request...</p>
           <div className="quote-container">
             <p className="quote-text">💡 {currentQuote}</p>
           </div>
