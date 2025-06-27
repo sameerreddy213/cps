@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Send, Bot } from "lucide-react";
-//created the chatbot and added it to the dashboard for user convenience
+
 interface ChatbotProps {
   notifications?: any[];
   minimized?: boolean;

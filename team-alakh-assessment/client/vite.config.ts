@@ -10,5 +10,9 @@ export default defineConfig({
   server: {
     host: true, // Allow access from other devices on the network
     port: 5173, 
+    proxy: {
+      '/api': 'http://localhost:5000',
+      '/uploads': 'http://localhost:5000',
+    },
   },
 });

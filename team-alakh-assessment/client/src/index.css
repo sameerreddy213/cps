@@ -14,6 +14,16 @@
 }
 .animate-border-glow { animation: border-glow 2.5s infinite; }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes oceanWave {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .hover-glow:hover, .hover-glow:focus {
   box-shadow: 0 0 0 4px rgba(255,255,255,0.18), 0 0 24px 8px rgba(180,180,180,0.18), 0 4px 32px 0 rgba(255,255,255,0.10), 0 1.5px 8px 0 rgba(80,80,80,0.10);
   border-color: #e5e7eb !important;
@@ -28,4 +38,12 @@
 }
 .scroll-smooth {
   scroll-behavior: smooth;
+}
+
+.input {
+  @apply px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-400 transition;
+}
+
+.nav-btn {
+  @apply w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-3 rounded-xl text-lg shadow-lg hover:scale-105 hover:brightness-110 transition-all duration-200;
 }

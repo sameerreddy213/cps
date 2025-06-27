@@ -1,13 +1,12 @@
-//developed by :@AlakhMathur
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, BookOpen, ArrowLeft, CheckCircle } from 'lucide-react';
 import api from '../services/api';
+import WaterRippleBackground from "../components/WaterRippleBackground";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'mentor' | 'learner'>('learner'); // Added role
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,7 +46,7 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      await api.post('/api/auth/register', { email, password, role }); // Include role
+      await api.post('/api/auth/register', { email, password });
       navigate('/login');
     } catch (err: any) {
       if (err.response?.data?.message) {
@@ -64,43 +63,12 @@ const Register: React.FC = () => {
   const { text: strengthText, color: strengthColor } = getPasswordStrengthText(passwordStrength);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4 py-8 transition-colors duration-500">
-      <div className="w-full max-w-md animate-fadeInScale">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span>Back to Home</span>
-        </button>
-
-        <div className="text-center mb-8">
-          <div className="bg-green-600 p-3 rounded-2xl w-fit mx-auto mb-4 shadow-lg">
-            <BookOpen className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
-          <p className="text-gray-600 dark:text-gray-300">Start your personalized learning journey</p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleRegister} className="space-y-6">
-            {/* Role Selector */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Select Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as 'mentor' | 'learner')}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                required
-              >
-                <option value="learner">Learner</option>
-                <option value="mentor">Mentor</option>
-              </select>
-            </div>
-
+    <div className="min-h-screen flex items-center justify-center relative">
+      <WaterRippleBackground />
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 w-full max-w-md border border-gray-200/60 dark:border-gray-700 flex flex-col items-center">
+          <h1 className="text-4xl font-extrabold text-white mb-8 text-center drop-shadow-[0_0_24px_#60a5fa]">Create Account</h1>
+          <form onSubmit={handleRegister} className="space-y-6 w-full">
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -179,7 +147,7 @@ const Register: React.FC = () => {
               )}
             </div>
 
-            {/* Password Requirements */}
+            {/* Requirements */}
             <div className="bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded-xl p-4">
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password requirements:</p>
               <ul className="space-y-1 text-sm">
@@ -198,7 +166,7 @@ const Register: React.FC = () => {
               </ul>
             </div>
 
-            {/* Error */}
+            {/* Error Message */}
             {error && (
               <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-600 text-red-600 dark:text-red-300 px-4 py-3 rounded-xl text-sm">
                 {error}
@@ -222,14 +190,13 @@ const Register: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
-              <Link to="/login" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium transition-colors">
-                Sign in here
-              </Link>
-            </p>
-          </div>
+          {/* Login Link */}
+          <p className="mt-6 text-white/80 text-center">
+            Already have an account?{' '}
+            <Link to="/login" className="underline text-blue-200 hover:text-blue-400">
+              Login
+            </Link>
+          </p>
         </div>
       </div>
     </div>

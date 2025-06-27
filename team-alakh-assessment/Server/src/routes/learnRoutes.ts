@@ -53,6 +53,22 @@ const authenticateToken = (
   });
 };
 
+// Instructor-only middleware
+function instructorOnly(req: express.Request, res: express.Response, next: express.NextFunction): void {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) { res.status(401).json({ message: 'No token provided' }); return; }
+  const token = authHeader.split(' ')[1];
+  try {
+    const secret = process.env.JWT_SECRET || 'changeme';
+    const decoded = jwt.verify(token, secret);
+    if ((decoded as any).role !== 'instructor') { res.status(403).json({ message: 'Instructor only' }); return; }
+    (req as any).instructorId = (decoded as any).id;
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid or expired token' });
+  }
+}
+
 async function generateLearningModules(
   topic: string
 ): Promise<LearningModuleType[]> {
@@ -274,8 +290,7 @@ router.get(
       const instituteName = "PreAssess - Smart Learning Platform"; 
 
       //Rectangle for the header background
-      pdf.rect(0, 0, pdf.page.width, headerHeight).fill("#C8AD7F"); // Deep tan background
-      pdf.rect(0, headerHeight, pdf.page.width, pdf.page.height-headerHeight).fill("#F5EAD6"); // sepia background
+      pdf.rect(0, 0, pdf.page.width, headerHeight).fill("#F0F0F0"); // Light gray background
 
       //logo
       try {
@@ -297,7 +312,7 @@ router.get(
       pdf
         .font("Helvetica-Bold")
         .fontSize(16)
-        .fillColor("black")
+        .fillColor("#800000")
         .text(instituteName,60, 30, { align: "center" });
 
       // line under the header for separation 
@@ -350,7 +365,7 @@ router.get(
         pdf.switchToPage(i);
         pdf
           .fontSize(8)
-          .text(`Page ${i + 1} of ${range.count}`, 0, pdf.page.height - 60, {
+          .text(`Page ${i + 1} of ${range.count}`, 0, pdf.page.height - 40, {
             align: "center",
           });
       }
@@ -363,5 +378,49 @@ router.get(
     }
   }
 );
+
+// Instructor: Get learning material for a topic (full modules)
+router.get('/instructor/:topic', instructorOnly, async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const doc = await LearningModule.findOne({ topic });
+    if (!doc) { res.status(404).json({ message: 'No material found' }); return; }
+    res.json({ topic: doc.topic, modules: doc.modules });
+  } catch {
+    res.status(500).json({ message: 'Failed to fetch material' });
+  }
+});
+
+// Instructor: Update learning material for a topic
+router.put('/instructor/:topic', instructorOnly, async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const { modules } = req.body;
+    if (!Array.isArray(modules)) { res.status(400).json({ message: 'Modules must be an array' }); return; }
+    const updated = await LearningModule.findOneAndUpdate(
+      { topic },
+      { modules },
+      { new: true, upsert: false }
+    );
+    if (!updated) { res.status(404).json({ message: 'No material found' }); return; }
+    res.json({ message: 'Material updated', topic: updated.topic, modules: updated.modules });
+  } catch {
+    res.status(500).json({ message: 'Failed to update material' });
+  }
+});
+
+// Instructor: Create new learning material for a topic
+router.post('/instructor', instructorOnly, async (req, res) => {
+  try {
+    const { topic, modules } = req.body;
+    if (!topic || !Array.isArray(modules)) { res.status(400).json({ message: 'Topic and modules required' }); return; }
+    const exists = await LearningModule.findOne({ topic });
+    if (exists) { res.status(400).json({ message: 'Material for topic already exists' }); return; }
+    const created = await LearningModule.create({ topic, modules });
+    res.status(201).json({ message: 'Material created', topic: created.topic, modules: created.modules });
+  } catch {
+    res.status(500).json({ message: 'Failed to create material' });
+  }
+});
 
 export default router;

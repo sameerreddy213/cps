@@ -1,8 +1,9 @@
 //developed by :@AlakhMathur
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, BookOpen, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import api from "../services/api";
+import WaterRippleBackground from "../components/WaterRippleBackground";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -29,35 +30,14 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
-//fixed the cookie storage
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4 py-8 transition-colors duration-500">
-      <div className="w-full max-w-md animate-fadeInScale">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-8 transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span>Back to Home</span>
-        </button>
-
-        {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <div className="bg-red-600 p-3 rounded-2xl w-fit mx-auto mb-4 shadow-lg">
-            <BookOpen className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome Back
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Continue your learning journey
-          </p>
-        </div>
-
-        {/* Login Form */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleLogin} className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center relative">
+      <WaterRippleBackground />
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 w-full max-w-md border border-gray-200/60 dark:border-gray-700 flex flex-col items-center">
+          <h1 className="text-4xl font-extrabold text-white mb-8 text-center drop-shadow-[0_0_24px_#60a5fa]">Sign In</h1>
+          <form onSubmit={handleLogin} className="space-y-6 w-full">
             {/* Email Field */}
             <div>
               <label
@@ -128,7 +108,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-green-600 to-orange-600 hover:from-yellow-700 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">

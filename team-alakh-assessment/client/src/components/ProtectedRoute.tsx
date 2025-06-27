@@ -3,51 +3,50 @@ import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  isInstructor?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, isInstructor }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isValid, setIsValid] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const verifyToken = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem(isInstructor ? 'instructorToken' : 'token');
       if (!token) {
-        setError("No token found.");
+        setError('No token found.');
         setIsValid(false);
         setIsLoading(false);
         return;
       }
-
       try {
-        const response = await fetch('http://localhost:5000/api/auth/verify', {
+        const endpoint = isInstructor ? '/api/instructor/verify' : 'http://localhost:5000/api/auth/verify';
+        const url = endpoint.startsWith('http') ? endpoint : endpoint;
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (response.ok) {
           setIsValid(true);
         } else if (response.status === 403) {
-          setError("Invalid or expired token.");
+          setError('Invalid or expired token.');
           setIsValid(false);
         } else {
-          setError("Unknown error verifying token.");
+          setError('Unknown error verifying token.');
           setIsValid(false);
         }
       } catch (err) {
-        console.error('Token verification failed:', err);
-        setError("Network or server error.");
+        setError('Network or server error.');
         setIsValid(false);
       } finally {
         setIsLoading(false);
       }
     };
-
     verifyToken();
-  }, []);
+  }, [isInstructor]);
 
   if (isLoading) {
     return (
@@ -58,12 +57,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!isValid) {
-    // Optional: clear invalid token to prevent looping
-    localStorage.removeItem('token');
-
-    // Optional: show an error toast or message before redirect
-    alert(error || "Unauthorized access");
-    return <Navigate to="/login" replace />;
+    localStorage.removeItem(isInstructor ? 'instructorToken' : 'token');
+    alert(error || 'Unauthorized access');
+    return <Navigate to={isInstructor ? '/instructor-login' : '/login'} replace />;
   }
 
   return <>{children}</>;

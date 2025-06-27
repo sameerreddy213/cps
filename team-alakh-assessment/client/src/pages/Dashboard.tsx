@@ -20,6 +20,9 @@ import {
   X,
   Send,
   Bot,
+  Trash2,
+  HelpCircle,
+  FileText,
 } from "lucide-react";
 import api, { addToSearchHistory, getSearchHistory, getPrerequisites, getActivityCalendar } from "../services/api";
 import ThemeToggle from "../components/ThemeToggle";
@@ -29,6 +32,9 @@ import { loadFull } from "tsparticles";
 import Chatbot from '../components/Chatbot';
 import GalaxyBackground from '../components/GalaxyBackground';
 import AnimatedIntroText from '../components/AnimatedIntroText';
+import axios from 'axios';
+import Modal from 'react-modal';
+import { motion } from 'framer-motion';
 
 const Dashboard: React.FC = () => {
   const [topic, setTopic] = useState("");
@@ -58,6 +64,16 @@ const Dashboard: React.FC = () => {
   const statsRef = useRef<HTMLDivElement>(null);
   const [chatbotMinimized, setChatbotMinimized] = useState(true);
   const [showMasteredModal, setShowMasteredModal] = useState(false);
+  const [queryModalOpen, setQueryModalOpen] = useState(false);
+  const [queryContent, setQueryContent] = useState('');
+  const [queryFiles, setQueryFiles] = useState<File[]>([]);
+  const [queryMsg, setQueryMsg] = useState('');
+  const [myQueries, setMyQueries] = useState<any[]>([]);
+  const [queryLoading, setQueryLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ open: boolean, id: string | null }>({ open: false, id: null });
+  const [queryPanelOpen, setQueryPanelOpen] = useState(false);
+  const [queryToastMsg, setQueryToastMsg] = useState('');
+  const [queryToastType, setQueryToastType] = useState<'success' | 'error'>('success');
 
   // Particle options
   const particlesInit = useCallback(async (engine: any) => {
@@ -180,7 +196,7 @@ const Dashboard: React.FC = () => {
             timestamp: new Date()
           });
         }
-      } catch {
+      } catch (err) {
         console.log(`No prerequisites found for ${topic}`);
       }
     }
@@ -479,6 +495,56 @@ const Dashboard: React.FC = () => {
       .filter(prereq => prereq && !passedTopics.includes(prereq));
   };
 
+  const fetchMyQueries = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/query/my', { headers: { Authorization: `Bearer ${token}` } });
+      setMyQueries(res.data);
+    } catch {}
+  };
+  useEffect(() => { fetchMyQueries(); }, []);
+
+  const handleQueryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) setQueryFiles(Array.from(e.target.files));
+  };
+  const handleQuerySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQueryLoading(true);
+    setQueryMsg('');
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('content', queryContent);
+      queryFiles.forEach(f => formData.append('attachments', f));
+      await axios.post('/api/query', formData, { headers: { Authorization: `Bearer ${token}` } });
+      setQueryToastMsg('Query sent!');
+      setQueryToastType('success');
+      setQueryContent('');
+      setQueryFiles([]);
+      fetchMyQueries();
+      setTimeout(() => { setQueryModalOpen(false); setQueryToastMsg(''); }, 2000);
+    } catch {
+      setQueryToastMsg('Failed to send query.');
+      setQueryToastType('error');
+      setTimeout(() => setQueryToastMsg(''), 2000);
+    }
+    setQueryLoading(false);
+  };
+  const handleCloseQuery = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`/api/query/${id}/close`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      setQueryToastMsg('Query deleted.');
+      setQueryToastType('success');
+      fetchMyQueries();
+      setTimeout(() => setQueryToastMsg(''), 2000);
+    } catch {
+      setQueryToastMsg('Failed to delete query.');
+      setQueryToastType('error');
+      setTimeout(() => setQueryToastMsg(''), 2000);
+    }
+  };
+
   return (
     <div className="relative min-h-screen transition-colors duration-500">
       {/* Galaxy Background */}
@@ -514,14 +580,7 @@ const Dashboard: React.FC = () => {
 
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <div className="bg-gray-100 dark:bg-[#222] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
-              <button 
-                onClick={() => navigate('/learners')}
-                className="text-gray-800 dark:text-gray-200 text-sm font-medium hover:text-gray-900 dark:hover:text-white flex items-center space-x-1"
-              >
-                Track all
-              </button>
-            </div>
+            
             {/* Profile Completion Alert */}
             {!profileComplete && (
               <div className="bg-gray-100 dark:bg-[#222] px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
@@ -829,8 +888,8 @@ const Dashboard: React.FC = () => {
                             <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-gray-800">{prereq}</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-500">Prerequisite #{index + 1}</p>
+                            <h4 className="font-semibold text-gray-900 dark:text-white">{prereq}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Prerequisite #{index + 1}</p>
                           </div>
                         </div>
                       </div>
@@ -956,7 +1015,7 @@ const Dashboard: React.FC = () => {
                 {!profileComplete && (
                   <button
                     onClick={() => setShowProfile(true)}
-                    className={`${getPrereqColor('')} text-gray-900 dark:text-red-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+                    className={`${getPrereqColor('')} text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
                   >
                     Complete Profile
                   </button>
@@ -1038,6 +1097,99 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Floating Raise Query Button */}
+      <motion.button
+        drag
+        dragConstraints={{ left: 0, right: window.innerWidth - 80, top: 0, bottom: window.innerHeight - 80 }}
+        initial={{ scale: 1, y: 0 }}
+        whileHover={{ scale: 1.1, y: -6 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setQueryPanelOpen(true)}
+        className="fixed bottom-24 right-8 z-50 bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-0 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center text-3xl font-bold hover:scale-110 transition-all duration-200 cursor-pointer border-4 border-white/30"
+        title="Raise a Query"
+        aria-label="Raise a Query"
+      >
+        <HelpCircle className="w-8 h-8 animate-pulse" />
+        {myQueries.some(q => q.status === 'open' || q.status === 'under_progress') && (
+          <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5 font-bold">!</span>
+        )}
+      </motion.button>
+
+      {/* Query Panel (sub-window) */}
+      {queryPanelOpen && (
+        <div className="fixed top-0 right-0 h-full w-full sm:w-[400px] z-[9999] bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 animate-slide-in-right">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-500 to-indigo-500">
+            <div className="text-lg font-bold text-white flex items-center gap-2"><HelpCircle className="w-6 h-6" /> Your Queries</div>
+            <button onClick={() => setQueryPanelOpen(false)} className="text-white text-2xl font-bold hover:scale-110 transition">&times;</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {myQueries.map(q => (
+              <div key={q._id} className="bg-white/80 dark:bg-gray-800/80 rounded-xl p-4 border border-gray-200/40 dark:border-gray-700/60 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div className="flex-1">
+                  <div className="text-gray-900 dark:text-white font-semibold mb-1 flex items-center gap-2">
+                    {q.content}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${q.status === 'open' ? 'bg-blue-100 text-blue-700' : q.status === 'under_progress' ? 'bg-yellow-100 text-yellow-700' : q.status === 'solved' ? 'bg-green-100 text-green-700' : q.status === 'irrelevant' ? 'bg-gray-200 text-gray-700' : 'bg-gray-100 text-gray-700'}`}>{q.status.replace('_', ' ')}</span>
+                  </div>
+                  <div className="flex gap-2 flex-wrap mb-1">
+                    {q.attachments?.map((a: any, i: number) => (
+                      a.type.startsWith('image') ? (
+                        <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" className="inline-block w-12 h-12 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700">
+                          <img src={a.url} alt="attachment" className="object-cover w-full h-full" />
+                        </a>
+                      ) : a.type.startsWith('video') ? (
+                        <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 underline"><Play className="w-5 h-5" />Video</a>
+                      ) : (
+                        <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 underline"><FileText className="w-5 h-5" />PDF</a>
+                      )
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-500 mb-1 flex items-center gap-2">
+                    Status: <span className="font-bold">{q.status.replace('_', ' ')}</span>
+                    {q.response && <span className="text-green-700">Instructor: {q.response}</span>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 md:ml-4">
+                  <button onClick={() => setShowDeleteConfirm({ open: true, id: q._id })} className="text-red-500 hover:text-red-700 p-2 rounded-full bg-red-100/60 hover:bg-red-200 transition" title="Delete Query" aria-label="Delete Query"><Trash2 className="w-5 h-5" /></button>
+                </div>
+              </div>
+            ))}
+            <button onClick={() => setQueryModalOpen(true)} className="w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition flex items-center justify-center gap-2"><HelpCircle className="w-5 h-5" /> Raise New Query</button>
+          </div>
+          {queryPanelOpen && queryToastMsg && (
+            <div className={`fixed top-4 right-8 z-[10000] px-6 py-3 rounded-xl shadow-lg font-bold text-white ${queryToastType === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>{queryToastMsg}</div>
+          )}
+        </div>
+      )}
+
+      {/* Move the Modal for raising a query to only show if queryPanelOpen && queryModalOpen */}
+      {queryPanelOpen && (
+        <Modal isOpen={queryModalOpen} onRequestClose={() => setQueryModalOpen(false)} ariaHideApp={false} className="fixed inset-0 flex items-center justify-center z-[99999]" overlayClassName="fixed inset-0 bg-black/40 z-[99998]">
+          <div className="bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-2xl p-8 w-full max-w-lg relative backdrop-blur-xl border border-gray-200/40 dark:border-gray-700/60 z-[99999]">
+            <button className="absolute top-2 right-4 text-2xl text-white" onClick={() => setQueryModalOpen(false)}>&times;</button>
+            <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">Raise a Query</div>
+            <form onSubmit={handleQuerySubmit} className="flex flex-col gap-4">
+              <textarea value={queryContent} onChange={e => setQueryContent(e.target.value)} placeholder="Describe your query..." className="input w-full min-h-[80px]" required />
+              <input type="file" multiple accept="image/*,video/*,application/pdf" onChange={handleQueryFileChange} className="input w-full" />
+              <button type="submit" className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-2 rounded-xl font-semibold shadow hover:scale-105 transition" disabled={queryLoading}>{queryLoading ? 'Sending...' : 'Send Query'}</button>
+              {queryMsg && <div className="text-blue-600 font-medium mt-2">{queryMsg}</div>}
+            </form>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete confirmation modal */}
+      <Modal isOpen={showDeleteConfirm.open} onRequestClose={() => setShowDeleteConfirm({ open: false, id: null })} ariaHideApp={false} className="fixed inset-0 flex items-center justify-center z-[9999]" overlayClassName="fixed inset-0 bg-black/40 z-[9998]">
+        <div className="bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-2xl p-8 w-full max-w-sm relative backdrop-blur-xl border border-gray-200/40 dark:border-gray-700/60 z-[9999]">
+          <button className="absolute top-2 right-4 text-2xl text-white" onClick={() => setShowDeleteConfirm({ open: false, id: null })}>&times;</button>
+          <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Query?</div>
+          <div className="mb-4 text-gray-700 dark:text-gray-200">Are you sure you want to delete this query? This action cannot be undone.</div>
+          <div className="flex gap-2 justify-end">
+            <button onClick={() => setShowDeleteConfirm({ open: false, id: null })} className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition">Cancel</button>
+            <button onClick={async () => { if (showDeleteConfirm.id) { await handleCloseQuery(showDeleteConfirm.id); setShowDeleteConfirm({ open: false, id: null }); } }} className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Delete</button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
