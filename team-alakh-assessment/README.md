@@ -1,70 +1,95 @@
-📘 Dependency Aware Assessment Generator
+# Dependency Aware Assessment Generator
 
-Team Members: 
-Alakh Mathur(Team Lead)->worked on home,login,register,dashboard pages,authentication and their integrations along with database management, 
-Omkar Kumar->worked on prerequisite generation, 
-Anand Jangid->worked on quiz ui,
-Pavithra Krishnappa->worked on quiz generation (alongside Alakh Mathur),
-Aditya Kumar Das->worked on quiz controller(alongside Alakh Mathur)
+Welcome to PreAssess! This project is built by a passionate team to help students master concepts in the right order and give instructors powerful tools to guide and assess learning. We hope you enjoy exploring it as much as we enjoyed building it!
 
-🔍 Problem Statement
+---
+
+## 👥 Team Members
+- Alakh Mathur (Team Lead)
+- Omkar Kumar
+- Anand Jangid
+- Pavithra Krishnappa
+- Aditya Kumar Das
+
+---
+
+## 🔍 Problem Statement
 Create a system that generates formative assessments based on the prerequisite concepts of a target learning objective to ensure readiness before progression.
 
-🛠️ Technology Stack
+---
 
-- Frontend: React, Tailwind CSS
-- Backend: Node.js, Express
-- Database: MongoDB
-- Authentication: JWT (JSON Web Tokens)
-- Routing: React Router DOM
-- Tools: Git, GitHub, Postman
+## 🚀 Solution Overview: PreAssess
+PreAssess is a modern, full-stack platform for personalized, dependency-aware learning and assessment. It helps students master prerequisite concepts before moving forward, and gives instructors a dashboard to track, manage, and support learners.
 
-✨ Key Features
+---
 
-1. User Authentication – Secure login and registration system using JWT tokens.
-2. Prerequisite Check – Users can input a learning topic and get a list of prerequisite topics they must complete.
-3. Dynamic Learning Path – Based on prerequisites, the system guides the user on what to learn next.
-4. Quiz Generator – Each prerequisite comes with an option to Learn or Take Quiz.
-5. User Progress Tracking – Tracks user’s completed topics and prevents repetition.
-6. Protected Dashboard– Only accessible to authenticated users. Includes Logout functionality and token validation.
-7. Responsive UI – Built using Tailwind CSS for sleek and responsive design.
+## ✨ Key Features
+- Dependency-based learning paths for students
+- Automatic quiz generation based on prerequisites
+- Mastery tracking and progress visualization
+- Instructor dashboard with analytics and management tools
+- Assessment tracking: search, review, and audit all student attempts
+- Query system: students can raise questions, instructors can respond and update status
+- Audit logs for instructor actions
+- Modern, animated UI with a NASA-inspired dark theme
 
-🏗️ System Architecture
-The application is structured as follows:
+---
 
-- Client Side (React App)
-  - Handles UI rendering, routing, and local token storage.
-  - Interacts with backend APIs for data.
-- Server Side (Node + Express)
-  - Handles API endpoints for user management, topic prerequisites, and user progress.
-  - Validates JWT for secure endpoints.
-- MongoDB
-  - Stores user information, topic dependencies, and progress.
+## 🛠️ Tech Stack
 
-🚀 Future Enhancements (that we will soon ready up)
+| Area      | Technology                                    |
+|-----------|-----------------------------------------------|
+| Frontend  | React, TypeScript, Tailwind CSS, Framer Motion, Axios |
+| Backend   | Node.js, Express, MongoDB (Mongoose), Multer, JWT |
+| Other     | Audit logging, RESTful API, Role-based access |
 
-- AI-powered prerequisite graph builder.
-- Role-based access (e.g., student, instructor).
-- Real-time collaboration during quizzes.
-- Timer-based assessment submission.
-- Graph visualization for prerequisite topic networks.
-- Admin dashboard for managing topics and quizzes.
+---
 
-🧪 Getting Started
+## 🧩 How It Works
+1. Students sign up and are guided through topics in the right order, based on prerequisites.
+2. Each topic has a quiz generated from its prerequisites.
+3. Mastery is tracked and visualized for each student.
+4. Instructors log in to a dashboard to see analytics, manage students/content, and track assessments.
+5. Students can raise queries (with attachments); instructors can respond and update status.
+6. All instructor actions are logged for transparency.
 
-1. Clone the repo and checkout your team branch:
-   `git clone https://github.com/continuousactivelearning/cps`
-   `git checkout -b team-AlakhMathur-assessment`
-   
-2. Navigate to `client` and `server` directories and run:
-   - `npm install`
-   -  npm start` (for standard React) (in one terminal)
-   -  npm run dev (for running server) (in another terminal)
-   
-3. Ensure MongoDB is running locally or provide a MongoDB Atlas connection URI.
-   
-4. Environment variables:
-   - `MONGO_URI=<your_mongo_uri>`
-   - `JWT_SECRET=<your_jwt_secret>`
+---
 
-Thank you for reviewing our project. Contributions and feedback are welcome!
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
+```
+git clone <your-repo-url>
+cd <repo-root>
+```
+
+### 2. Backend Setup
+```
+cd Server
+npm install
+# Create a .env file with:
+# JWT_SECRET=your_jwt_secret
+# MONGODB_URI=your_mongodb_connection_string
+npm run dev
+```
+
+### 3. Frontend Setup
+```
+cd client
+npm install
+npm run dev
+```
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
+
+---
+
+## 📚 API/Usage Overview
+- `/api/instructor/` — Instructor endpoints (dashboard, students, content, assessment tracking, audit logs)
+- `/api/user/` — Student endpoints (profile, learning, quizzes, queries)
+- `/api/query/` — Query system endpoints
+- `/api/instructor/assessment-histories` — Assessment tracking/search for instructors
+
+See the code for more details on API routes and usage.
+
+"Suggestions are welcomed for introducing new functionalities to our dynamic learning system"---Please raise an issue or ping the team lead at mathur.alakh2004@gmail.com
