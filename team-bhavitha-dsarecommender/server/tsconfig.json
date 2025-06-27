@@ -113,10 +113,12 @@
   },
   "include": ["src/**/*"],
   "exclude": [
-    "data",
-    "standalone_tests",
-    "types",
-    "node_modules",
-    "dist"
-  ]
+  "src/scripts",        
+  "data",
+  "standalone_tests",
+  "types",
+  "node_modules",
+  "dist"
+]
+
 }
