@@ -1,7 +1,7 @@
 /*CREATED BY NIKITA S RAJ KAPINI(20/06/2025)*/
 
 import React, { useState } from 'react';
-import './ChangePassword.css';
+import './changepassword.css';
 
 const ChangePassword: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [oldPassword, setOldPassword] = useState('');
@@ -22,7 +22,7 @@ const ChangePassword: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
 
     try {
-        const res = await fetch('http://localhost:5000/api/auth/change-password', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/change-password`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

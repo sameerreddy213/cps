@@ -45,6 +45,13 @@ EMAIL_PASS=your_gmail_app_password
 > Make sure the `.env` file is located inside the `backend/` folder.
 > Note the the password being used in EMAIL_PASS is not your gmail password but is the app password created for this purpose after enabling 2 factor authentication.
 
+* Create another `.env` file in the **`frontend/`** directory.
+* Add the following line to the `.env` file:
+VITE_API_URL = link_to_express_framework
+
+> Note that if you are running it locally, the link will be http://localhost:5000
+> Note that the accepted localhost frontend runs on port 5173. Change it in index.ts to your desired port.
+
 ---
 
 ### 3. Start the Application
@@ -54,6 +61,7 @@ EMAIL_PASS=your_gmail_app_password
 ```bash
 cd frontend
 npm install
+npm run build
 npm run dev
 ```
 
@@ -64,10 +72,14 @@ This will launch the frontend on local host.
 ```bash
 cd backend
 npm install
-npm start
+npm run build
+npm run start
 ```
 
 ---
+## Deployment
+Modify the backend/package.json to change scripts build from the windows specific copy to a general cp function instead. 
+Deployment is on Render and Netlify.
 
 ## What Happens Now
 
