@@ -105,7 +105,7 @@ const QuizPage = () => {
       });
 
       // ✅ Add to progress if confidence > 0.7
-      if (typeof masteryValue === "number" && (1 - masteryValue) > 0.7 && !progress.includes(topic)) {
+      if (typeof masteryValue === "number" && (1 - masteryValue) >= 0.7 && !progress.includes(topic)) {
         addLearnedTopic(topic);
       }
 

@@ -55,7 +55,7 @@ const Navbar = () => {
             <li className="nav-item">
               {/* Direct to dashboard to find recommendation */}
               <Link
-                to={protectedLink("/dashboard")}
+                to={protectedLink("/recommend")}
                 className="nav-link text-white fw-semibold mx-2"
               >
                 Get Recommendation
