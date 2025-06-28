@@ -1,14 +1,22 @@
+// client/src/pages/QuizSelectPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { validTopics } from "../data/validTopic";
+import LoadingSpinner from "../components/LoadingSpinner"; // Import LoadingSpinner
 
 const QuizSelectPage = () => {
   const [selectedTopic, setSelectedTopic] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // State for button loading
   const navigate = useNavigate();
 
   const handleSubmit = () => {
     if (selectedTopic.trim()) {
-      navigate(`/quiz/${encodeURIComponent(selectedTopic.trim())}`);
+      setIsLoading(true); // Start loading animation
+      // Simulate a network delay or processing time before navigation
+      setTimeout(() => {
+        navigate(`/quiz/${encodeURIComponent(selectedTopic.trim())}`);
+        setIsLoading(false); // End loading (though navigation changes page)
+      }, 800); // 800ms delay for demonstration
     }
   };
 
@@ -21,6 +29,7 @@ const QuizSelectPage = () => {
           onChange={(e) => setSelectedTopic(e.target.value)}
           className="form-select form-select-lg bg-dark-subtle text-dark-contrast border-secondary"
           style={{ maxWidth: '300px' }}
+          disabled={isLoading} // Disable select while loading
         >
           <option value="">Select a topic...</option>
           {validTopics.map((topic: string, i: number) => (
@@ -31,9 +40,9 @@ const QuizSelectPage = () => {
       <button
         onClick={handleSubmit}
         className="btn btn-primary btn-lg w-100"
-        disabled={!selectedTopic}
+        disabled={!selectedTopic || isLoading} // Disable button if no topic selected or loading
       >
-        Take Quiz
+        {isLoading ? <LoadingSpinner size="sm" /> : "Take Quiz"}
       </button>
     </div>
   );
