@@ -4,6 +4,7 @@ import api from "../lib/api";
 import { useUserStore } from "../store/userStore";
 import LearnedConceptCard from "../components/LearnedConceptCard";
 import QuizCard from "../components/QuizCard";
+import {validTopics} from "../data/validTopic"; // already imported
 import {
   LineChart,
   Line,
@@ -171,22 +172,32 @@ const Dashboard = () => {
       <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Get Learning Path Recommendation</h3>
         <div className="d-flex flex-column flex-md-row justify-content-center gap-3 mb-4 align-items-center">
-          <input
-            type="text"
-            placeholder="Start Concept (e.g., Variables)"
+          <select
             value={startConcept}
             onChange={(e) => setStartConcept(e.target.value)}
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
+            className="form-select form-select-lg bg-dark-subtle text-dark-contrast border-secondary"
             style={{ maxWidth: '300px' }}
-          />
-          <input
-            type="text"
-            placeholder="Target Concept (e.g., Recursion)"
+          >
+            <option value="">Select Start Concept</option>
+            {validTopics
+              .filter(topic => topic !== endConcept) // filter out selected end
+              .map(topic => (
+                <option key={topic} value={topic}>{topic}</option>
+              ))}
+          </select>
+          <select
             value={endConcept}
             onChange={(e) => setEndConcept(e.target.value)}
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
+            className="form-select form-select-lg bg-dark-subtle text-dark-contrast border-secondary"
             style={{ maxWidth: '300px' }}
-          />
+          >
+            <option value="">Select Target Concept</option>
+            {validTopics
+              .filter(topic => topic !== startConcept) // filter out selected start
+              .map(topic => (
+                <option key={topic} value={topic}>{topic}</option>
+              ))}
+          </select>
           <button onClick={handleGetPath} className="btn btn-primary btn-lg flex-shrink-0">
             Get Path
           </button>
