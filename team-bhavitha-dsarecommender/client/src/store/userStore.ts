@@ -12,6 +12,7 @@ interface UserProfile {
   setProfile: (profile: Partial<UserProfile>) => void;
   clearProfile: () => void;
   addLearnedTopic: (topic: string) => void;
+  removeLearnedTopic: (topic: string) => void;
 }
 
 export const useUserStore = create<UserProfile>()(
@@ -48,6 +49,11 @@ export const useUserStore = create<UserProfile>()(
             ? state
             : { progress: [...state.progress, topic] }
         ),
+      removeLearnedTopic: (topic: string) =>
+        set((state) => ({
+          progress: state.progress.filter((t) => t !== topic),
+    }))
+
     }),
     {
       name: "user-profile",
