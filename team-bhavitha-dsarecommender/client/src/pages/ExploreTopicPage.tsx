@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
-import axios from "axios";
+import api from "../lib/api"; 
 
 interface Concept {
   name: string;
@@ -24,8 +24,8 @@ const ExploreTopicPage = () => {
       return;
     }
 
-    axios
-      .get(`/api/explore/${encodeURIComponent(topic)}`)
+    api
+      .get(`/explore/${encodeURIComponent(topic)}`)
       .then((res) => {
         setConcept(res.data);
         setError("");

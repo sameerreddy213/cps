@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api"; 
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 
@@ -29,7 +29,7 @@ const RegisterPage = () => {
         progress: topics.split(",").map((topic) => topic.trim()).filter(Boolean),
       };
 
-      const res = await axios.post("/register", userPayload);
+      const res = await api.post("/register", userPayload);
 
       if (res.status === 201) {
         const userData = res.data.user;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api"; 
 import { useUserStore } from "../store/userStore";
 import LearnedConceptCard from "../components/LearnedConceptCard";
 import QuizCard from "../components/QuizCard";
@@ -42,7 +42,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await axios.get(`/api/quiz-history/${username}`);
+        const res = await api.get(`/quiz-history/${username}`);
         setQuizHistory(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to fetch quiz history", err);
@@ -61,7 +61,7 @@ const Dashboard = () => {
       return;
     }
     try {
-      const res = await axios.post("http://localhost:5000/api/recommendation", {
+      const res = await api.post("/recommendation", {
         start: startConcept.trim(),
         end: endConcept.trim(),
         username: username
