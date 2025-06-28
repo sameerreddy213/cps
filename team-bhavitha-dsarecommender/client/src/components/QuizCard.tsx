@@ -1,39 +1,24 @@
-import { useNavigate } from "react-router-dom";
-import {validTopics} from "../data/validTopic";
-import { useState } from "react";
+// client/src/components/QuizCard.tsx
+import LoadingSpinner from "./LoadingSpinner"; // Import LoadingSpinner
 
 interface QuizCardProps {
   topic: string;
-  onTakeQuiz: (selectedTopic: string) => void;
+  onTakeQuiz: (topic: string) => void;
+  isLoading?: boolean; // Add isLoading prop
 }
 
-const QuizCard = ({ topic, onTakeQuiz }: QuizCardProps) => {
-  const navigate = useNavigate();
-  const [selectedTopic, setSelectedTopic] = useState(topic);
-
-  const handleTakeQuiz = () => {
-    navigate(`/quiz/${encodeURIComponent(selectedTopic)}`);
-    onTakeQuiz(selectedTopic);
-  };
-
+const QuizCard = ({ topic, onTakeQuiz, isLoading }: QuizCardProps) => {
   return (
-    <div className="card text-center bg-secondary-subtle text-white h-100 shadow-sm border border-warning">
-      <div className="card-body d-flex flex-column justify-content-between align-items-center">
-        <select
-          value={selectedTopic}
-          onChange={(e) => setSelectedTopic(e.target.value)}
-          className="form-select form-select-lg bg-dark-subtle text-dark-contrast border-secondary mb-3"
-          style={{ maxWidth: '300px' }}
-        >
-          {validTopics.map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
+    <div className="card text-center bg-secondary-subtle text-white h-100 shadow-sm border border-info">
+      <div className="card-body d-flex flex-column justify-content-between">
+        <h4 className="card-title text-info mb-3">{topic}</h4>
+        <p className="card-text text-muted">Ready to test your knowledge?</p>
         <button
-          onClick={handleTakeQuiz}
-          className="btn btn-warning mt-auto"
+          onClick={() => onTakeQuiz(topic)}
+          className="btn btn-primary mt-auto"
+          disabled={isLoading} // Disable button when loading
         >
-          Take Quiz
+          {isLoading ? <LoadingSpinner size="sm" /> : "Take Quiz"}
         </button>
       </div>
     </div>
