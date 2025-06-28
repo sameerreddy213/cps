@@ -7,6 +7,7 @@
     "start": "node dist/app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
+    "postbuild": "cp -r src/data dist/data",
     "test": "jest",
     "watch": "tsc -w"
   },
