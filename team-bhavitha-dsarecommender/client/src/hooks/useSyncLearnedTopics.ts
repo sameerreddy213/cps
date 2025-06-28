@@ -13,7 +13,7 @@ export function useSyncLearnedTopics() {
       if (
         entry.topic &&
         typeof entry.mastery === "number" &&
-        entry.mastery > 0.7 &&
+        entry.mastery >= 0.7 &&
         !progress.includes(entry.topic)
       ) {
         addLearnedTopic(entry.topic);

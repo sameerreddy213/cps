@@ -58,7 +58,7 @@ const Dashboard = () => {
 
               // ✅ If confidence > 70%, add to progress
               const confidence = 1 - entry.mastery;
-              if (confidence > 0.7 && !progress.includes(entry.topic)) {
+              if (confidence >= 0.7 && !progress.includes(entry.topic)) {
                 addLearnedTopic(entry.topic);
               }
             }
