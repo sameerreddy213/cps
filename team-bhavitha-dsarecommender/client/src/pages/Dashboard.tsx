@@ -4,7 +4,7 @@ import api from "../lib/api";
 import { useUserStore } from "../store/userStore";
 import LearnedConceptCard from "../components/LearnedConceptCard";
 import QuizCard from "../components/QuizCard";
-import {validTopics} from "../data/validTopic"; // already imported
+import {validTopics} from "../data/validTopic"; 
 import {
   LineChart,
   Line,
