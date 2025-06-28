@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api"; // or "../../lib/api" based on depth
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 
@@ -18,10 +18,7 @@ const LoginPage = () => {
     setError(""); // Clear previous errors
 
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
-        username,
-        password,
-      });
+      const res = await api.post("/login", {username,password,});
 
       if (res.status === 200) {
         const userData = res.data.user;

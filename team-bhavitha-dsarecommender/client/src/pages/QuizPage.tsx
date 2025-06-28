@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../lib/api"; 
 import { useUserStore } from "../store/userStore";
 
 interface MCQQuestion {
@@ -44,7 +44,7 @@ const QuizPage = () => {
         setLoading(true);
         setError(null);
 
-        const res = await axios.get(`/api/quiz/${encodeURIComponent(topic)}`);
+        const res = await api.get(`/quiz/${encodeURIComponent(topic)}`);
 
         if (!res.data) {
           throw new Error("No data received from server");
@@ -96,7 +96,7 @@ const QuizPage = () => {
     try {
       setSubmitted(true);
 
-      const res = await axios.post("/api/quiz/submit", {
+      const res = await api.post("/quiz/submit", {
         topic,
         answers,
         username,

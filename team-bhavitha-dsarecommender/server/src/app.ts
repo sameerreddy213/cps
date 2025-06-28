@@ -20,10 +20,16 @@ dotenv.config();
 const app = express();
 const PORT = 5000;
 
-app.use(cors({
-  origin: 'http://localhost:5173',// frontend port
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",  // for local dev
+      "https://cps2-rust.vercel.app", // your deployed frontend
+    ],
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
 app.use("/api/explore", exploreRoutes);
 app.use("/api", learningPathRoutes);
