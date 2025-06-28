@@ -1,7 +1,9 @@
+// client/src/pages/QuizPage.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { useUserStore } from "../store/userStore";
+import LoadingSpinner from "../components/LoadingSpinner"; // Import LoadingSpinner
 
 interface MCQQuestion {
   question: string;
@@ -27,7 +29,8 @@ const QuizPage = () => {
   const setQuizHistory = useUserStore((state) => state.setQuizHistory);
   const progress = useUserStore((state) => state.progress);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // For initial quiz questions fetch
+  const [isSubmitting, setIsSubmitting] = useState(false); // For quiz submission
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -85,7 +88,9 @@ const QuizPage = () => {
     }
 
     try {
-      setSubmitted(true);
+      setIsSubmitting(true); // Start loading for submission
+      setSubmitted(true); // Mark as submitted to show results
+      
       const res = await api.post("/quiz/submit", {
         topic,
         answers,
@@ -96,7 +101,6 @@ const QuizPage = () => {
       const masteryValue = res.data.masteryUpdate?.[topic];
       setSummary(res.data);
 
-      // ✅ Update mastery state in Zustand
       updateProfile({
         mastery: {
           ...currentMastery,
@@ -104,12 +108,10 @@ const QuizPage = () => {
         },
       });
 
-      // ✅ Add to progress if confidence > 0.7
       if (typeof masteryValue === "number" && (1 - masteryValue) > 0.7 && !progress.includes(topic)) {
         addLearnedTopic(topic);
       }
 
-      // ✅ Append new quiz entry to quiz history
       const newEntry = {
         topic,
         score: res.data.score,
@@ -123,13 +125,15 @@ const QuizPage = () => {
         err instanceof Error ? err.message : "Failed to submit quiz";
       console.error("Quiz submission error:", err);
       setError(errorMessage);
+    } finally {
+      setIsSubmitting(false); // End loading for submission
     }
   };
 
   if (loading) {
     return (
       <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
-        <p className="fs-5 text-muted">Loading quiz questions...</p>
+        <LoadingSpinner size="lg" message="Loading quiz questions..." /> {/* Use spinner here */}
       </div>
     );
   }
@@ -185,7 +189,7 @@ const QuizPage = () => {
                       value={option}
                       checked={answers[i] === option}
                       onChange={() => handleOptionSelect(i, option)}
-                      disabled={submitted}
+                      disabled={submitted || isSubmitting} // Disable while submitted or submitting
                       className="form-check-input me-3"
                       style={{ transform: "scale(1.4)" }}
                     />
@@ -199,10 +203,10 @@ const QuizPage = () => {
           {!submitted && (
             <button
               onClick={handleSubmit}
-              disabled={answers.some((a) => a === "") || answers.length === 0}
+              disabled={answers.some((a) => a === "") || answers.length === 0 || isSubmitting} // Disable submit button while submitting
               className="btn btn-primary btn-lg w-100 mt-4"
             >
-              Submit Quiz
+              {isSubmitting ? <LoadingSpinner size="sm" /> : "Submit Quiz"}
             </button>
           )}
         </form>
