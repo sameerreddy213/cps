@@ -31,6 +31,7 @@ const Dashboard = () => {
   const setQuizHistory = useUserStore((state) => state.setQuizHistory);
   const setProfile = useUserStore((state) => state.setProfile);
   const addLearnedTopic = useUserStore((state) => state.addLearnedTopic);
+  const removeLearnedTopic = useUserStore((state) => state.removeLearnedTopic);
 
   const navigate = useNavigate();
 
@@ -50,21 +51,32 @@ const Dashboard = () => {
         if (Array.isArray(res.data)) {
           setQuizHistory(res.data);
 
-          // ✅ Update mastery state
-          const masteryUpdate: Record<string, number> = {};
+          // Group scores per topic
+          const topicScoresMap: Record<string, number[]> = {};
           res.data.forEach((entry: QuizHistoryEntry) => {
-            if (entry.topic && typeof entry.mastery === "number") {
-              masteryUpdate[entry.topic] = entry.mastery;
+            if (!topicScoresMap[entry.topic]) {
+              topicScoresMap[entry.topic] = [];
+            }
+            topicScoresMap[entry.topic].push(entry.mastery);
+          });
 
-              // ✅ If confidence > 70%, add to progress
-              const confidence = 1 - entry.mastery;
-              if (confidence >= 0.7 && !progress.includes(entry.topic)) {
-                addLearnedTopic(entry.topic);
-              }
+          // Compute average mastery per topic
+          const updatedMastery: Record<string, number> = {};
+          Object.entries(topicScoresMap).forEach(([topic, scores]) => {
+            const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+            updatedMastery[topic] = avg;
+
+            const confidence = 1 - avg;
+            const isLearned = progress.includes(topic);
+
+            if (confidence >= 0.7 && !isLearned) {
+              addLearnedTopic(topic);
+            } else if (confidence < 0.7 && isLearned) {
+              removeLearnedTopic(topic);
             }
           });
 
-          setProfile({ mastery: masteryUpdate });
+          setProfile({ mastery: updatedMastery });
         }
       } catch (err) {
         console.error("Failed to fetch quiz history", err);
@@ -73,7 +85,7 @@ const Dashboard = () => {
     };
 
     if (username) fetchHistory();
-  }, [username, setQuizHistory, setProfile, progress, addLearnedTopic]);
+  }, [username, setQuizHistory, setProfile, progress, addLearnedTopic, removeLearnedTopic]);
 
   const handleGetPath = async () => {
     setPathError(null);
@@ -86,10 +98,10 @@ const Dashboard = () => {
       const res = await api.post("/recommendation", {
         start: startConcept.trim(),
         end: endConcept.trim(),
-        username: username,
+        username,
       });
       setRecommendedPath(res.data.path || []);
-      if (res.data.path && res.data.path.length === 0) {
+      if (res.data.path?.length === 0) {
         setPathError("No path found between the specified concepts.");
       }
     } catch (err: any) {
@@ -131,7 +143,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Current Mastery Levels */}
+      {/* Mastery Levels */}
       <hr className="my-5 border-secondary border-dashed" />
       <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Current Mastery Levels</h3>
@@ -141,7 +153,8 @@ const Dashboard = () => {
           <ul className="list-group list-group-flush mx-auto" style={{ maxWidth: '800px' }}>
             {Object.entries(mastery).map(([topic, score]) => (
               <li key={topic} className="list-group-item bg-secondary-subtle border-start border-5 border-success rounded mb-3 shadow-sm d-flex justify-content-between align-items-center text-dark">
-                <strong>{topic}</strong> <span className="badge bg-primary text-white fs-6">{(1 - score).toFixed(2)} Confidence</span>
+                <strong>{topic}</strong>
+                <span className="badge bg-primary text-white fs-6">{(1 - score).toFixed(2)} Confidence</span>
               </li>
             ))}
           </ul>
