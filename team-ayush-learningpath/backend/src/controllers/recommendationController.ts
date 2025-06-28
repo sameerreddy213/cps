@@ -14,9 +14,7 @@ export const getRecommendation = async (req: Request, res: Response) => {
     const { userId, goalConceptId } = req.params;
     const currentConceptId = req.query.currentConceptId as string;
 
-    console.log("userId:", userId);
-    console.log("goalConceptId:", goalConceptId);
-    console.log("currentConceptId:", currentConceptId);
+    console.log("Recommendation request:", { userId, goalConceptId, currentConceptId });
 
     if (!userId || !goalConceptId || !currentConceptId) {
       return res.status(400).json({ error: "Missing userId, goalConceptId, or currentConceptId" });
@@ -24,6 +22,13 @@ export const getRecommendation = async (req: Request, res: Response) => {
 
     // Fetch all concepts (titles + prerequisites)
     const concepts = await Concept.find({}, { _id: 1, title: 1, prerequisites: 1 });
+    console.log("Total concepts found:", concepts.length);
+
+    // Check if goal concept exists
+    const goalConcept = concepts.find(c => c._id?.toString() === goalConceptId);
+    if (!goalConcept) {
+      return res.status(404).json({ message: "Goal concept not found in database." });
+    }
 
     // Build graph input for graphlib
     const conceptNodes = concepts.map(c => ({
@@ -33,10 +38,32 @@ export const getRecommendation = async (req: Request, res: Response) => {
 
     const graph = buildConceptGraph(conceptNodes);
 
-    // Get all paths from current to goal concept
-    const allPathsRaw = getAllPaths(graph, currentConceptId.toString(), goalConceptId.toString());
-    if (allPathsRaw.length === 0) {
-      return res.status(404).json({ message: "No paths found to target concept." });
+    // If currentConceptId is "root", find concepts with no prerequisites as starting points
+    let allPathsRaw: string[][] = [];
+    if (currentConceptId === "root") {
+      // Find all concepts with no prerequisites as potential starting points
+      const rootConcepts = concepts.filter(c => !c.prerequisites || c.prerequisites.length === 0);
+      console.log("Root concepts:", rootConcepts.map(c => c.title));
+      
+      // Try to find paths from each root concept to the goal
+      for (const rootConcept of rootConcepts) {
+        const paths = getAllPaths(graph, rootConcept._id?.toString() || "", goalConceptId.toString());
+        if (paths.length > 0) {
+          allPathsRaw = paths;
+          console.log(`Found ${paths.length} paths from ${rootConcept.title} to ${goalConcept.title}`);
+          break;
+        }
+      }
+      
+      if (allPathsRaw.length === 0) {
+        return res.status(404).json({ message: "No paths found to target concept from any starting point." });
+      }
+    } else {
+      // Get all paths from current to goal concept
+      allPathsRaw = getAllPaths(graph, currentConceptId.toString(), goalConceptId.toString());
+      if (allPathsRaw.length === 0) {
+        return res.status(404).json({ message: "No paths found to target concept." });
+      }
     }
 
     // ✅ Fetch user's progress (single doc with concepts array)
@@ -48,8 +75,6 @@ export const getRecommendation = async (req: Request, res: Response) => {
         masteryMap[entry.conceptId.toString()] = entry.score;
       });
     }
-
-    console.log("User Progress:", masteryMap);
 
     // Build lookup map of concept metadata
     const conceptMap: Record<string, { title: string; prerequisites: string[] }> = {};
@@ -91,6 +116,8 @@ export const getRecommendation = async (req: Request, res: Response) => {
 
     // Choose best path (lowest cost)
     const bestPath = [...allPaths].sort((a, b) => a.totalCost - b.totalCost)[0];
+
+    console.log("Best path found:", bestPath.detailedPath.map(p => p.title));
 
     return res.status(200).json({
       bestPath,

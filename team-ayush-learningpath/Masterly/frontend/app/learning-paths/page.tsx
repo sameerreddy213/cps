@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -26,8 +26,12 @@ import {
   Sparkles,
   Clock,
   Award,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
+import { apiService, Concept, RecommendationResponse } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { toast } from "@/hooks/use-toast"
 
 interface Topic {
   id: string
@@ -41,6 +45,7 @@ interface Topic {
   estimatedHours: number
   difficulty: "Beginner" | "Intermediate" | "Advanced"
   icon: any
+  locked?: boolean
 }
 
 interface Course {
@@ -54,6 +59,7 @@ interface Course {
   color: string
 }
 
+// Mock courses for now - these could be fetched from API later
 const availableCourses: Course[] = [
   {
     id: "dsa",
@@ -97,142 +103,8 @@ const availableCourses: Course[] = [
   },
 ]
 
-const allTopics: Topic[] = [
-  // DSA Topics
-  {
-    id: "arrays",
-    title: "Arrays",
-    description: "Array operations and algorithms",
-    courseId: "dsa",
-    courseName: "Data Structures & Algorithms",
-    masteryLevel: 8.5,
-    isCompleted: true,
-    isPrerequisite: false,
-    estimatedHours: 12,
-    difficulty: "Beginner",
-    icon: Target,
-  },
-  {
-    id: "linked-lists",
-    title: "Linked Lists",
-    description: "Singly, doubly, and circular linked lists",
-    courseId: "dsa",
-    courseName: "Data Structures & Algorithms",
-    masteryLevel: 6.8,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 10,
-    difficulty: "Beginner",
-    icon: TrendingUp,
-  },
-  {
-    id: "stacks",
-    title: "Stacks",
-    description: "Stack operations and applications",
-    courseId: "dsa",
-    courseName: "Data Structures & Algorithms",
-    masteryLevel: 4.2,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 8,
-    difficulty: "Beginner",
-    icon: Zap,
-  },
-  {
-    id: "queues",
-    title: "Queues",
-    description: "Queue operations and types",
-    courseId: "dsa",
-    courseName: "Data Structures & Algorithms",
-    masteryLevel: 2.1,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 7,
-    difficulty: "Beginner",
-    icon: TrendingUp,
-  },
-  {
-    id: "trees",
-    title: "Trees",
-    description: "Binary trees, BST, and tree algorithms",
-    courseId: "dsa",
-    courseName: "Data Structures & Algorithms",
-    masteryLevel: 0,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 15,
-    difficulty: "Intermediate",
-    icon: Target,
-  },
-  {
-    id: "graphs",
-    title: "Graphs",
-    description: "Graph algorithms and traversals",
-    courseId: "dsa",
-    courseName: "Data Structures & Algorithms",
-    masteryLevel: 0,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 18,
-    difficulty: "Advanced",
-    icon: Brain,
-  },
-  // Web Dev Topics
-  {
-    id: "html-css",
-    title: "HTML & CSS",
-    description: "Frontend fundamentals",
-    courseId: "web-dev",
-    courseName: "Full Stack Web Development",
-    masteryLevel: 9.1,
-    isCompleted: true,
-    isPrerequisite: true,
-    estimatedHours: 20,
-    difficulty: "Beginner",
-    icon: Globe,
-  },
-  {
-    id: "javascript",
-    title: "JavaScript",
-    description: "Modern JavaScript and ES6+",
-    courseId: "web-dev",
-    courseName: "Full Stack Web Development",
-    masteryLevel: 7.8,
-    isCompleted: true,
-    isPrerequisite: true,
-    estimatedHours: 25,
-    difficulty: "Intermediate",
-    icon: Code,
-  },
-  {
-    id: "react",
-    title: "React",
-    description: "React fundamentals and hooks",
-    courseId: "web-dev",
-    courseName: "Full Stack Web Development",
-    masteryLevel: 6.5,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 30,
-    difficulty: "Intermediate",
-    icon: Zap,
-  },
-  {
-    id: "nodejs",
-    title: "Node.js",
-    description: "Backend development with Node.js",
-    courseId: "web-dev",
-    courseName: "Full Stack Web Development",
-    masteryLevel: 5.2,
-    isCompleted: false,
-    isPrerequisite: false,
-    estimatedHours: 22,
-    difficulty: "Intermediate",
-    icon: Database,
-  },
-]
-
 export default function CustomPathGenerator() {
+  const { user } = useAuth()
   const [selectedGoal, setSelectedGoal] = useState<string>("")
   const [searchQuery, setSearchQuery] = useState("")
   const [pathType, setPathType] = useState<"course" | "topic">("course")
@@ -241,92 +113,230 @@ export default function CustomPathGenerator() {
   const [revisionThreshold] = useState(7)
   const [alternativeRoutes, setAlternativeRoutes] = useState<Topic[][]>([])
   const [selectedRoute, setSelectedRoute] = useState<number>(0)
+  const [searchResults, setSearchResults] = useState<Concept[]>([])
+  const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
+  const [userProgress, setUserProgress] = useState<Record<string, number>>({})
 
-  const generateCustomPath = () => {
-    setIsGenerating(true)
+  // Fetch user progress on component mount
+  useEffect(() => {
+    const fetchUserProgress = async () => {
+      if (!user) return;
+      
+      try {
+        const progress = await apiService.getUserProgress(user._id);
+        const progressMap: Record<string, number> = {};
+        progress.forEach(p => {
+          progressMap[p.conceptId] = p.score;
+        });
+        setUserProgress(progressMap);
+      } catch (error) {
+        console.error('Error fetching user progress:', error);
+      }
+    };
 
-    // Simulate AI path generation
-    setTimeout(() => {
-      let mainPath: Topic[] = []
-      let alternatives: Topic[][] = []
+    fetchUserProgress();
+  }, [user]);
 
-      if (pathType === "course" && selectedGoal) {
-        // Generate main path for entire course
-        const courseTopics = allTopics.filter((topic) => topic.courseId === selectedGoal)
-
-        // Add revision topics if mastery is below threshold
-        const revisionTopics = courseTopics.filter(
-          (topic) => topic.masteryLevel > 0 && topic.masteryLevel < revisionThreshold,
-        )
-
-        // Add incomplete topics
-        const incompleteTopics = courseTopics.filter((topic) => !topic.isCompleted)
-
-        mainPath = [...revisionTopics, ...incompleteTopics]
-          .sort((a, b) => {
-            // Sort by prerequisites first, then by difficulty
-            if (a.isPrerequisite && !b.isPrerequisite) return -1
-            if (!a.isPrerequisite && b.isPrerequisite) return 1
-            return a.difficulty.localeCompare(b.difficulty)
-          })
-          .slice(0, 5)
-
-        // Generate alternative routes
-        // Route 1: Difficulty-focused (easiest first)
-        const easyFirstRoute = [...revisionTopics, ...incompleteTopics]
-          .sort((a, b) => a.difficulty.localeCompare(b.difficulty))
-          .slice(0, 5)
-
-        // Route 2: Time-optimized (shortest duration first)
-        const timeOptimizedRoute = [...revisionTopics, ...incompleteTopics]
-          .sort((a, b) => a.estimatedHours - b.estimatedHours)
-          .slice(0, 5)
-
-        // Route 3: Mastery-focused (lowest mastery first)
-        const masteryFocusedRoute = [...revisionTopics, ...incompleteTopics]
-          .sort((a, b) => a.masteryLevel - b.masteryLevel)
-          .slice(0, 5)
-
-        alternatives = [easyFirstRoute, timeOptimizedRoute, masteryFocusedRoute]
-      } else if (pathType === "topic" && searchQuery) {
-        // Generate path for specific topic
-        const targetTopic = allTopics.find((topic) => topic.title.toLowerCase().includes(searchQuery.toLowerCase()))
-
-        if (targetTopic) {
-          // Find prerequisites and related topics
-          const prerequisites = allTopics.filter(
-            (topic) =>
-              topic.courseId === targetTopic.courseId && topic.isPrerequisite && topic.masteryLevel < revisionThreshold,
-          )
-
-          mainPath = [...prerequisites, targetTopic].slice(0, 4)
-
-          // Generate alternative approaches
-          const directRoute = [targetTopic] // Direct approach
-          const comprehensiveRoute = [
-            ...prerequisites,
-            targetTopic,
-            ...allTopics.filter((t) => t.courseId === targetTopic.courseId && !t.isPrerequisite).slice(0, 2),
-          ]
-
-          alternatives = [directRoute, comprehensiveRoute.slice(0, 4)]
-        }
+  // Search concepts when user types
+  useEffect(() => {
+    const searchConcepts = async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([])
+        return
       }
 
-      setGeneratedPath(mainPath)
-      setAlternativeRoutes(alternatives.filter((route) => route.length > 0))
-      setSelectedRoute(0)
+      console.log('Searching for concepts:', searchQuery);
+
+      setIsSearching(true)
+      try {
+        const concepts = await apiService.searchConcepts(searchQuery)
+        console.log('Search results:', concepts);
+        setSearchResults(concepts)
+      } catch (error) {
+        console.error('Error searching concepts:', error)
+        toast({
+          title: "Error",
+          description: "Failed to search concepts. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsSearching(false)
+      }
+    }
+
+    const debounceTimer = setTimeout(searchConcepts, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [searchQuery])
+
+  const generateCustomPath = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to generate personalized learning paths.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    console.log('Generate path called with:', {
+      user: user._id,
+      pathType,
+      selectedConcept: selectedConcept?._id,
+      selectedGoal
+    });
+
+    setIsGenerating(true)
+
+    try {
+      if (pathType === "topic" && selectedConcept) {
+        console.log('Calling recommendation API with:', {
+          userId: user._id,
+          goalConceptId: selectedConcept._id,
+          currentConceptId: "root"
+        });
+
+        // Get recommendation for specific topic
+        const response = await apiService.getRecommendation(
+          user._id,
+          selectedConcept._id,
+          "root" // Assuming we start from root concept
+        )
+
+        console.log('Recommendation response:', response);
+
+        // Transform the API response to match our Topic interface
+        const transformedPath = response.bestPath.detailedPath.map((item, index) => {
+          const masteryLevel = userProgress[item.conceptId] || 0;
+          const isCompleted = masteryLevel >= 0.7; // Consider completed if mastery >= 70%
+          
+          return {
+            id: item.conceptId,
+            title: item.title,
+            description: `Step ${index + 1} towards ${selectedConcept.title}`,
+            courseId: "custom",
+            courseName: "Custom Learning Path",
+            masteryLevel: masteryLevel * 10, // Convert 0-1 scale to 0-10 scale for display
+            isCompleted,
+            isPrerequisite: item.locked,
+            estimatedHours: 2, // Default estimate - could be enhanced with actual concept data
+            difficulty: "Intermediate" as const,
+            icon: Target,
+            locked: item.locked,
+          };
+        });
+
+        setGeneratedPath(transformedPath)
+
+        // Transform alternative paths
+        const transformedAlternatives = response.allPaths.slice(1).map(path => 
+          path.detailedPath.map((item, index) => {
+            const masteryLevel = userProgress[item.conceptId] || 0;
+            const isCompleted = masteryLevel >= 0.7;
+            
+            return {
+              id: item.conceptId,
+              title: item.title,
+              description: `Alternative step ${index + 1}`,
+              courseId: "custom",
+              courseName: "Custom Learning Path",
+              masteryLevel: masteryLevel * 10,
+              isCompleted,
+              isPrerequisite: item.locked,
+              estimatedHours: 2,
+              difficulty: "Intermediate" as const,
+              icon: Target,
+              locked: item.locked,
+            };
+          })
+        )
+
+        setAlternativeRoutes(transformedAlternatives)
+        setSelectedRoute(0)
+
+        toast({
+          title: "Path Generated!",
+          description: `Found ${transformedPath.length} steps to master ${selectedConcept.title}`,
+        })
+      } else if (pathType === "course" && selectedGoal) {
+        // For course-based paths, we'll use mock data for now
+        // This could be enhanced to use course-specific recommendations
+        const courseTopics = generateMockCoursePath(selectedGoal)
+        setGeneratedPath(courseTopics)
+        setAlternativeRoutes([])
+        setSelectedRoute(0)
+
+        toast({
+          title: "Course Path Generated!",
+          description: `Generated learning path for ${availableCourses.find(c => c.id === selectedGoal)?.title}`,
+        })
+      }
+    } catch (error) {
+      console.error('Error generating path:', error)
+      toast({
+        title: "Error",
+        description: "Failed to generate learning path. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
       setIsGenerating(false)
-    }, 2000)
+    }
+  }
+
+  // Mock function for course-based paths
+  const generateMockCoursePath = (courseId: string): Topic[] => {
+    const mockTopics: Topic[] = [
+      {
+        id: "arrays",
+        title: "Arrays",
+        description: "Array operations and algorithms",
+        courseId: courseId,
+        courseName: availableCourses.find(c => c.id === courseId)?.title || "Course",
+        masteryLevel: 8.5,
+        isCompleted: true,
+        isPrerequisite: false,
+        estimatedHours: 12,
+        difficulty: "Beginner",
+        icon: Target,
+      },
+      {
+        id: "linked-lists",
+        title: "Linked Lists",
+        description: "Singly, doubly, and circular linked lists",
+        courseId: courseId,
+        courseName: availableCourses.find(c => c.id === courseId)?.title || "Course",
+        masteryLevel: 6.8,
+        isCompleted: false,
+        isPrerequisite: false,
+        estimatedHours: 10,
+        difficulty: "Beginner",
+        icon: TrendingUp,
+      },
+      {
+        id: "stacks",
+        title: "Stacks",
+        description: "Stack operations and applications",
+        courseId: courseId,
+        courseName: availableCourses.find(c => c.id === courseId)?.title || "Course",
+        masteryLevel: 4.2,
+        isCompleted: false,
+        isPrerequisite: false,
+        estimatedHours: 8,
+        difficulty: "Beginner",
+        icon: Zap,
+      },
+    ]
+    return mockTopics
   }
 
   // Find the next incomplete topic in the current path
   const getNextIncompleteTopic = () => {
     const currentPath = selectedRoute === 0 ? generatedPath : alternativeRoutes[selectedRoute - 1] || generatedPath
-    return currentPath.find((topic) => !topic.isCompleted)
+    return currentPath.find((topic) => !topic.isCompleted && !topic.locked)
   }
 
   const getStatusColor = (topic: Topic) => {
+    if (topic.locked) return "from-red-500 to-red-600"
     if (topic.isCompleted) return "from-green-500 to-emerald-600"
     if (topic.masteryLevel >= revisionThreshold) return "from-blue-500 to-indigo-600"
     if (topic.masteryLevel > 0) return "from-yellow-500 to-orange-600"
@@ -334,6 +344,7 @@ export default function CustomPathGenerator() {
   }
 
   const getStatusIcon = (topic: Topic) => {
+    if (topic.locked) return <Lock className="w-5 h-5 text-white" />
     if (topic.isCompleted) return <CheckCircle className="w-5 h-5 text-white" />
     if (topic.masteryLevel >= revisionThreshold) return <Play className="w-5 h-5 text-white" />
     if (topic.masteryLevel > 0) return <RefreshCw className="w-5 h-5 text-white" />
@@ -341,6 +352,7 @@ export default function CustomPathGenerator() {
   }
 
   const getStatusLabel = (topic: Topic) => {
+    if (topic.locked) return "Locked"
     if (topic.isCompleted) return "Completed"
     if (topic.masteryLevel >= revisionThreshold) return "Ready"
     if (topic.masteryLevel > 0) return "Needs Revision"
@@ -477,7 +489,39 @@ export default function CustomPathGenerator() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-12 h-12 text-base"
                       />
+                      {isSearching && (
+                        <Loader2 className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+                      )}
                     </div>
+                    
+                    {/* Search Results */}
+                    {searchResults.length > 0 && (
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {searchResults.map((concept) => (
+                          <div
+                            key={concept._id}
+                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                              selectedConcept?._id === concept._id
+                                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                                : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+                            }`}
+                            onClick={() => setSelectedConcept(concept)}
+                          >
+                            <div className="font-medium text-gray-900 dark:text-white">{concept.title}</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-300">{concept.description}</div>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Badge variant="outline" className="text-xs">
+                                Level: {concept.level || "Intermediate"}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                Complexity: {concept.complexity}/5
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Search for any topic you want to master
                     </div>
@@ -487,7 +531,7 @@ export default function CustomPathGenerator() {
                 {/* Generate Button */}
                 <Button
                   onClick={generateCustomPath}
-                  disabled={isGenerating || (!selectedGoal && !searchQuery)}
+                  disabled={isGenerating || (!selectedGoal && !selectedConcept)}
                   className="w-full h-12 text-base bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                   size="lg"
                 >
@@ -502,6 +546,31 @@ export default function CustomPathGenerator() {
                       Generate Learning Path
                     </>
                   )}
+                </Button>
+
+                {/* Test Backend Connection */}
+                <Button
+                  onClick={async () => {
+                    try {
+                      const concepts = await apiService.getAllConcepts();
+                      toast({
+                        title: "Backend Connected!",
+                        description: `Found ${concepts.length} concepts in database`,
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Backend Error",
+                        description: "Failed to connect to backend. Make sure the server is running.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  variant="outline"
+                  className="w-full h-10 text-sm"
+                  size="sm"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Test Backend Connection
                 </Button>
               </CardContent>
             </Card>
@@ -653,11 +722,13 @@ export default function CustomPathGenerator() {
                                 className={`
                   relative p-5 rounded-2xl border-2 transition-all duration-500 hover:scale-105 hover:shadow-2xl cursor-pointer w-full
                   ${
-                    topic.masteryLevel > 0 && topic.masteryLevel < revisionThreshold
-                      ? "border-yellow-300 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-600"
-                      : topic.isCompleted
-                        ? "border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-600"
-                        : "border-gray-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 dark:border-gray-600"
+                    topic.locked
+                      ? "border-red-300 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 dark:border-red-600"
+                      : topic.masteryLevel > 0 && topic.masteryLevel < revisionThreshold
+                        ? "border-yellow-300 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-600"
+                        : topic.isCompleted
+                          ? "border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-600"
+                          : "border-gray-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 dark:border-gray-600"
                   }
                   hover:border-blue-400 dark:hover:border-blue-500
                 `}
@@ -711,8 +782,16 @@ export default function CustomPathGenerator() {
                                     )}
                                   </div>
 
-                                  {/* Revision Warning */}
-                                  {topic.masteryLevel > 0 && topic.masteryLevel < revisionThreshold && (
+                                  {/* Status Messages */}
+                                  {topic.locked && (
+                                    <div className="flex items-center space-x-2 p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                                      <Lock className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+                                      <span className="text-xs text-red-700 dark:text-red-300">
+                                        Prerequisites required
+                                      </span>
+                                    </div>
+                                  )}
+                                  {topic.masteryLevel > 0 && topic.masteryLevel < revisionThreshold && !topic.locked && (
                                     <div className="flex items-center space-x-2 p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
                                       <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
                                       <span className="text-xs text-yellow-700 dark:text-yellow-300">
@@ -801,6 +880,42 @@ export default function CustomPathGenerator() {
                             </div>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Path Progress Summary */}
+                  {generatedPath.length > 0 && (
+                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Path Progress Summary
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            {generatedPath.length}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300">Total Topics</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            {generatedPath.filter(topic => topic.isCompleted).length}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300">Completed</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                            {generatedPath.filter(topic => topic.locked).length}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300">Locked</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                            {Math.round((generatedPath.filter(topic => topic.isCompleted).length / generatedPath.length) * 100)}%
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300">Progress</div>
+                        </div>
                       </div>
                     </div>
                   )}

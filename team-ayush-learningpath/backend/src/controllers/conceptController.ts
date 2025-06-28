@@ -10,11 +10,60 @@ import Concept from '../models/conceptModel';
 export const getAllConcepts = async (req: Request, res: Response) => {
     try {
         // Only select fields needed for a catalog view to keep the payload small.
-        const concepts = await Concept.find({}).select('title description');
+        const concepts = await Concept.find({}).select('title description complexity estLearningTimeHours level category');
+        console.log('Found concepts:', concepts.length);
         res.status(200).json(concepts);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+/**
+ * @desc    Search concepts by title
+ * @route   GET /api/concepts/search?q=query
+ * @access  Private
+ */
+export const searchConcepts = async (req: Request, res: Response) => {
+    try {
+        const { q } = req.query;
+        
+        console.log('Searching for concepts with query:', q);
+        
+        if (!q || typeof q !== 'string') {
+            return res.status(400).json({ message: 'Search query is required' });
+        }
+
+        const concepts = await Concept.find({
+            title: { $regex: q, $options: 'i' }
+        }).select('title description complexity estLearningTimeHours level category _id');
+
+        console.log('Search results:', concepts.length, 'concepts found');
+        res.status(200).json(concepts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+/**
+ * @desc    Test endpoint to check if concepts exist
+ * @route   GET /api/concepts/test
+ * @access  Public
+ */
+export const testConcepts = async (req: Request, res: Response) => {
+    try {
+        const count = await Concept.countDocuments();
+        const sampleConcepts = await Concept.find({}).limit(5).select('title _id');
+        
+        res.status(200).json({
+            totalConcepts: count,
+            sampleConcepts: sampleConcepts,
+            message: count > 0 ? 'Concepts found in database' : 'No concepts found in database'
+        });
+    } catch (error) {
+        console.error('Test concepts error:', error);
+        res.status(500).json({ message: 'Database error', error: error.message });
     }
 };
 
