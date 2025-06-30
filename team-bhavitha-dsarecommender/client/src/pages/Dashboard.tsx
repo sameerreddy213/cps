@@ -3,17 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { useUserStore } from "../store/userStore";
 import LearnedConceptCard from "../components/LearnedConceptCard";
-import QuizCard from "../components/QuizCard";
-import { validTopics } from "../data/validTopic";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 
 interface QuizHistoryEntry {
   topic: string;
@@ -22,11 +12,14 @@ interface QuizHistoryEntry {
   createdAt: string;
 }
 
-const Dashboard = () => {
+interface DashboardProps {
+  asBackground?: boolean;
+}
+
+const Dashboard = ({ asBackground = false }: DashboardProps) => {
   const username = useUserStore((state) => state.username);
   const mastery = useUserStore((state) => state.mastery);
   const progress = useUserStore((state) => state.progress);
-  const recommendations = useUserStore((state) => state.recommendations);
   const quizHistory = useUserStore((state) => state.quizHistory);
   const setQuizHistory = useUserStore((state) => state.setQuizHistory);
   const setProfile = useUserStore((state) => state.setProfile);
@@ -34,7 +27,6 @@ const Dashboard = () => {
   const removeLearnedTopic = useUserStore((state) => state.removeLearnedTopic);
 
   const navigate = useNavigate();
-
   const [startConcept, setStartConcept] = useState("");
   const [endConcept, setEndConcept] = useState("");
   const [recommendedPath, setRecommendedPath] = useState<string[]>([]);
@@ -51,16 +43,12 @@ const Dashboard = () => {
         if (Array.isArray(res.data)) {
           setQuizHistory(res.data);
 
-          // Group scores per topic
           const topicScoresMap: Record<string, number[]> = {};
           res.data.forEach((entry: QuizHistoryEntry) => {
-            if (!topicScoresMap[entry.topic]) {
-              topicScoresMap[entry.topic] = [];
-            }
+            if (!topicScoresMap[entry.topic]) topicScoresMap[entry.topic] = [];
             topicScoresMap[entry.topic].push(entry.mastery);
           });
 
-          // Compute average mastery per topic
           const updatedMastery: Record<string, number> = {};
           Object.entries(topicScoresMap).forEach(([topic, scores]) => {
             const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
@@ -69,11 +57,8 @@ const Dashboard = () => {
             const confidence = 1 - avg;
             const isLearned = progress.includes(topic);
 
-            if (confidence >= 0.7 && !isLearned) {
-              addLearnedTopic(topic);
-            } else if (confidence < 0.7 && isLearned) {
-              removeLearnedTopic(topic);
-            }
+            if (confidence >= 0.7 && !isLearned) addLearnedTopic(topic);
+            else if (confidence < 0.7 && isLearned) removeLearnedTopic(topic);
           });
 
           setProfile({ mastery: updatedMastery });
@@ -87,30 +72,6 @@ const Dashboard = () => {
     if (username) fetchHistory();
   }, [username, setQuizHistory, setProfile, progress, addLearnedTopic, removeLearnedTopic]);
 
-  const handleGetPath = async () => {
-    setPathError(null);
-    if (!startConcept.trim() || !endConcept.trim()) {
-      setPathError("Please enter both start and target concepts.");
-      setRecommendedPath([]);
-      return;
-    }
-    try {
-      const res = await api.post("/recommendation", {
-        start: startConcept.trim(),
-        end: endConcept.trim(),
-        username,
-      });
-      setRecommendedPath(res.data.path || []);
-      if (res.data.path?.length === 0) {
-        setPathError("No path found between the specified concepts.");
-      }
-    } catch (err: any) {
-      console.error("Failed to get recommendation path", err);
-      setPathError(err.response?.data?.error || "Failed to get recommendation path.");
-      setRecommendedPath([]);
-    }
-  };
-
   const chartData = quizHistory.map((entry) => ({
     topic: entry.topic,
     mastery: (1 - entry.mastery) * 100,
@@ -118,9 +79,19 @@ const Dashboard = () => {
   }));
 
   return (
-    <div className="container py-4 bg-dark text-white rounded shadow-lg">
-      <h2 className="text-center mb-4 text-purple">Welcome, {username}!</h2>
-      <p className="text-center text-white mb-5">This is your personalized dashboard.</p>
+    <div
+      className={`container py-4 text-white rounded shadow-lg ${
+        asBackground
+          ? "position-fixed top-0 start-0 w-100 h-100 z-n1 opacity-25 blur-lg overflow-auto"
+          : "bg-dark"
+      }`}
+    >
+      {!asBackground && (
+        <>
+          <h2 className="text-center mb-4 text-purple">Welcome, {username}!</h2>
+          <p className="text-center text-white mb-5">This is your personalized dashboard.</p>
+        </>
+      )}
 
       {/* Mastery Over Time */}
       <hr className="my-5 border-secondary border-dashed" />

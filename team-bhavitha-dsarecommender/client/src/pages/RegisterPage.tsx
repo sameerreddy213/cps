@@ -1,27 +1,61 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../lib/api"; 
+import api from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
-import LoadingSpinner from "../components/LoadingSpinner"; // Added: Import LoadingSpinner
+import Select from "react-select";
+import { validTopics } from "../data/validTopic";
+import { Eye, EyeOff } from "lucide-react";
+import LoadingWithQuotes from "../components/LoadingWithQuotes";
+import DashboardBackgroundPortal from "../components/DashboardBackgroundPortal";
+import Dashboard from "../pages/Dashboard";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [topics, setTopics] = useState("");
+  const [topics, setTopics] = useState<string[]>([]);
+  const [selectedTopics, setSelectedTopics] = useState<{ value: string; label: string }[]>([]);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Added: Loading state
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const login = useAuthStore((state) => state.login);
   const setProfile = useUserStore((state) => state.setProfile);
   const navigate = useNavigate();
 
+  const getPasswordStrength = (password: string): { score: number; label: string } => {
+    let score = 0;
+    if (password.length >= 6) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
+    if (password.length >= 10) score++;
+
+    const labels = ["Too Weak", "Weak", "Moderate", "Strong", "Very Strong"];
+    return { score, label: labels[score] };
+  };
+
+  const passwordStrength = getPasswordStrength(password);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
-    setIsLoading(true); // Added: Set loading to true on submission start
+    setError("");
+    setIsLoading(true);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError("Password must contain at least one uppercase letter and one special character.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const userPayload = {
@@ -29,7 +63,7 @@ const RegisterPage = () => {
         username,
         password,
         email,
-        progress: topics.split(",").map((topic) => topic.trim()).filter(Boolean),
+        progress: topics,
       };
 
       const res = await api.post("/register", userPayload);
@@ -43,96 +77,145 @@ const RegisterPage = () => {
     } catch (err: any) {
       setError(err.response?.data?.error || "Registration failed. Please try again.");
     } finally {
-      setIsLoading(false); // Added: Set loading to false when submission finishes
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="card bg-dark text-white p-4 shadow-lg rounded" style={{ maxWidth: '480px', width: '100%' }}>
-      <h2 className="card-title text-center text-primary mb-4 fs-2">Register</h2>
-      <form onSubmit={handleRegister}>
-        <div className="mb-3">
-          <label htmlFor="fullName" className="form-label text-white">Full Name:</label>
-          <input
-            id="fullName"
-            type="text"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your full name"
-            required
-            disabled={isLoading} // Added: Disable input when loading
-          />
+<>
+  <Dashboard asBackground />
+  <div className="relative z-10 d-flex justify-content-center align-items-center min-vh-100 bg-dark bg-opacity-75">
+    {/* Register form card goes here */}
+
+        {isLoading && <LoadingWithQuotes />}
+
+        <div className={`card bg-dark text-white p-4 shadow-lg rounded-4 w-100 ${isLoading ? "opacity-60 blur-sm" : ""}`} style={{ maxWidth: "480px" }}>
+          <h2 className="card-title text-center text-primary mb-4 fs-2 fw-bold">Create Your Account</h2>
+          <form onSubmit={handleRegister}>
+            {/* Full Name */}
+            <div className="mb-3">
+              <label htmlFor="fullName" className="form-label">Full Name:</label>
+              <input
+                id="fullName"
+                type="text"
+                className="form-control"
+                placeholder="e.g. Anurag Kumar"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            {/* Username */}
+            <div className="mb-3">
+              <label htmlFor="regUsername" className="form-label">Username:</label>
+              <input
+                id="regUsername"
+                type="text"
+                className="form-control"
+                placeholder="Choose a unique username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            {/* Password */}
+            <div className="mb-3">
+              <label htmlFor="regPassword" className="form-label">Password:</label>
+              <div className="input-group">
+                <input
+                  id="regPassword"
+                  type={showPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="Use at least 1 uppercase & special character"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+                <span className="input-group-text bg-white" role="button" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </span>
+              </div>
+              <div className="progress mt-2" style={{ height: "6px" }}>
+                <div
+                  className={`progress-bar ${["bg-danger", "bg-warning", "bg-info", "bg-success"][passwordStrength.score - 1] || "bg-secondary"}`}
+                  style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                />
+              </div>
+              <small className="text-muted">Strength: {passwordStrength.label}</small>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="mb-3">
+              <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
+              <div className="input-group">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="form-control"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+                <span className="input-group-text bg-white" role="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </span>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label">Email:</label>
+              <input
+                id="email"
+                type="email"
+                className="form-control"
+                placeholder="e.g. anurag@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            {/* Topics Covered */}
+            <div className="mb-4">
+              <label htmlFor="topics" className="form-label">Topics Already Covered:</label>
+              <Select
+                id="topics"
+                isMulti
+                options={validTopics.map(topic => ({ value: topic, label: topic }))}
+                value={selectedTopics}
+                onChange={(selected) => {
+                  const selectedArr = selected as { value: string; label: string }[];
+                  setSelectedTopics(selectedArr);
+                  setTopics(selectedArr.map(opt => opt.value));
+                }}
+                isDisabled={isLoading}
+                className="text-dark"
+                classNamePrefix="select"
+                placeholder="Select covered topics"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button type="submit" className="btn btn-primary btn-lg w-100" disabled={isLoading}>
+              Register
+            </button>
+          </form>
+
+          {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
+          <p className="mt-4 text-center">
+            Already have an account? <Link to="/login" className="text-info fw-bold">Login</Link>
+          </p>
         </div>
-
-        <div className="mb-3">
-          <label htmlFor="regUsername" className="form-label text-white">Username:</label>
-          <input
-            id="regUsername"
-            type="text"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Choose a username"
-            required
-            disabled={isLoading} // Added: Disable input when loading
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="regPassword" className="form-label text-white">Password:</label>
-          <input
-            id="regPassword"
-            type="password"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Create a password"
-            required
-            disabled={isLoading} // Added: Disable input when loading
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label text-white">Email:</label>
-          <input
-            id="email"
-            type="email"
-            className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            disabled={isLoading} // Added: Disable input when loading
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="topicsCovered" className="form-label text-white">Topics Already Covered (comma-separated):</label>
-          <textarea
-            id="topicsCovered"
-            className="form-control bg-dark-subtle text-dark-contrast border-secondary"
-            value={topics}
-            onChange={(e) => setTopics(e.target.value)}
-            placeholder="e.g. Recursion, Loops, Functions"
-            rows={4}
-            disabled={isLoading} // Added: Disable input when loading
-          ></textarea>
-        </div>
-
-        <button
-          type="submit"
-          className="btn btn-primary btn-lg w-100"
-          disabled={isLoading} // Added: Disable button when loading
-        >
-          {isLoading ? <LoadingSpinner size="sm" /> : "Register"} {/* Added: Display spinner or text */}
-        </button>
-      </form>
-
-      {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
-      <p className="mt-4 text-center text-white">
-        Already have an account? <Link to="/login" className="text-info fw-bold">Login</Link>
-      </p>
-    </div>
+      </div>
+    </>
   );
 };
 
