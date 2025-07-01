@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
-//import { useState } from "react";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -17,10 +16,12 @@ const Navbar = () => {
   const protectedLink = (path: string) =>
     isAuthenticated ? path : "/register";
 
+  const brandLink = isAuthenticated ? `/dashboard/${username}` : "/";
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
       <div className="container-fluid">
-        <Link to="/" className="navbar-brand fs-3 fw-bold text-primary">
+        <Link to={brandLink} className="navbar-brand fs-3 fw-bold text-primary">
           LearnFlow
         </Link>
         <button
@@ -53,7 +54,6 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              {/* Direct to dashboard to find recommendation */}
               <Link
                 to={protectedLink("/recommend")}
                 className="nav-link text-white fw-semibold mx-2"
