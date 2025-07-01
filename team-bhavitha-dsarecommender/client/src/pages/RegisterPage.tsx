@@ -7,8 +7,7 @@ import Select from "react-select";
 import { validTopics } from "../data/validTopic";
 import { Eye, EyeOff } from "lucide-react";
 import LoadingWithQuotes from "../components/LoadingWithQuotes";
-import DashboardBackgroundPortal from "../components/DashboardBackgroundPortal";
-import Dashboard from "../pages/Dashboard";
+import DashboardBackground from "../components/DashboardBackground";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -82,137 +81,131 @@ const RegisterPage = () => {
   };
 
   return (
-<>
-  <Dashboard asBackground />
-  <div className="relative z-10 d-flex justify-content-center align-items-center min-vh-100 bg-dark bg-opacity-75">
-    {/* Register form card goes here */}
+    <>
+      <DashboardBackground />
 
-        {isLoading && <LoadingWithQuotes />}
+      <div className="relative z-10 flex items-center justify-center min-h-screen bg-white/60 backdrop-blur-sm">
+        <div className="p-8 rounded-xl shadow-xl bg-white/80 max-w-md w-full">
+          {isLoading && <LoadingWithQuotes />}
 
-        <div className={`card bg-dark text-white p-4 shadow-lg rounded-4 w-100 ${isLoading ? "opacity-60 blur-sm" : ""}`} style={{ maxWidth: "480px" }}>
-          <h2 className="card-title text-center text-primary mb-4 fs-2 fw-bold">Create Your Account</h2>
-          <form onSubmit={handleRegister}>
-            {/* Full Name */}
-            <div className="mb-3">
-              <label htmlFor="fullName" className="form-label">Full Name:</label>
-              <input
-                id="fullName"
-                type="text"
-                className="form-control"
-                placeholder="e.g. Anurag Kumar"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Username */}
-            <div className="mb-3">
-              <label htmlFor="regUsername" className="form-label">Username:</label>
-              <input
-                id="regUsername"
-                type="text"
-                className="form-control"
-                placeholder="Choose a unique username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Password */}
-            <div className="mb-3">
-              <label htmlFor="regPassword" className="form-label">Password:</label>
-              <div className="input-group">
+          <div className={`card bg-dark text-white p-4 shadow-lg rounded-4 w-100 ${isLoading ? "opacity-60 blur-sm" : ""}`} style={{ maxWidth: "480px" }}>
+            <h2 className="card-title text-center text-primary mb-4 fs-2 fw-bold">Create Your Account</h2>
+            <form onSubmit={handleRegister}>
+              <div className="mb-3">
+                <label htmlFor="fullName" className="form-label">Full Name:</label>
                 <input
-                  id="regPassword"
-                  type={showPassword ? "text" : "password"}
+                  id="fullName"
+                  type="text"
                   className="form-control"
-                  placeholder="Use at least 1 uppercase & special character"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="e.g. Anurag Kumar"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                   disabled={isLoading}
                 />
-                <span className="input-group-text bg-white" role="button" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </span>
               </div>
-              <div className="progress mt-2" style={{ height: "6px" }}>
-                <div
-                  className={`progress-bar ${["bg-danger", "bg-warning", "bg-info", "bg-success"][passwordStrength.score - 1] || "bg-secondary"}`}
-                  style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
-                />
-              </div>
-              <small className="text-muted">Strength: {passwordStrength.label}</small>
-            </div>
 
-            {/* Confirm Password */}
-            <div className="mb-3">
-              <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
-              <div className="input-group">
+              <div className="mb-3">
+                <label htmlFor="regUsername" className="form-label">Username:</label>
                 <input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  id="regUsername"
+                  type="text"
                   className="form-control"
-                  placeholder="Re-enter your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Choose a unique username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                   disabled={isLoading}
                 />
-                <span className="input-group-text bg-white" role="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </span>
               </div>
-            </div>
 
-            {/* Email */}
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email:</label>
-              <input
-                id="email"
-                type="email"
-                className="form-control"
-                placeholder="e.g. anurag@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
+              <div className="mb-3">
+                <label htmlFor="regPassword" className="form-label">Password:</label>
+                <div className="input-group">
+                  <input
+                    id="regPassword"
+                    type={showPassword ? "text" : "password"}
+                    className="form-control"
+                    placeholder="Use at least 1 uppercase & special character"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                  <span className="input-group-text bg-white" role="button" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </span>
+                </div>
+                <div className="progress mt-2" style={{ height: "6px" }}>
+                  <div
+                    className={`progress-bar ${["bg-danger", "bg-warning", "bg-info", "bg-success"][passwordStrength.score - 1] || "bg-secondary"}`}
+                    style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                  />
+                </div>
+                <small className="text-muted">Strength: {passwordStrength.label}</small>
+              </div>
 
-            {/* Topics Covered */}
-            <div className="mb-4">
-              <label htmlFor="topics" className="form-label">Topics Already Covered:</label>
-              <Select
-                id="topics"
-                isMulti
-                options={validTopics.map(topic => ({ value: topic, label: topic }))}
-                value={selectedTopics}
-                onChange={(selected) => {
-                  const selectedArr = selected as { value: string; label: string }[];
-                  setSelectedTopics(selectedArr);
-                  setTopics(selectedArr.map(opt => opt.value));
-                }}
-                isDisabled={isLoading}
-                className="text-dark"
-                classNamePrefix="select"
-                placeholder="Select covered topics"
-              />
-            </div>
+              <div className="mb-3">
+                <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
+                <div className="input-group">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="form-control"
+                    placeholder="Re-enter your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                  <span className="input-group-text bg-white" role="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </span>
+                </div>
+              </div>
 
-            {/* Submit Button */}
-            <button type="submit" className="btn btn-primary btn-lg w-100" disabled={isLoading}>
-              Register
-            </button>
-          </form>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email:</label>
+                <input
+                  id="email"
+                  type="email"
+                  className="form-control"
+                  placeholder="e.g. anurag@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
 
-          {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
-          <p className="mt-4 text-center">
-            Already have an account? <Link to="/login" className="text-info fw-bold">Login</Link>
-          </p>
+              <div className="mb-4">
+                <label htmlFor="topics" className="form-label">Topics Already Covered:</label>
+                <Select
+                  id="topics"
+                  isMulti
+                  options={validTopics.map(topic => ({ value: topic, label: topic }))}
+                  value={selectedTopics}
+                  onChange={(selected) => {
+                    const selectedArr = selected as { value: string; label: string }[];
+                    setSelectedTopics(selectedArr);
+                    setTopics(selectedArr.map(opt => opt.value));
+                  }}
+                  isDisabled={isLoading}
+                  className="text-dark"
+                  classNamePrefix="select"
+                  placeholder="Select covered topics"
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary btn-lg w-100" disabled={isLoading}>
+                Register
+              </button>
+            </form>
+
+            {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
+            <p className="mt-4 text-center">
+              Already have an account? <Link to="/login" className="text-info fw-bold">Login</Link>
+            </p>
+          </div>
         </div>
       </div>
     </>

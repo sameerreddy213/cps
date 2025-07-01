@@ -14,21 +14,22 @@ const defaultQuotes = [
 
 const LoadingWithQuote = ({ quotes = defaultQuotes, intervalMs = 3000 }: LoadingWithQuoteProps) => {
   const [quoteIndex, setQuoteIndex] = useState(0);
-  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setQuoteIndex((prev) => (prev + 1) % quotes.length);
-      setCurrentQuote(quotes[(quoteIndex + 1) % quotes.length]);
     }, intervalMs);
 
     return () => clearInterval(interval);
-  }, [quotes, quoteIndex, intervalMs]);
+  }, [quotes.length, intervalMs]);
 
   return (
-    <div className="text-center my-5">
-      <div className="spinner-border text-primary mb-3" role="status" />
-      <p className="fst-italic text-info">{currentQuote}</p>
+    <div
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-75 text-white"
+      style={{ zIndex: 1050 }}
+    >
+      <div className="spinner-border text-primary mb-4" role="status" style={{ width: "3rem", height: "3rem" }} />
+      <p className="fst-italic text-info text-center px-3">{quotes[quoteIndex]}</p>
     </div>
   );
 };
