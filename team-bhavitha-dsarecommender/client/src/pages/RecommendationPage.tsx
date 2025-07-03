@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/userStore";
 import { validTopics } from "../data/validTopic";
-import api from "../lib/api";
+import {api} from "../lib/api";
 
 const RecommendationPage = () => {
   const username = useUserStore((state) => state.username);

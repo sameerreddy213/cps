@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../lib/api";
+import {authApi} from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 import Select from "react-select";
@@ -65,7 +65,7 @@ const RegisterPage = () => {
         progress: topics,
       };
 
-      const res = await api.post("/register", userPayload);
+      const res = await authApi.post("/register", userPayload);
 
       if (res.status === 201) {
         const userData = res.data.user;

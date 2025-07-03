@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../lib/api";
+import  {authApi} from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 import LoadingWithQuote from "../components/LoadingWithQuotes";
@@ -21,7 +21,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/login", { username, password });
+      const res = await authApi.post("/login", { username, password });
       if (res.status === 200) {
         const userData = res.data.user;
         login(userData.username);
