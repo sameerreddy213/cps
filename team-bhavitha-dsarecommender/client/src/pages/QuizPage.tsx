@@ -1,7 +1,7 @@
 // client/src/pages/QuizPage.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../lib/api";
+import {api} from "../lib/api";
 import { useUserStore } from "../store/userStore";
 import LoadingSpinner from "../components/LoadingSpinner"; // Import LoadingSpinner
 

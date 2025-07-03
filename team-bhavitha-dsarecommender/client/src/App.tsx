@@ -11,8 +11,6 @@ import ExploreTopicPage from "./pages/ExploreTopicPage";
 import RecommendationPage from "./pages/RecommendationPage";
 import axios from "axios";
 
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-axios.defaults.withCredentials = true;
 
 
 // Inside <Routes>...
