@@ -6,14 +6,14 @@ dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function generateStructuredNotes(pdfText: string, topic: string) {
-  // 🔁 Check cache
-  const existing = await Concept.findOne({ name: new RegExp(`^${topic}$`, "i") });
-  if (existing?.structuredNotes) {
-    console.log("✅ Returning cached notes for topic:", topic);
-    return existing.structuredNotes;
-  }
+  // Check cache
+  // const existing = await Concept.findOne({ name: new RegExp(`^${topic}$`, "i") });
+  // if (existing?.structuredNotes) {
+  //   console.log("✅ Returning cached notes for topic:", topic);
+  //   return existing.structuredNotes;
+  // }
 
-  // 🧠 Updated prompt with stricter JSON instructions
+  // Updated prompt with stricter JSON instructions
   const prompt = `
 You are an educational AI assistant. Analyze the following lecture text about the topic "${topic}" and return a detailed semantic summary.
 
@@ -99,11 +99,11 @@ Here is the raw lecture content:
       structuredNotes: parsed.structuredNotes || {},
     };
 
-    await Concept.updateOne(
-      { name: topic },
-      { $set: fullConcept },
-      { upsert: true }
-    );
+    // await Concept.updateOne(
+    //   { name: topic },
+    //   { $set: fullConcept },
+    //   { upsert: true }
+    // );
 
     console.log("🟢 Structured notes generated and cached for:", topic);
     return fullConcept;
