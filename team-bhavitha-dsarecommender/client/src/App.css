@@ -1,4 +1,4 @@
-/* client/src/App.css - Add these styles */
+/* client/src/App.css - Ensure these styles are present, and remove any others */
 
 /* Basic Spinner */
 .spinner {
@@ -74,4 +74,50 @@ body {
 }
 .clickable-badge:hover {
     background-color: #555555 !important;
+}
+
+.clickable-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.clickable-card:hover {
+  transform: translateY(-5px); /* Lift effect */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important; /* Stronger shadow */
+}
+
+/* Ensure the text color is correctly applied for LearnedConceptCard */
+.text-dark {
+  color: #333333 !important;
+}
+
+.text-dark-emphasis {
+  color: #5a5a5a !important; /* Slightly lighter dark for emphasis */
+}
+
+/* client/src/App.css */
+
+/* ... existing styles ... */
+
+.active-link {
+  color: var(--bs-primary) !important; /* Or your custom --lf-primary */
+  border-bottom: 2px solid var(--bs-primary);
+  padding-bottom: 5px; /* Adjust as needed */
+}
+
+.dropdown-menu-dark {
+    background-color: #343a40; /* Darker background */
+    border: 1px solid #495057; /* Darker border */
+}
+
+.dropdown-menu-dark .dropdown-item {
+    color: #f8f9fa; /* Light text */
+}
+
+.dropdown-menu-dark .dropdown-item:hover {
+    background-color: #495057; /* Slightly lighter on hover */
+    color: #ffffff;
+}
+
+.dropdown-menu-dark .dropdown-divider {
+    border-top-color: #6c757d; /* Dark divider */
 }

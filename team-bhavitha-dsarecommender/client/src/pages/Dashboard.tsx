@@ -1,6 +1,7 @@
+// client/src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {api} from "../lib/api";
+import { api } from "../lib/api";
 import { useUserStore } from "../store/userStore";
 import LearnedConceptCard from "../components/LearnedConceptCard";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
@@ -27,6 +28,7 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
   const removeLearnedTopic = useUserStore((state) => state.removeLearnedTopic);
 
   const navigate = useNavigate();
+  // State for Recommendation path (though not directly used in Dashboard's render, kept for potential future use or if RecommendationPage is merged)
   const [startConcept, setStartConcept] = useState("");
   const [endConcept, setEndConcept] = useState("");
   const [recommendedPath, setRecommendedPath] = useState<string[]>([]);
@@ -35,6 +37,15 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
   const handleTakeQuiz = (selectedTopic: string) => {
     navigate(`/quiz/${encodeURIComponent(selectedTopic)}`);
   };
+
+  // Helper function to get quiz scores for a specific topic, sorted by date
+  const getQuizScoresForTopic = (topic: string) => {
+    return quizHistory
+      .filter(entry => entry.topic === topic)
+      .map(entry => ({ score: entry.score, date: entry.createdAt }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sort by date ascending
+  };
+
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -54,13 +65,27 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
             const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
             updatedMastery[topic] = avg;
 
-            const confidence = 1 - avg;
+            // Confidence is (1 - mastery_score). If confidence is >= 0.7, consider learned.
+            // Note: Your existing logic checks `(1 - masteryValue) >= 0.7` in QuizPage,
+            // which aligns with higher mastery meaning lower `mastery` score (closer to 0).
+            // Let's ensure consistent interpretation here. If mastery from backend is 0-1 (0=perfect, 1=no knowledge)
+            // then 1-mastery is confidence. If mastery is 0-1 (0=no knowledge, 1=perfect) then mastery is confidence.
+            // Assuming your `mastery` state from backend is 0 to 1 where 0 is full mastery and 1 is no mastery.
+            // So, `1 - mastery` is effectively the "confidence" or "correctness" percentage.
+            const confidencePercentage = (1 - avg) * 100;
             const isLearned = progress.includes(topic);
 
-            if (confidence >= 0.7 && !isLearned) addLearnedTopic(topic);
-            else if (confidence < 0.7 && isLearned) removeLearnedTopic(topic);
+            // Mark as learned if confidence is >= 70% and not already learned
+            if (confidencePercentage >= 70 && !isLearned) {
+              addLearnedTopic(topic);
+            }
+            // Remove from learned if confidence drops below 70% and it was previously marked learned
+            else if (confidencePercentage < 70 && isLearned) {
+              removeLearnedTopic(topic);
+            }
           });
 
+          // Only update the mastery part of the profile
           setProfile({ mastery: updatedMastery });
         }
       } catch (err) {
@@ -72,11 +97,15 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
     if (username) fetchHistory();
   }, [username, setQuizHistory, setProfile, progress, addLearnedTopic, removeLearnedTopic]);
 
-  const chartData = quizHistory.map((entry) => ({
-    topic: entry.topic,
-    mastery: (1 - entry.mastery) * 100,
-    date: new Date(entry.createdAt).toLocaleDateString(),
-  }));
+  const chartData = quizHistory
+    .map((entry) => ({
+      topic: entry.topic,
+      mastery: (1 - entry.mastery) * 100, // Convert mastery (0-1) to confidence percentage (0-100)
+      date: new Date(entry.createdAt).toLocaleDateString(), // Format date for display
+      fullDate: new Date(entry.createdAt).getTime(), // For sorting
+    }))
+    .sort((a, b) => a.fullDate - b.fullDate); // Sort by date for proper chart progression
+
 
   return (
     <div
@@ -132,17 +161,20 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
         )}
       </div>
 
-      {/* Topics Learned */}
+      {/* Topics Learned (now passing quizScores) */}
       <hr className="my-5 border-secondary border-dashed" />
       <div className="dashboard-section mb-5 pt-3">
         <h3 className="text-center mb-4 text-info">Topics Learned</h3>
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 row-cols-xl-5 g-4 justify-content-center"> {/* Changed here */}
           {progress.length === 0 ? (
             <p className="text-center text-white mt-3 col-12">No topics marked as completed yet. Keep learning!</p>
           ) : (
             progress.map((topic) => (
               <div className="col" key={topic}>
-                <LearnedConceptCard title={topic} />
+                <LearnedConceptCard
+                  title={topic}
+                  quizScores={getQuizScoresForTopic(topic)} // Pass relevant quiz scores for the topic
+                />
               </div>
             ))
           )}
