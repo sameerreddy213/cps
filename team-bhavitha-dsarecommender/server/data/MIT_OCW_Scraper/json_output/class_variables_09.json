@@ -1,0 +1,5 @@
+{
+  "title": "class_variables",
+  "lecture": "09",
+  "content": "Class variables are shared across all instances of a class. The `Rabbit` class uses a class variable `tag` to assign unique IDs to every new instance. This demonstrates how shared state can be managed using class-level data."
+}

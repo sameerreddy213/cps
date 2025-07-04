@@ -1,0 +1,5 @@
+{
+  "title": "inheritance_basics",
+  "lecture": "09",
+  "content": "Inheritance allows a class (subclass) to inherit properties and methods from another class (superclass). It helps reduce redundancy and supports hierarchical relationships in object modeling. Python subclasses can override or extend inherited behavior."
+}
