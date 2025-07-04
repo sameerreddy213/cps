@@ -1,0 +1,6 @@
+{
+  "title": "inheritance_subclass",
+  "lecture": "09",
+  "content": "Subclasses like `Cat`, `Person`, and `Student` inherit from a parent class `Animal`. They can define their own `__init__` methods and override existing methods like `__str__` and `speak`. This shows polymorphism in action, where different subclasses behave differently even when using inherited structure."
+}
+

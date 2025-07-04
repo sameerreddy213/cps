@@ -1,0 +1,6 @@
+{
+  "title": "information_hiding",
+  "lecture": "09",
+  "content": "Information hiding protects internal implementation details of a class. Accessing or modifying attributes directly from outside the class can cause bugs if the internal structure changes. Using getters and setters helps avoid this and improves code maintainability."
+}
+
