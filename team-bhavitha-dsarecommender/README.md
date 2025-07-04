@@ -62,3 +62,9 @@ Please make sure to:
 Refer to [`CONTRIBUTING.md`](CONTRIBUTING.md) for more detailed guidelines.
 
 Happy contributing!
+
+## Acknowledgements
+
+This project was developed as part of a research internship under the guidance of Prof Sudarshan Iyengar, Dept of CSE, IIT Ropar and Meenakshi V, DLED Labs, IIT Ropar.
+
+Their support, insights, and encouragement throughout the development of EduAssess were invaluable.
