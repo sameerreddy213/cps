@@ -67,4 +67,4 @@ Happy contributing!
 
 This project was developed as part of a research internship under the guidance of Prof Sudarshan Iyengar, Dept of CSE, IIT Ropar and Meenakshi V, DLED Labs, IIT Ropar.
 
-Their support, insights, and encouragement throughout the development of EduAssess were invaluable.
+Their support, insights, and encouragement throughout the development of This Project were invaluable.
