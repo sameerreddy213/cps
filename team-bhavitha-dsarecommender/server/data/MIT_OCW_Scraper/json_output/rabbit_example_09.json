@@ -1,0 +1,5 @@
+{
+  "title": "rabbit_example",
+  "lecture": "09",
+  "content": "The `Rabbit` class showcases operator overloading (`__add__`) to allow two rabbits to create a child. The `__eq__` method is overridden to define equality based on the parents’ IDs. This example highlights inheritance, overloading, and identity-based comparison."
+}
