@@ -4,7 +4,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import learningPathRoutes from "./routes/learningPath";
 import cors from 'cors';
-import authRoutes from './routes/auth';
+//import authRoutes from './routes/auth';
 import quizRoutes from "./routes/quiz";
 import quizSubmitRoutes from "./routes/quizSubmit";
 import dotenv from "dotenv";
@@ -36,7 +36,7 @@ app.use(
 
 app.use("/api/explore", exploreRoutes);
 app.use("/api", learningPathRoutes);
-app.use('/api', authRoutes);
+//app.use('/api', authRoutes);
 //app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz-history", quizHistoryRoutes);
 app.use("/api/recommendation", recommendationRoutes);
