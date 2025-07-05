@@ -9,9 +9,10 @@ import HomePage from './pages/HomePage';
 import Navbar from './components/Navbar';
 import ExploreTopicPage from "./pages/ExploreTopicPage";
 import RecommendationPage from "./pages/RecommendationPage";
-import axios from "axios";
-
-
+import AppEntry from "./routes/AppEntry";
+import DiscussionDetailPage from "./pages/DiscussionDetailPage";
+import Discuss from './pages/DiscussionPage.tsx';
+import StudentDetailPage from './pages/StudentDetailPage.tsx';
 
 // Inside <Routes>...
 
@@ -24,11 +25,20 @@ function App() {
       {/* Add padding top to account for fixed navbar height, and center content vertically and horizontally */}
       <div className="pt-5 mt-3 d-flex flex-grow-1 justify-content-center align-items-center" style={{ minHeight: 'calc(100vh - 80px)' }}> {/* Adjusted styling here */}
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<AppEntry />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/home" element={<HomePage />} />
+          
+          {/* Public routes go here */}
           {/* Protected routes go here */}
           <Route element={<ProtectedRoutes/>}>
+
+<Route path="/educator/student/:username" element={<StudentDetailPage />} />
+
+            <Route path="/student/:username" element={<StudentDetailPage />} />
+            <Route path="/discuss/:id" element={<DiscussionDetailPage />} />
+            <Route path="/discuss" element={< Discuss/>} />
             <Route path="/recommend" element={<RecommendationPage />} />
             <Route path="/explore/:topic" element={<ExploreTopicPage />} />
             <Route path="/dashboard/:username" element={<Dashboard />} />

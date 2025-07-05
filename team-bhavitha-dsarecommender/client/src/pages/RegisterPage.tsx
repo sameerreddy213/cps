@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {authApi} from "../lib/api";
+import { authApi } from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 import Select from "react-select";
@@ -12,6 +12,8 @@ import DashboardBackground from "../components/DashboardBackground"; // Re-impor
 const RegisterPage = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [role, setRole] = useState<"student" | "educator">("student");
+  const [eid, setEid] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -55,6 +57,14 @@ const RegisterPage = () => {
       setIsLoading(false);
       return;
     }
+    if (role === "educator") {
+    const eidPattern = /^\d{16}$/;
+    if (!eidPattern.test(eid.trim())) {
+      setError("Educator ID must be exactly 16 digits.");
+      setIsLoading(false);
+      return;
+    }
+  }
 
     try {
       const userPayload = {
@@ -63,6 +73,8 @@ const RegisterPage = () => {
         password,
         email,
         progress: topics,
+        role,
+        eid: role === "educator" ? eid.trim() : undefined, // Only include EID if role is educator
       };
 
       const res = await authApi.post("/register", userPayload);
@@ -93,9 +105,8 @@ const RegisterPage = () => {
 
           {/* The main dark registration card */}
           <div
-            className={`card bg-dark text-white p-4 shadow-lg rounded-4 w-100 ${
-              isLoading ? "opacity-60 blur-sm" : ""
-            }`}
+            className={`card bg-dark text-white p-4 shadow-lg rounded-4 w-100 ${isLoading ? "opacity-60 blur-sm" : ""
+              }`}
             style={{ maxWidth: "800px" }} // Adjusted maxWidth for 2-column
           >
             <h2 className="card-title text-center text-primary mb-4 fs-2 fw-bold">
@@ -167,11 +178,10 @@ const RegisterPage = () => {
                   </div>
                   <div className="progress mt-2" style={{ height: "6px" }}>
                     <div
-                      className={`progress-bar ${
-                        ["bg-danger", "bg-warning", "bg-info", "bg-success"][
-                          passwordStrength.score - 1
-                        ] || "bg-secondary"
-                      }`}
+                      className={`progress-bar ${["bg-danger", "bg-warning", "bg-info", "bg-success"][
+                        passwordStrength.score - 1
+                      ] || "bg-secondary"
+                        }`}
                       style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
                     />
                   </div>
@@ -204,7 +214,38 @@ const RegisterPage = () => {
                   </div>
                 </div>
               </div>
-
+              {/* Role Selector */}
+              <div className="mb-3">
+                <label htmlFor="role" className="form-label">Register As:</label>
+                <select
+                  id="role"
+                  className="form-select form-select-lg bg-dark-subtle text-dark-contrast border-secondary"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as "student" | "educator")}
+                  disabled={isLoading}
+                >
+                  <option value="student">Student</option>
+                  <option value="educator">Educator</option>
+                </select>
+              </div>
+              {/* Educator ID (EID) - Conditional */}
+              {role === "educator" && (
+                <div className="mb-3">
+                  <label htmlFor="eid" className="form-label">
+                    Educator ID (16-digit):
+                  </label>
+                  <input
+                    id="eid"
+                    type="text"
+                    className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
+                    placeholder="Enter your 16-digit EID"
+                    value={eid}
+                    onChange={(e) => setEid(e.target.value)}
+                    required={role === "educator"}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
               {/* Email */}
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">

@@ -1,15 +1,15 @@
-// client/src/components/Navbar.tsx
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom"; // Import NavLink and useLocation
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
-import { UserCircle } from "lucide-react"; // Import a user icon
+import { UserCircle } from "lucide-react";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const logout = useAuthStore((state) => state.logout);
   const username = useUserStore((state) => state.username);
+  const role = useUserStore((state) => state.role); // <-- Get role
   const navigate = useNavigate();
-  const location = useLocation(); // To check current path for active links
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -19,7 +19,11 @@ const Navbar = () => {
   const protectedLink = (path: string) =>
     isAuthenticated ? path : "/register";
 
-  const brandLink = isAuthenticated ? `/dashboard/${username}` : "/";
+  const brandLink = isAuthenticated
+    ? role === "educator"
+      ? "/dashboard"
+      : `/dashboard/${username}`
+    : "/";
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
@@ -40,38 +44,96 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-            {/* NavLink will automatically apply 'active' class */}
-            <li className="nav-item">
-              <NavLink
-                to={protectedLink(`/dashboard/${username}`)}
-                className={({ isActive }) =>
-                  `nav-link text-white fw-semibold mx-2 ${isActive || location.pathname === `/dashboard` ? "active-link" : ""}`
-                }
-              >
-                Dashboard
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                to={protectedLink("/quiz-select")}
-                className={({ isActive }) =>
-                  `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
-                }
-              >
-                Take Quiz
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                to={protectedLink("/recommend")}
-                className={({ isActive }) =>
-                  `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
-                }
-              >
-                Get Recommendation
-              </NavLink>
-            </li>
-            {!isAuthenticated ? (
+
+            {isAuthenticated && role === "educator" ? (
+              <>
+                <li className="nav-item">
+                  <NavLink
+                    to="/dashboard"
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Dashboard
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to="/discuss"
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Discussions
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to="/educator/upload"
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Upload Materials
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to="/educator/questions"
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Questions Asked
+                  </NavLink>
+                </li>
+              </>
+            ) : isAuthenticated ? (
+              <>
+                <li className="nav-item">
+                  <NavLink
+                    to={protectedLink(`/dashboard/${username}`)}
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${
+                        isActive || location.pathname === `/dashboard` ? "active-link" : ""
+                      }`
+                    }
+                  >
+                    Dashboard
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to={protectedLink("/quiz-select")}
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Take Quiz
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to={protectedLink("/recommend")}
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Get Recommendation
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink
+                    to="/discuss"
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Discuss
+                  </NavLink>
+                </li>
+              </>
+            ) : (
               <>
                 <li className="nav-item">
                   <NavLink
@@ -92,8 +154,9 @@ const Navbar = () => {
                   </Link>
                 </li>
               </>
-            ) : (
-              // User Avatar/Dropdown for authenticated user
+            )}
+
+            {isAuthenticated && (
               <li className="nav-item dropdown">
                 <a
                   className="nav-link dropdown-toggle d-flex align-items-center text-white fw-semibold mx-2"
@@ -108,16 +171,10 @@ const Navbar = () => {
                 </a>
                 <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                   <li>
-                    <Link to={`/dashboard/${username}`} className="dropdown-item">
+                    <Link to={brandLink} className="dropdown-item">
                       <i className="bi bi-house-door me-2"></i>Dashboard
                     </Link>
                   </li>
-                  {/* Add a placeholder for Profile Settings if you plan to add it */}
-                  {/* <li>
-                    <Link to="/profile" className="dropdown-item">
-                      <i className="bi bi-person-circle me-2"></i>Profile Settings
-                    </Link>
-                  </li> */}
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button onClick={handleLogout} className="dropdown-item text-danger">

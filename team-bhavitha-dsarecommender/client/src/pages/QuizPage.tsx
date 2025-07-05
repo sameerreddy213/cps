@@ -1,9 +1,10 @@
-// client/src/pages/QuizPage.tsx
+// src/pages/QuizPage.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {api} from "../lib/api";
+import { api } from "../lib/api";
 import { useUserStore } from "../store/userStore";
-import LoadingSpinner from "../components/LoadingSpinner"; // Import LoadingSpinner
+import LoadingWithQuote from "../components/LoadingWithQuotes";
+import { useQuizStore } from "../store/quizStore"; // ✅ Import Zustand store
 
 interface MCQQuestion {
   question: string;
@@ -29,14 +30,17 @@ const QuizPage = () => {
   const setQuizHistory = useUserStore((state) => state.setQuizHistory);
   const progress = useUserStore((state) => state.progress);
 
-  const [loading, setLoading] = useState(true); // For initial quiz questions fetch
-  const [isSubmitting, setIsSubmitting] = useState(false); // For quiz submission
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [summary, setSummary] = useState<QuizSummary | null>(null);
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
+  const [showSolution, setShowSolution] = useState<boolean[]>([]);
+
+  const quizStore = useQuizStore();
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -46,6 +50,17 @@ const QuizPage = () => {
         return;
       }
 
+      // ✅ Use cached quiz if same topic
+      if (quizStore.topic === topic) {
+        setQuestions(quizStore.questions);
+        setCorrectAnswers(quizStore.correctAnswers);
+        setAnswers(new Array(quizStore.questions.length).fill(""));
+        setShowSolution(new Array(quizStore.questions.length).fill(false));
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Otherwise, fetch new quiz
       try {
         setLoading(true);
         const res = await api.get(`/quiz/${encodeURIComponent(topic)}`);
@@ -56,8 +71,16 @@ const QuizPage = () => {
         }
 
         setQuestions(fetchedQuestions);
-        setAnswers(new Array(fetchedQuestions.length).fill(""));
         setCorrectAnswers(res.data._correctAnswers || []);
+        setAnswers(new Array(fetchedQuestions.length).fill(""));
+        setShowSolution(new Array(fetchedQuestions.length).fill(false));
+
+        // ✅ Cache quiz in Zustand
+        quizStore.setQuizData({
+          topic,
+          questions: fetchedQuestions,
+          correctAnswers: res.data._correctAnswers || [],
+        });
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to load quiz questions";
@@ -69,7 +92,7 @@ const QuizPage = () => {
     };
 
     fetchQuiz();
-  }, [topic]);
+  }, [topic, quizStore]);
 
   const handleOptionSelect = (qIndex: number, selected: string) => {
     if (submitted) return;
@@ -80,6 +103,40 @@ const QuizPage = () => {
     });
   };
 
+  const toggleSolution = (index: number) => {
+    setShowSolution((prev) => {
+      const updated = [...prev];
+      updated[index] = !updated[index];
+      return updated;
+    });
+  };
+
+  const handleDiscuss = async (index: number) => {
+    const questionText = questions[index].question;
+    try {
+      const res = await api.post("/discuss/create-or-get", {
+        topic,
+        questionText,
+        questionIndex: index,
+      });
+      const threadId = res.data._id;
+      navigate(`/discuss/${threadId}`);
+    } catch (err) {
+      console.error("Failed to open discussion thread:", err);
+      alert("Unable to open discussion thread. Please try again.");
+    }
+  };
+
+  const handleAsk = (index: number) => {
+    const questionText = questions[index].question;
+    alert(`Opening educator Q&A for Q${index + 1}: "${questionText}"`);
+  };
+
+  const handleReport = (index: number) => {
+    const questionText = questions[index].question;
+    alert(`Reporting issue for Q${index + 1}: "${questionText}"`);
+  };
+
   const handleSubmit = async () => {
     if (!topic) return;
     if (questions.length === 0 || answers.some((a) => a === "")) {
@@ -88,9 +145,9 @@ const QuizPage = () => {
     }
 
     try {
-      setIsSubmitting(true); // Start loading for submission
-      setSubmitted(true); // Mark as submitted to show results
-      
+      setIsSubmitting(true);
+      setSubmitted(true);
+
       const res = await api.post("/quiz/submit", {
         topic,
         answers,
@@ -108,7 +165,11 @@ const QuizPage = () => {
         },
       });
 
-      if (typeof masteryValue === "number" && (1 - masteryValue) >= 0.7 && !progress.includes(topic)) {
+      if (
+        typeof masteryValue === "number" &&
+        (1 - masteryValue) >= 0.7 &&
+        !progress.includes(topic)
+      ) {
         addLearnedTopic(topic);
       }
 
@@ -119,21 +180,21 @@ const QuizPage = () => {
         createdAt: new Date().toISOString(),
       };
       setQuizHistory([...quizHistory, newEntry]);
-
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to submit quiz";
       console.error("Quiz submission error:", err);
       setError(errorMessage);
     } finally {
-      setIsSubmitting(false); // End loading for submission
+      setIsSubmitting(false);
     }
   };
 
   if (loading) {
     return (
       <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
-        <LoadingSpinner size="lg" message="Loading quiz questions..." /> {/* Use spinner here */}
+        <LoadingWithQuote />
+        <p className="mt-3">Loading quiz questions...</p>
       </div>
     );
   }
@@ -168,7 +229,7 @@ const QuizPage = () => {
               <p className="card-text fs-5 fw-bold mb-3 text-dark">
                 {i + 1}. {q.question}
               </p>
-              <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column gap-3 mb-3">
                 {q.options.map((option, optionIndex) => (
                   <label
                     key={optionIndex}
@@ -189,7 +250,7 @@ const QuizPage = () => {
                       value={option}
                       checked={answers[i] === option}
                       onChange={() => handleOptionSelect(i, option)}
-                      disabled={submitted || isSubmitting} // Disable while submitted or submitting
+                      disabled={submitted || isSubmitting}
                       className="form-check-input me-3"
                       style={{ transform: "scale(1.4)" }}
                     />
@@ -197,16 +258,49 @@ const QuizPage = () => {
                   </label>
                 ))}
               </div>
+
+              <div className="d-flex flex-wrap gap-3 justify-content-between mt-2">
+                <button
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={() => handleDiscuss(i)}
+                >
+                  🗣️ Discuss
+                </button>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => handleAsk(i)}
+                >
+                  ❓ Ask
+                </button>
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => handleReport(i)}
+                >
+                  🐞 Report
+                </button>
+                <button
+                  className="btn btn-outline-success btn-sm"
+                  onClick={() => toggleSolution(i)}
+                >
+                  📘 {showSolution[i] ? "Hide" : "View"} Solution
+                </button>
+              </div>
+
+              {showSolution[i] && submitted && summary?.correctAnswers?.[i] && (
+                <div className="alert alert-info mt-3">
+                  <strong>Solution:</strong> {summary.correctAnswers[i]} — *(Add explanation text here)*
+                </div>
+              )}
             </div>
           ))}
 
           {!submitted && (
             <button
               onClick={handleSubmit}
-              disabled={answers.some((a) => a === "") || answers.length === 0 || isSubmitting} // Disable submit button while submitting
+              disabled={answers.some((a) => a === "") || answers.length === 0 || isSubmitting}
               className="btn btn-primary btn-lg w-100 mt-4"
             >
-              {isSubmitting ? <LoadingSpinner size="sm" /> : "Submit Quiz"}
+              {isSubmitting ? <LoadingWithQuote /> : "Submit Quiz"}
             </button>
           )}
         </form>

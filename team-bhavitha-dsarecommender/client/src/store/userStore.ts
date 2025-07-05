@@ -8,6 +8,7 @@ interface UserProfile {
   progress: string[];
   recommendations: string[];
   quizHistory: any[];
+  role?: "student" | "educator";
   setQuizHistory: (history: any[]) => void;
   setProfile: (profile: Partial<UserProfile>) => void;
   clearProfile: () => void;
