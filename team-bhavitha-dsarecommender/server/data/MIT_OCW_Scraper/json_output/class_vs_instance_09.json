@@ -1,0 +1,5 @@
+{
+  "title": "class_vs_instance",
+  "lecture": "09",
+  "content": "Classes define the structure and behavior for a type of object, while instances are concrete realizations of those classes. The `self` keyword helps refer to individual object instances inside class methods. Each instance has its own data but shares the same method definitions."
+}

@@ -1,0 +1,5 @@
+{
+  "title": "big_o_notation",
+  "lecture": "10",
+  "content": "Big O notation is used to classify algorithms based on their worst-case growth rate. It provides an upper bound on the time or space used as input size increases. For example, O(n), O(n^2), and O(log n) represent different scaling behaviors."
+}

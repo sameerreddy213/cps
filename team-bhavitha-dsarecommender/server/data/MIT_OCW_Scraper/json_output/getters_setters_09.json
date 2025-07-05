@@ -1,0 +1,5 @@
+{
+  "title": "getters_setters",
+  "lecture": "09",
+  "content": "Getters and setters are methods used to access and modify object data. They promote good software design by hiding internal data representation and preventing direct attribute modification. Default arguments can be used in setters for flexible usage."
+}
