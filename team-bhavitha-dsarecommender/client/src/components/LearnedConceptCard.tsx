@@ -4,7 +4,7 @@ import { BookOpen, Code, FlaskConical, Calculator, BrainCircuit, Lightbulb, Grad
 
 interface LearnedConceptCardProps {
   title: string;
-  quizScores?: { score: number; date: string }[];
+  quizScores?: { score: any; date: any }[];
 }
 
 // A simple map for topic-to-icon. Expand this as needed.
