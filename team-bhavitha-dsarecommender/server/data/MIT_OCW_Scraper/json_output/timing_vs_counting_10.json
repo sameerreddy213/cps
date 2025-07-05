@@ -1,0 +1,5 @@
+{
+  "title": "timing_vs_counting",
+  "lecture": "10",
+  "content": "Measuring program performance can be done by timing actual execution or by counting basic operations (steps). While timing is practical, it can vary by system. Counting operations gives a more stable, system-independent measure of algorithm complexity."
+}

@@ -1,0 +1,5 @@
+{
+  "title": "linear_complexity",
+  "lecture": "10",
+  "content": "Linear complexity (O(n)) describes algorithms whose run time increases proportionally with input size. A single loop iterating over an input is a common example. These algorithms scale well and are generally considered efficient for large inputs."
+}

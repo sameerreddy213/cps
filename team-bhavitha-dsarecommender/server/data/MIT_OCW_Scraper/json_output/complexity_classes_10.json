@@ -1,0 +1,5 @@
+{
+  "title": "complexity_classes",
+  "lecture": "10",
+  "content": "Algorithms are grouped into complexity classes based on their growth behavior, such as constant (O(1)), linear (O(n)), quadratic (O(n^2)), etc. This classification helps in selecting efficient algorithms based on expected input sizes."
+}
