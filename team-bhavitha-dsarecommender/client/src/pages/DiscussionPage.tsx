@@ -56,29 +56,37 @@ const Discuss = () => {
     }
   };
 
-  const handleDeleteComment = async (threadId: string, commentId: string) => {
-    if (!window.confirm("Are you sure you want to delete this comment?")) return;
-    try {
-      await api.delete(`/discuss/thread/${threadId}/comment/${commentId}`);
-      // Optimistic update
-      setThreads(prev => prev.map(thread => {
+
+const handleDeleteComment = async (threadId: string, commentId: string) => {
+  if (!window.confirm("Are you sure you want to delete this comment?")) return;
+
+  const { username, role } = useUserStore.getState();
+
+  try {
+    await api.delete(`/discuss/thread/${threadId}/comment/${commentId}`, {
+      data: { username, role },
+    });
+
+    setThreads((prev) =>
+      prev.map((thread) => {
         if (thread._id === threadId) {
           return {
             ...thread,
-            comments: thread.comments.filter(c => c._id !== commentId)
+            comments: thread.comments.filter((c) => c._id !== commentId),
           };
         }
         return thread;
-      }));
-    } catch (err) {
-      console.error("Failed to delete comment", err);
-      if (err && typeof err === "object" && "response" in err && err.response && typeof err.response === "object" && "data" in err.response && err.response.data && typeof err.response.data === "object" && "error" in err.response.data) {
-        alert((err as any).response.data.error);
-      } else {
-        alert("Only educators can delete comments");
-      }
-    }
-  };
+      })
+    );
+  } catch (err) {
+    console.error("Failed to delete comment", err);
+    const errorMessage =
+      (err as any)?.response?.data?.error || "Only educators or comment owners can delete this comment.";
+    alert(errorMessage);
+  }
+};
+
+
 
   const handleDeleteReply = async (
     threadId: string,
@@ -86,8 +94,11 @@ const Discuss = () => {
     replyId: string
   ) => {
     if (!window.confirm("Are you sure you want to delete this reply?")) return;
+    const { username, role } = useUserStore.getState();
     try {
-      await api.delete(`/discuss/thread/${threadId}/comment/${commentId}/reply/${replyId}`);
+      await api.delete(`/discuss/thread/${threadId}/comment/${commentId}/reply/${replyId}`,{
+        data: { username, role }
+      });
       // Optimistic update
       setThreads(prev => prev.map(thread => {
         if (thread._id === threadId) {

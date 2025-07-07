@@ -4,7 +4,8 @@ import { persist } from "zustand/middleware";
 interface AuthState {
   isAuthenticated: boolean;
   username: string;
-  login: (username: string) => void;
+  role: "student" | "educator" | ""; // "" = default when not logged in
+  login: (username: string, role: "student" | "educator") => void;
   logout: () => void;
 }
 
@@ -13,11 +14,12 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isAuthenticated: false,
       username: "",
-      login: (username) => set({ isAuthenticated: true, username }),
-      logout: () => set({ isAuthenticated: false, username: "" }),
+      role: "",
+      login: (username, role) => set({ isAuthenticated: true, username, role }),
+      logout: () => set({ isAuthenticated: false, username: "", role: "" }),
     }),
     {
-      name: "auth-storage", // key used in localStorage
+      name: "auth-storage", // Key in localStorage
     }
   )
 );
