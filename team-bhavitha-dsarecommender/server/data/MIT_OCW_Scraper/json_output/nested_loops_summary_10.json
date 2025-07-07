@@ -1,0 +1,5 @@
+{
+  "title": "nested_loops_summary",
+  "lecture": "10",
+  "content": "Nested loops significantly affect complexity. The total operations multiply based on loop nesting. Efficient programming involves identifying when nested loops can be reduced, optimized, or avoided altogether."
+}

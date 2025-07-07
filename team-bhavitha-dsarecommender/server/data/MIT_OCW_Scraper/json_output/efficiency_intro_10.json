@@ -1,0 +1,5 @@
+{
+  "title": "efficiency_intro",
+  "lecture": "10",
+  "content": "Efficiency in programming refers to writing code that runs within reasonable time and memory limits. It is important when dealing with large-scale problems. Measuring and improving program efficiency involves understanding computational cost and performance trade-offs."
+}

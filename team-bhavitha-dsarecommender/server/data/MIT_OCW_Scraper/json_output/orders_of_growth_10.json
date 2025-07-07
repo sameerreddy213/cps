@@ -1,0 +1,5 @@
+{
+  "title": "orders_of_growth",
+  "lecture": "10",
+  "content": "Orders of growth describe how the run time or space requirements of an algorithm scale with input size. Common growth classes include constant, logarithmic, linear, quadratic, and exponential. These help predict how programs behave as inputs grow."
+}

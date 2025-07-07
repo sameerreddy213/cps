@@ -1,0 +1,5 @@
+{
+  "title": "analyzing_loops",
+  "lecture": "10",
+  "content": "Analyzing the efficiency of loops involves estimating how many times the loop executes and what work is done inside. Nested loops typically increase complexity. Understanding these patterns helps in calculating Big O complexity."
+}

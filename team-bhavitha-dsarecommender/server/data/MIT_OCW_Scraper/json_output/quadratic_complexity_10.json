@@ -1,0 +1,5 @@
+{
+  "title": "quadratic_complexity",
+  "lecture": "10",
+  "content": "Quadratic complexity (O(n^2)) occurs when an algorithm performs a nested iteration over input. For large inputs, this becomes inefficient quickly. Bubble sort is a classic example of an O(n^2) algorithm."
+}
