@@ -119,9 +119,11 @@ const DiscussionDetailPage = () => {
 
   const handleDeleteComment = async (commentId: string) => {
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
-    
+    const { username, role } = useUserStore.getState();
     try {
-      await api.delete(`/discuss/thread/${id}/comment/${commentId}`);
+      await api.delete(`/discuss/thread/${id}/comment/${commentId}`,{
+        data: { username, role }
+      });
       // Optimistic update
       setThread(prev => prev ? {
         ...prev,
@@ -140,11 +142,11 @@ const DiscussionDetailPage = () => {
 
   const handleDeleteReply = async (commentId: string, replyId: string) => {
     if (!window.confirm("Are you sure you want to delete this reply?")) return;
-    
+    const { username, role } = useUserStore.getState();
     try {
-      await api.delete(
-        `/discuss/thread/${id}/comment/${commentId}/reply/${replyId}`
-      );
+      await api.delete(`/discuss/thread/${id}/comment/${commentId}/reply/${replyId}`,{
+        data: { username, role }
+      });
       // Optimistic update
       setThread(prev => {
         if (!prev) return null;
