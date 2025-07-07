@@ -202,5 +202,50 @@ router.delete("/thread/:threadId/comment/:commentId", async (req, res) => {
   }
 });
 
+// DELETE /discuss/thread/:threadId/comment/:commentId/reply/:replyId
+router.delete("/thread/:threadId/comment/:commentId/reply/:replyId", async (req, res) => {  
+  const { threadId, commentId, replyId } = req.params;
+  const { username, role } = req.body; // Expecting role = 'student' | 'educator'
+
+  if (!username || !role) {
+    res.status(400).json({ error: "Missing username or role" });
+    return;
+  }
+
+  try {
+    const thread = await Discussion.findById(threadId);
+    if (!thread) {
+      res.status(404).json({ error: "Thread not found" });
+      return;
+    }
+
+    const comment = thread.comments.id(commentId);
+    if (!comment) {
+      res.status(404).json({ error: "Comment not found" });
+      return;
+    }
+
+    const reply = comment.replies.id(replyId);
+    if (!reply) {
+      res.status(404).json({ error: "Reply not found" });
+      return;
+    }
+    const isEducator = role === "educator";
+    const isReplyOwner = reply.username === username;
+    if (!isEducator && !isReplyOwner) {
+      res.status(403).json({ error: "Unauthorized to delete this reply" });
+      return;
+    }
+    // Remove the reply
+    comment.replies.pull(replyId);
+    await thread.save();
+    res.status(200).json({ message: "Reply deleted", thread });
+  } catch (err) {
+    console.error("Failed to delete reply:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+);
+
 
 export default router;
