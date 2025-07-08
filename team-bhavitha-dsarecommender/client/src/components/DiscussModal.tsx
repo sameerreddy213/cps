@@ -18,6 +18,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
   const [questionIndex, setQuestionIndex] = useState<number | "">("");
   const [questionText, setQuestionText] = useState("");
 
+
   const handleSubmit = async () => {
     try {
       if (type === "general") {
@@ -27,6 +28,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
           topic,
           questionIndex: Number(questionIndex),
           questionText,
+          username,
         });
       }
       onRefresh(); // refetch discussions
