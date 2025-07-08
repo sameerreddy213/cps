@@ -18,7 +18,6 @@ const StudentDetailPage = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const [quizHistory, setQuizHistory] = useState<QuizEntry[]>([]);
-  const [mastery, setMastery] = useState<Record<string, number>>({});
   const [progress, setProgress] = useState<string[]>([]);
   const [error, setError] = useState("");
 
@@ -47,7 +46,7 @@ const StudentDetailPage = () => {
             if (confidence >= 70) learned.push(topic);
           });
 
-          setMastery(updatedMastery);
+          // setMastery(updatedMastery); // This line is removed as per the edit hint
           setProgress(learned);
         }
       } catch (err) {
@@ -69,69 +68,99 @@ const StudentDetailPage = () => {
     .sort((a, b) => a.fullDate - b.fullDate);
 
   return (
-    <div className="container py-4 text-white">
-      <h2 className="text-center mb-4">📘 Student: {username}</h2>
-      {error && <p className="text-danger text-center">{error}</p>}
+    <div className="container py-5">
+      <div className="row justify-content-center mb-4">
+        <div className="col-12 col-md-10 col-lg-8">
+          <div className="text-center mb-4 px-2 px-md-4">
+            <h2 className="display-5 fw-bold text-primary">📘 Student: {username}</h2>
+            {error && <p className="text-danger text-center">{error}</p>}
+          </div>
+        </div>
+      </div>
 
       {/* Mastery Over Time */}
-      <div className="mb-5">
-        <h4 className="text-info text-center">📈 Mastery Over Time</h4>
-        {chartData.length === 0 ? (
-          <p className="text-center text-muted">No data to display.</p>
-        ) : (
-          <div className="chart-container bg-dark-subtle p-3 rounded shadow">
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                <XAxis dataKey="topic" stroke="#ccc" />
-                <YAxis domain={[0, 100]} stroke="#ccc" />
-                <Tooltip />
-                <Line type="monotone" dataKey="mastery" stroke="#82ca9d" strokeWidth={3} />
-              </LineChart>
-            </ResponsiveContainer>
+      <div className="row justify-content-center mb-5">
+        <div className="col-12 col-md-10 col-lg-8">
+          <div className="card shadow border-info border-2 mb-4">
+            <div className="card-body px-2 px-md-4">
+              <h4 className="text-info text-center mb-4">📈 Mastery Over Time</h4>
+              {chartData.length === 0 ? (
+                <p className="text-center text-muted">No data to display.</p>
+              ) : (
+                <div className="bg-light rounded p-2 p-md-3">
+                  <ResponsiveContainer width="100%" height={300} minWidth={200} minHeight={200}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                      <XAxis dataKey="topic" stroke="#888" />
+                      <YAxis domain={[0, 100]} stroke="#888" />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="mastery" stroke="#a872e6" strokeWidth={3} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Learned Topics */}
-      <div className="mb-5">
-        <h4 className="text-info text-center">✅ Learned Topics</h4>
-        {progress.length === 0 ? (
-          <p className="text-center text-muted">No topics learned yet.</p>
-        ) : (
-          <div className="row row-cols-1 row-cols-md-3 g-3">
-            {progress.map((topic) => (
-              <div key={topic} className="col">
-                <LearnedConceptCard title={topic} quizScores={
-                  quizHistory
-                    .filter(q => q.topic === topic)
-                    .map(q => ({ score: q.score, date: q.createdAt }))
-                } />
-              </div>
-            ))}
+      <div className="row justify-content-center mb-5">
+        <div className="col-12 col-md-10 col-lg-8">
+          <div className="card shadow border-success border-2 mb-4">
+            <div className="card-body px-2 px-md-4">
+              <h4 className="text-success text-center mb-4">✅ Learned Topics</h4>
+              {progress.length === 0 ? (
+                <p className="text-center text-muted">No topics learned yet.</p>
+              ) : (
+                <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 justify-content-center align-items-center">
+                  {progress.map((topic) => (
+                    <div key={topic} className="col d-flex justify-content-center align-items-center">
+                      <div className="flex-fill d-flex justify-content-center align-items-center">
+                        <LearnedConceptCard title={topic} quizScores={
+                          quizHistory
+                            .filter(q => q.topic === topic)
+                            .map(q => ({ score: q.score, date: q.createdAt }))
+                        } />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Quiz History */}
-      <div className="mb-5">
-        <h4 className="text-info text-center">🧪 Quiz History</h4>
-        {quizHistory.length === 0 ? (
-          <p className="text-center text-muted">No quizzes attempted yet.</p>
-        ) : (
-          <ul className="list-group">
-            {quizHistory.map((entry, i) => (
-              <li key={i} className="list-group-item bg-secondary-subtle text-dark">
-                <strong>{entry.topic}</strong> — Score: {entry.score}%, Mastery: {entry.mastery}
-                <br />
-                <small className="text-muted">{new Date(entry.createdAt).toLocaleString()}</small>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="row justify-content-center mb-5">
+        <div className="col-12 col-md-10 col-lg-8">
+          <div className="card shadow border-primary border-2 mb-4">
+            <div className="card-body px-2 px-md-4">
+              <h4 className="text-primary text-center mb-4">🧪 Quiz History</h4>
+              {quizHistory.length === 0 ? (
+                <p className="text-center text-muted">No quizzes attempted yet.</p>
+              ) : (
+                <ul className="list-group">
+                  {quizHistory.map((entry, i) => (
+                    <li key={i} className="list-group-item bg-light text-dark">
+                      <strong>{entry.topic}</strong> — Score: {entry.score}%, Mastery: {entry.mastery}
+                      <br />
+                      <small className="text-muted">{new Date(entry.createdAt).toLocaleString()}</small>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <button className="btn btn-outline-light mt-4" onClick={() => navigate(-1)}>⬅ Back to Dashboard</button>
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-10 col-lg-8 text-center">
+          <button className="btn btn-outline-primary btn-lg mt-4 w-100 w-md-auto" onClick={() => navigate(-1)}>⬅ Back to Dashboard</button>
+        </div>
+      </div>
     </div>
   );
 };

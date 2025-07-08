@@ -12,7 +12,7 @@ router.get("/educator/students", async (req, res) => {
         { role: { $exists: false } },
         { role: null },
       ],
-    }).select("username lastActive");
+    }).select("username lastActive progress mastery");
 
     res.json(students);
   } catch (error) {
