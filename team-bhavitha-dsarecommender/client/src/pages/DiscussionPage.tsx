@@ -208,9 +208,9 @@ const handleDeleteComment = async (threadId: string, commentId: string) => {
   }, []);
 
   return (
-    <div className="container py-4 text-white">
+    <div className="container py-4 py-lg-5">
       <div className="d-flex justify-content-end mb-4">
-        <button className="btn btn-success" onClick={() => setShowModal(true)}>
+        <button className="btn btn-success btn-lg px-4 py-2" onClick={() => setShowModal(true)}>
           Start Discussion
         </button>
       </div>
@@ -235,148 +235,148 @@ const handleDeleteComment = async (threadId: string, commentId: string) => {
           </button>
         </div>
       ) : (
-        threads.map((thread) => (
-          <div key={thread._id} className="mb-4 p-3 bg-dark border rounded shadow-sm">
-            <div
-              className="d-flex justify-content-between align-items-center"
-              style={{ cursor: "pointer" }}
-              onClick={() => navigate(`/discuss/${thread._id}`)}
-            >
-              <h5 className="text-info mb-0">
-                {thread.isGeneral ? "🌐 General Discussion" : `🔍 ${thread.topic}`}
-              </h5>
-              <small className="text-muted">
-                {thread.comments.length} comments
-              </small>
-            </div>
-
-            <p className="text-light mt-2 mb-1">
-              {thread.isGeneral
-                ? thread.comments[0]?.text?.slice(0, 80) + (thread.comments[0]?.text?.length > 80 ? "..." : "")
-                : thread.questionText}
-            </p>
-
-            {thread.comments.map((comment) => (
-              <div key={comment._id} className="bg-secondary p-2 rounded mb-2 mt-3">
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <div className="d-flex align-items-center">
-                      <strong className="text-white">{comment.username}</strong>
-                      {comment.role === "educator" ? (
-                        <span className="badge bg-info ms-2"></span>
-                      ) : comment.role ? (
-                        <span className="badge bg-secondary ms-2">{comment.role}</span>
-                      ) : (
-                        <span className="badge bg-secondary ms-2"></span>
-                      )}
-                    </div>
-                    <p className="text-white mt-1">{comment.text}</p>
-                  </div>
-                  <div className="text-end">
-                    <small className="text-muted">
-                      {new Date(comment.createdAt).toLocaleDateString()}
-                    </small>
-                    {userRole === "educator" && (
-                      <button
-                        className="btn btn-sm btn-danger ms-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteComment(thread._id, comment._id);
-                        }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </div>
+        <div className="row g-4 justify-content-center">
+          {threads.map((thread) => (
+            <div key={thread._id} className="col-12 col-md-10 col-lg-9 col-xl-8">
+              <div className="discussion-thread-card mb-4 p-3 p-lg-4" style={{ fontSize: '1.15rem' }}>
+                <div
+                  className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/discuss/${thread._id}`)}
+                >
+                  <h5 className="discussion-thread-title mb-2 mb-md-0 fs-3">{thread.isGeneral ? "🌐 General Discussion" : `🔍 ${thread.topic}`}</h5>
+                  <small className="discussion-thread-meta fs-5">{thread.comments.length} comments</small>
                 </div>
 
-                <button
-                  className="btn btn-sm btn-outline-light mt-2 mb-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExpanded((prev) => ({
-                      ...prev,
-                      [comment._id]: !prev[comment._id],
-                    }));
-                  }}
-                >
-                  {expanded[comment._id] ? (
-                    <>
-                      <ChevronUp size={16} /> Hide Replies
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown size={16} /> View Replies ({comment.replies.length})
-                    </>
-                  )}
-                </button>
+                <p className="text-light mt-2 mb-1">
+                  {thread.isGeneral
+                    ? thread.comments[0]?.text?.slice(0, 80) + (thread.comments[0]?.text?.length > 80 ? "..." : "")
+                    : thread.questionText}
+                </p>
 
-                {expanded[comment._id] && (
-                  <div className="ps-3 ms-3 border-start">
-                    {comment.replies.length === 0 ? (
-                      <p className="text-muted">No replies yet.</p>
-                    ) : (
-                      comment.replies.map((reply) => (
-                        <div key={reply._id} className="bg-dark rounded p-2 mb-2">
-                          <div className="d-flex justify-content-between">
-                            <div>
-                              <div className="d-flex align-items-center">
-                                <strong className="text-info">{reply.username}</strong>
-                                {reply.role === "educator" ? (
-                                  <span className="badge bg-info ms-2">Educator</span>
-                                ) : reply.role ? (
-                                  <span className="badge bg-secondary ms-2">{reply.role}</span>
-                                ) : (
-                                  <span className="badge bg-secondary ms-2">Student</span>
-                                )}
-                              </div>
-                              <p className="text-white mb-1 mt-1">{reply.text}</p>
-                              <small className="text-muted">
-                                {new Date(reply.createdAt).toLocaleDateString()}
-                              </small>
-                            </div>
-                            {userRole === "educator" && (
-                              <button
-                                className="btn btn-sm btn-danger"
-                                onClick={() =>
-                                  handleDeleteReply(thread._id, comment._id, reply._id)
-                                }
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            )}
-                          </div>
+                {thread.comments.map((comment) => (
+                  <div key={comment._id} className="discussion-comment">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                      <div>
+                        <div className="d-flex align-items-center flex-wrap">
+                          <strong className="discussion-username me-2">{comment.username}</strong>
+                          {comment.role === "educator" ? (
+                            <span className="badge bg-info ms-2"></span>
+                          ) : comment.role ? (
+                            <span className="badge bg-secondary ms-2">{comment.role}</span>
+                          ) : (
+                            <span className="badge bg-secondary ms-2"></span>
+                          )}
                         </div>
-                      ))
-                    )}
+                        <p className="text-white mt-1">{comment.text}</p>
+                      </div>
+                      <div className="text-end mt-2 mt-md-0">
+                        <small className="discussion-date">
+                          {new Date(comment.createdAt).toLocaleDateString()}
+                        </small>
+                        {userRole === "educator" && (
+                          <button
+                            className="btn btn-sm btn-danger ms-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteComment(thread._id, comment._id);
+                            }}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
-                    <textarea
-                      rows={2}
-                      className="form-control mb-2 mt-2"
-                      placeholder="Write a reply..."
-                      value={replyBox[comment._id] || ""}
-                      onChange={(e) =>
-                        setReplyBox((prev) => ({
-                          ...prev,
-                          [comment._id]: e.target.value,
-                        }))
-                      }
-                    />
                     <button
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-sm btn-outline-light mt-2 mb-2"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleReply(thread._id, comment._id);
+                        setExpanded((prev) => ({
+                          ...prev,
+                          [comment._id]: !prev[comment._id],
+                        }));
                       }}
                     >
-                      Reply
+                      {expanded[comment._id] ? (
+                        <>
+                          <ChevronUp size={16} /> Hide Replies
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown size={16} /> View Replies ({comment.replies.length})
+                        </>
+                      )}
                     </button>
+
+                    {expanded[comment._id] && (
+                      <div className="ps-2 ps-md-3 ms-1 ms-md-3 border-start">
+                        {comment.replies.length === 0 ? (
+                          <p className="text-white">No replies yet.</p>
+                        ) : (
+                          comment.replies.map((reply) => (
+                            <div key={reply._id} className="discussion-reply mb-2">
+                              <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                                <div>
+                                  <div className="d-flex align-items-center flex-wrap">
+                                    <strong className="discussion-username me-2">{reply.username}</strong>
+                                    {reply.role === "educator" ? (
+                                      <span className="badge bg-info ms-2">Educator</span>
+                                    ) : reply.role ? (
+                                      <span className="badge bg-secondary ms-2">{reply.role}</span>
+                                    ) : (
+                                      <span className="badge bg-secondary ms-2">Student</span>
+                                    )}
+                                  </div>
+                                  <p className="text-white mb-1 mt-1">{reply.text}</p>
+                                  <small className="discussion-date">
+                                    {new Date(reply.createdAt).toLocaleDateString()}
+                                  </small>
+                                </div>
+                                {userRole === "educator" && (
+                                  <button
+                                    className="btn btn-sm btn-danger mt-2 mt-md-0"
+                                    onClick={() =>
+                                      handleDeleteReply(thread._id, comment._id, reply._id)
+                                    }
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+
+                        <textarea
+                          rows={2}
+                          className="form-control mb-2 mt-2"
+                          placeholder="Write a reply..."
+                          value={replyBox[comment._id] || ""}
+                          onChange={(e) =>
+                            setReplyBox((prev) => ({
+                              ...prev,
+                              [comment._id]: e.target.value,
+                            }))
+                          }
+                        />
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReply(thread._id, comment._id);
+                          }}
+                        >
+                          Reply
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        ))
+            </div>
+          ))}
+        </div>
       )}
 
       <StartDiscussionModal

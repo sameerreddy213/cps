@@ -192,21 +192,21 @@ const QuizPage = () => {
 
   if (loading) {
     return (
-      <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
+      <div className="container py-5 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
         <LoadingWithQuote />
-        <p className="mt-3">Loading quiz questions...</p>
+        <p className="mt-3 fs-4 text-primary">Loading quiz questions...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container py-5 bg-dark text-white rounded shadow-lg text-center">
-        <h2 className="text-danger mb-4">Error</h2>
-        <div className="alert alert-danger mb-4">{error}</div>
+      <div className="container py-5 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+        <h2 className="text-danger mb-4 display-5">Error</h2>
+        <div className="alert alert-danger mb-4 w-100 text-center">{error}</div>
         <button
           onClick={() => navigate("/dashboard")}
-          className="btn btn-primary btn-lg"
+          className="btn btn-primary btn-lg px-5"
         >
           Return to Dashboard
         </button>
@@ -215,117 +215,127 @@ const QuizPage = () => {
   }
 
   return (
-    <div className="container py-4 bg-dark text-white rounded shadow-lg">
-      <h2 className="text-center mb-4 text-primary">Quiz on: {topic}</h2>
-
-      {questions.length === 0 ? (
-        <p className="text-center fs-5 text-muted mt-3">
-          No questions available for this topic.
-        </p>
-      ) : (
-        <form onSubmit={(e) => e.preventDefault()}>
-          {questions.map((q, i) => (
-            <div key={i} className="card bg-light text-dark p-4 shadow rounded mb-4">
-              <p className="card-text fs-5 fw-bold mb-3 text-dark">
-                {i + 1}. {q.question}
-              </p>
-              <div className="d-flex flex-column gap-3 mb-3">
-                {q.options.map((option, optionIndex) => (
-                  <label
-                    key={optionIndex}
-                    className={`list-group-item list-group-item-action bg-white text-dark border border-secondary rounded py-3 px-4 d-flex align-items-center ${
-                      submitted && summary
-                        ? summary.correctAnswers?.[i] === option
-                          ? "border-success bg-success-subtle text-success-emphasis"
-                          : summary.userAnswers?.[i] === option &&
-                            summary.correctAnswers?.[i] !== option
-                          ? "border-danger bg-danger-subtle text-danger-emphasis"
-                          : ""
-                        : ""
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={`question-${i}`}
-                      value={option}
-                      checked={answers[i] === option}
-                      onChange={() => handleOptionSelect(i, option)}
-                      disabled={submitted || isSubmitting}
-                      className="form-check-input me-3"
-                      style={{ transform: "scale(1.4)" }}
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
-              </div>
-
-              <div className="d-flex flex-wrap gap-3 justify-content-between mt-2">
-                <button
-                  className="btn btn-outline-primary btn-sm"
-                  onClick={() => handleDiscuss(i)}
-                >
-                  🗣️ Discuss
-                </button>
-                <button
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => handleAsk(i)}
-                >
-                  ❓ Ask
-                </button>
-                <button
-                  className="btn btn-outline-danger btn-sm"
-                  onClick={() => handleReport(i)}
-                >
-                  🐞 Report
-                </button>
-                <button
-                  className="btn btn-outline-success btn-sm"
-                  onClick={() => toggleSolution(i)}
-                >
-                  📘 {showSolution[i] ? "Hide" : "View"} Solution
-                </button>
-              </div>
-
-              {showSolution[i] && submitted && summary?.correctAnswers?.[i] && (
-                <div className="alert alert-info mt-3">
-                  <strong>Solution:</strong> {summary.correctAnswers[i]} — *(Add explanation text here)*
-                </div>
-              )}
-            </div>
-          ))}
-
-          {!submitted && (
-            <button
-              onClick={handleSubmit}
-              disabled={answers.some((a) => a === "") || answers.length === 0 || isSubmitting}
-              className="btn btn-primary btn-lg w-100 mt-4"
-            >
-              {isSubmitting ? <LoadingWithQuote /> : "Submit Quiz"}
-            </button>
-          )}
-        </form>
-      )}
-
-      {summary && (
-        <div className="card bg-light text-dark p-5 shadow-lg rounded mt-5 text-center">
-          <h3 className="card-title text-success mb-3">Quiz Results</h3>
-          <p className="card-text fs-4 mb-2 text-dark">
-            <span className="fw-semibold">Score:</span> {summary.score.toFixed(1)}%
-          </p>
-          {summary.masteryUpdate && topic && (
-            <p className="card-text fs-4 mb-4 text-dark">
-              <span className="fw-semibold">Mastery Level:</span>{" "}
-              {((1 - (summary.masteryUpdate[topic] || 0)) * 100).toFixed(1)}%
-            </p>
-          )}
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="btn btn-primary btn-lg"
-          >
-            Return to Dashboard
-          </button>
+    <div className="container py-5">
+      <div className="row justify-content-center mb-4">
+        <div className="col-12 col-md-10 col-lg-8">
+          <div className="text-center mb-4">
+            <h2 className="display-5 fw-bold text-primary">Quiz on: {topic}</h2>
+          </div>
         </div>
-      )}
+      </div>
+
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-10 col-lg-8">
+          {questions.length === 0 ? (
+            <p className="text-center fs-4 text-muted mt-3">
+              No questions available for this topic.
+            </p>
+          ) : (
+            <form onSubmit={(e) => e.preventDefault()}>
+              {questions.map((q, i) => (
+                <div key={i} className="card bg-light-subtle text-dark p-4 shadow rounded mb-4">
+                  <p className="card-text fs-5 fw-bold mb-3 text-dark">
+                    {i + 1}. {q.question}
+                  </p>
+                  <div className="d-flex flex-column gap-3 mb-3">
+                    {q.options.map((option, optionIndex) => (
+                      <label
+                        key={optionIndex}
+                        className={`list-group-item list-group-item-action bg-white text-dark border border-secondary rounded py-3 px-4 d-flex align-items-center ${
+                          submitted && summary
+                            ? summary.correctAnswers?.[i] === option
+                              ? "border-success bg-success-subtle text-success-emphasis"
+                              : summary.userAnswers?.[i] === option &&
+                                summary.correctAnswers?.[i] !== option
+                              ? "border-danger bg-danger-subtle text-danger-emphasis"
+                              : ""
+                            : ""
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`question-${i}`}
+                          value={option}
+                          checked={answers[i] === option}
+                          onChange={() => handleOptionSelect(i, option)}
+                          disabled={submitted || isSubmitting}
+                          className="form-check-input me-3"
+                          style={{ transform: "scale(1.4)" }}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="d-flex flex-wrap gap-3 justify-content-between mt-2">
+                    <button
+                      className="btn btn-outline-primary btn-sm px-3"
+                      onClick={() => handleDiscuss(i)}
+                    >
+                      🗣️ Discuss
+                    </button>
+                    <button
+                      className="btn btn-outline-secondary btn-sm px-3"
+                      onClick={() => handleAsk(i)}
+                    >
+                      ❓ Ask
+                    </button>
+                    <button
+                      className="btn btn-outline-danger btn-sm px-3"
+                      onClick={() => handleReport(i)}
+                    >
+                      🐞 Report
+                    </button>
+                    <button
+                      className="btn btn-outline-success btn-sm px-3"
+                      onClick={() => toggleSolution(i)}
+                    >
+                      📘 {showSolution[i] ? "Hide" : "View"} Solution
+                    </button>
+                  </div>
+
+                  {showSolution[i] && submitted && summary?.correctAnswers?.[i] && (
+                    <div className="alert alert-info mt-3">
+                      <strong>Solution:</strong> {summary.correctAnswers[i]} — *(Add explanation text here)*
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {!submitted && (
+                <button
+                  onClick={handleSubmit}
+                  disabled={answers.some((a) => a === "") || answers.length === 0 || isSubmitting}
+                  className="btn btn-primary btn-lg w-100 mt-4"
+                >
+                  {isSubmitting ? <LoadingWithQuote /> : "Submit Quiz"}
+                </button>
+              )}
+            </form>
+          )}
+
+          {summary && (
+            <div className="card bg-light-subtle text-dark p-5 shadow-lg rounded mt-5 text-center">
+              <h3 className="card-title text-success mb-3 display-6">Quiz Results</h3>
+              <p className="card-text fs-3 mb-2 text-dark">
+                <span className="fw-semibold">Score:</span> {summary.score.toFixed(1)}%
+              </p>
+              {summary.masteryUpdate && topic && (
+                <p className="card-text fs-4 mb-4 text-dark">
+                  <span className="fw-semibold">Mastery Level:</span>{" "}
+                  {((1 - (summary.masteryUpdate[topic] || 0)) * 100).toFixed(1)}%
+                </p>
+              )}
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="btn btn-primary btn-lg px-5"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

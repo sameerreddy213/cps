@@ -241,7 +241,6 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
   const removeLearnedTopic = useUserStore((state) => state.removeLearnedTopic);
 
   const [students, setStudents] = useState<Student[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -311,44 +310,54 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
 
   return (
     <div
-      className={`container py-4 text-white rounded shadow-lg ${
+      className={`container py-4 py-lg-5 text-white rounded shadow-lg ${
         asBackground
           ? "position-fixed top-0 start-0 w-100 h-100 z-n1 opacity-25 blur-lg overflow-auto"
           : "bg-dark"
       }`}
+      style={{ maxWidth: '100%', width: '100%' }}
     >
       {!asBackground && (
         <>
-          <h2 className="text-center mb-4 text-purple">Welcome, {username}!</h2>
-          <p className="text-center text-white mb-5">
-            {role === "educator"
-              ? "Manage enrolled students and monitor their learning journey."
-              : "This is your personalized learning dashboard."}
-          </p>
+          <div className="row justify-content-center mb-4">
+            <div className="col-12 col-md-10 col-lg-9 col-xl-8">
+              <h2 className="text-center mb-4 display-4 text-purple">Welcome, {username}!</h2>
+              <p className="text-center text-white mb-5 fs-4">
+                {role === "educator"
+                  ? "Manage enrolled students and monitor their learning journey."
+                  : "This is your personalized learning dashboard."}
+              </p>
+            </div>
+          </div>
         </>
       )}
 
       {role === "educator" ? (
         <>
-          <hr className="my-5 border-secondary border-dashed" />
-          <div className="dashboard-section mb-5 pt-3">
-            <h3 className="text-center mb-4 text-info">👥 Enrolled Students</h3>
-            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-              {students.length === 0 ? (
-                <p className="text-center text-white">No students enrolled yet.</p>
-              ) : (
-                students.map((student) => (
-                  <div className="col" key={student.username}>
-                    <div
-                      className={`card bg-secondary-subtle border-start border-5 border-primary shadow-sm p-3 cursor-pointer`}
-                      onClick={() => navigate(`/educator/student/${student.username}`)}
-                    >
-                      <h5>{student.username}</h5>
-                      {/* <p className="text-muted small">/*Last Active: {new Date(student.lastActive).toLocaleDateString()}</p>*/ }
+          <hr className="my-5 border-primary border-2 opacity-50" />
+          <div className="row justify-content-center mb-5 g-4">
+            <div className="col-12 col-md-10 col-lg-9 col-xl-8">
+              <div className="text-center mb-4">
+                <h3 className="fw-bold text-primary mb-4 fs-2">👥 Enrolled Students</h3>
+              </div>
+              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
+                {students.length === 0 ? (
+                  <p className="text-center text-secondary">No students enrolled yet.</p>
+                ) : (
+                  students.map((student) => (
+                    <div className="col d-flex align-items-stretch" key={student.username}>
+                      <div
+                        className="card border-primary border-2 shadow h-100 w-100 d-flex flex-column align-items-center justify-content-center p-4 mb-3"
+                        onClick={() => navigate(`/educator/student/${student.username}`)}
+                        style={{ cursor: 'pointer', fontSize: '1.25rem' }}
+                      >
+                        <h5 className="mb-2 fw-bold text-primary fs-3">{student.username}</h5>
+                        {/* <p className="text-muted small">/*Last Active: {new Date(student.lastActive).toLocaleDateString()}</p>*/ }
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </>
@@ -362,16 +371,18 @@ const Dashboard = ({ asBackground = false }: DashboardProps) => {
             {chartData.length === 0 ? (
               <p className="text-center text-white mt-3">No data available yet to show mastery progression.</p>
             ) : (
-              <div className="chart-container bg-dark-subtle p-3 rounded shadow">
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={chartData} margin={{ top: 15, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#444444" />
-                    <XAxis dataKey="topic" interval={0} angle={-30} textAnchor="end" stroke="#b0b0b0" />
-                    <YAxis domain={[0, 100]} label={{ value: "Confidence (%)", angle: -90, position: "insideLeft", fill: "#b0b0b0" }} stroke="#b0b0b0" />
-                    <Tooltip contentStyle={{ backgroundColor: "#333333", border: "1px solid #555555", color: "#e0e0e0" }} itemStyle={{ color: "#e0e0e0" }} />
-                    <Line type="monotone" dataKey="mastery" stroke="#a872e6" strokeWidth={3} dot={{ r: 5, fill: "#a872e6" }} activeDot={{ r: 8 }} />
-                  </LineChart>
-                </ResponsiveContainer>
+              <div className="chart-container bg-dark-subtle p-2 rounded shadow mx-auto" style={{ width: '100%', maxWidth: 800, minHeight: 300, height: 390, maxHeight: 440, paddingBottom: 56 }}>
+                <div style={{ width: '100%', height: '100%' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 15, right: 30, left: 20, bottom: 70 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#444444" />
+                      <XAxis dataKey="topic" interval={0} angle={-30} textAnchor="end" stroke="#b0b0b0" />
+                      <YAxis domain={[0, 100]} label={{ value: "Confidence (%)", angle: -90, position: "insideLeft", fill: "#b0b0b0" }} stroke="#b0b0b0" />
+                      <Tooltip contentStyle={{ backgroundColor: "#333333", border: "1px solid #555555", color: "#e0e0e0" }} itemStyle={{ color: "#e0e0e0" }} />
+                      <Line type="monotone" dataKey="mastery" stroke="#a872e6" strokeWidth={3} dot={{ r: 5, fill: "#a872e6" }} activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             )}
           </div>
