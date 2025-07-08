@@ -209,10 +209,7 @@ const handleDeleteComment = async (threadId: string, commentId: string) => {
 
   return (
     <div className="container py-4 text-white">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3>
-          {userRole === "educator" ? "👨‍🏫 Educator Dashboard" : "💬 Discussion Forum"}
-        </h3>
+      <div className="d-flex justify-content-end mb-4">
         <button className="btn btn-success" onClick={() => setShowModal(true)}>
           Start Discussion
         </button>
