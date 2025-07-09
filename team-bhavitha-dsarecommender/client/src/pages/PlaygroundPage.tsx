@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {api} from "../lib/api";
 import { useAuthStore } from "../store/authStore";
-import { motion } from "framer-motion";
 import AttemptHistory from "../components/AttemptHistory";
 
 type Question = { concept: string; question: string };
@@ -94,96 +93,89 @@ const PlaygroundPage = () => {
   };
 
   return (
-  <div className="flex min-h-screen bg-gray-100 font-sans">
-    {/* Left: Playground (60%) */}
-    <div className="w-3/5 p-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <h1 className="text-3xl font-bold mb-4 text-blue-700">
-          Dhruv - Your Path to Mastery...
-        </h1>
+    <div className="container-fluid min-vh-100 py-5 bg-light-subtle">
+      <div className="row g-4 justify-content-center">
+        {/* Left: Playground (Main) */}
+        <div className="col-12 col-lg-7 mb-4 mb-lg-0">
+          <div className="card shadow-lg border-primary border-2 h-100">
+            <div className="card-body">
+              <h1 className="display-6 fw-bold mb-4 text-primary">
+                Dhruv - Your Path to Mastery...
+              </h1>
+              <form className="row g-2 align-items-center mb-4" onSubmit={e => { e.preventDefault(); handleStart(); }}>
+                <div className="col-12 col-md-8">
+                  <input
+                    value={inputConcept}
+                    onChange={(e) => setInputConcept(e.target.value)}
+                    placeholder="e.g. Recursion"
+                    className="form-control form-control-lg border-primary"
+                  />
+                </div>
+                <div className="col-12 col-md-4 d-grid">
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-lg"
+                    disabled={loading}
+                  >
+                    {history[inputConcept] ? "View Attempt" : "Start"}
+                  </button>
+                </div>
+              </form>
 
-        <div className="mb-4 flex gap-2">
-          <input
-            value={inputConcept}
-            onChange={(e) => setInputConcept(e.target.value)}
-            placeholder="e.g. Recursion"
-            className="px-4 py-2 border border-gray-300 rounded w-full"
-          />
-          <button
-            onClick={handleStart}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            disabled={loading}
-          >
-            {history[inputConcept] ? "View Attempt" : "Start"}
-          </button>
+              {loading && <div className="text-center text-primary mb-3 fs-5">⏳ Generating questions...</div>}
+
+              {question && (
+                <div className="card bg-white p-4 shadow-sm mb-4">
+                  <h2 className="h5 fw-semibold text-secondary mb-2">
+                    Concept: <span className="text-primary">{question.concept}</span>
+                  </h2>
+                  <p className="fs-5 text-dark mb-3">{question.question}</p>
+                  <div className="d-flex gap-3">
+                    <button
+                      onClick={() => handleAnswer("yes")}
+                      className="btn btn-success px-4 py-2 fs-5"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={() => handleAnswer("no")}
+                      className="btn btn-danger px-4 py-2 fs-5"
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {result && (
+                <div className="card bg-light-subtle border-success border-2 p-4 shadow-sm mt-4">
+                  <h3 className="h5 fw-bold text-success mb-3">✅ Session Summary</h3>
+                  <p className="mb-1">
+                    <strong>Strong Concepts:</strong> {result.strongConcepts.join(", ") || "None"}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Weak Concepts:</strong> {result.weakConcepts.join(", ") || "None"}
+                  </p>
+                  <p>
+                    <strong>Recommended:</strong> {result.recommendedConcepts.join(", ") || "None"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {loading && <p>⏳ Generating questions...</p>}
-
-        {question && (
-          <motion.div
-            key={question.question}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white p-6 rounded shadow"
-          >
-            <h2 className="text-lg font-semibold text-gray-700 mb-2">
-              Concept: <span className="text-indigo-600">{question.concept}</span>
-            </h2>
-            <p className="text-gray-800">{question.question}</p>
-            <div className="mt-4 flex gap-3">
-              <button
-                onClick={() => handleAnswer("yes")}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => handleAnswer("no")}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                No
-              </button>
+        {/* Right: Knowledge Trail */}
+        <div className="col-12 col-lg-5">
+          <div className="card shadow border-0 h-100 bg-dark text-white">
+            <div className="card-body">
+              <h2 className="h4 fw-bold mb-4">🎓 Knowledge Trail</h2>
+              <AttemptHistory history={history} />
             </div>
-          </motion.div>
-        )}
-
-        {result && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="mt-6 bg-gray-50 border p-6 rounded"
-          >
-            <h3 className="text-xl font-semibold mb-2">✅ Session Summary</h3>
-            <p>
-              <strong>Strong Concepts:</strong>{" "}
-              {result.strongConcepts.join(", ") || "None"}
-            </p>
-            <p>
-              <strong>Weak Concepts:</strong>{" "}
-              {result.weakConcepts.join(", ") || "None"}
-            </p>
-            <p>
-              <strong>Recommended:</strong>{" "}
-              {result.recommendedConcepts.join(", ") || "None"}
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    {/* Right: Knowledge Trail (40%) */}
-    <div className="w-2/5 bg-black shadow-md p-6 border-l border-gray-200">
-      <h2 className="text-xl font-bold mb-4">🎓 Knowledge Trail</h2>
-      <AttemptHistory history={history} />
-    </div>
-  </div>
-);
+  );
 }
 export default PlaygroundPage;
