@@ -13,6 +13,7 @@ import AppEntry from "./routes/AppEntry";
 import DiscussionDetailPage from "./pages/DiscussionDetailPage";
 import Discuss from './pages/DiscussionPage.tsx';
 import StudentDetailPage from './pages/StudentDetailPage.tsx';
+import PlaygroundPage from './pages/PlaygroundPage.tsx';
 
 // Inside <Routes>...
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/quiz/:topic" element={<QuizPage />} />
             <Route path="/quiz-select" element={<QuizSelectPage/>} />
+            <Route path="/playground" element={<PlaygroundPage />} />
           </Route>
         </Routes>
       </div>

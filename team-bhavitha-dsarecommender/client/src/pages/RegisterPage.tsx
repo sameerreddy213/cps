@@ -81,7 +81,7 @@ const RegisterPage = () => {
 
       if (res.status === 201) {
         const userData = res.data.user;
-        login(userData.username);
+        login(userData.username, userData.role);
         setProfile(userData);
         navigate(`/dashboard/${userData.username}`);
       }
