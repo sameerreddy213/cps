@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {api} from "../lib/api";
+import { api } from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import { motion } from "framer-motion";
 import AttemptHistory from "../components/AttemptHistory";
+import { validTopics } from "../data/validTopic"; // adjust path if needed
+
 
 type Question = { concept: string; question: string };
 type Result = {
@@ -12,7 +14,7 @@ type Result = {
 };
 
 const PlaygroundPage = () => {
-  const { username : user } = useAuthStore();
+  const { username: user } = useAuthStore();
   const [inputConcept, setInputConcept] = useState("");
   const [concept, setConcept] = useState("");
   const [sessionId, setSessionId] = useState("");
@@ -94,96 +96,109 @@ const PlaygroundPage = () => {
   };
 
   return (
-  <div className="flex min-h-screen bg-gray-100 font-sans">
-    {/* Left: Playground (60%) */}
-    <div className="w-3/5 p-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <h1 className="text-3xl font-bold mb-4 text-blue-700">
-          Dhruv - Your Path to Mastery...
-        </h1>
+    <div className="flex min-h-screen bg-gray-100 font-sans">
+      {/* Left: Playground (60%) */}
+      <div className="w-3/5 p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <h1 className="text-3xl font-bold mb-4 text-blue-700">
+            Dhruv - Your Path to Mastery...
+          </h1>
 
-        <div className="mb-4 flex gap-2">
-          <input
-            value={inputConcept}
-            onChange={(e) => setInputConcept(e.target.value)}
-            placeholder="e.g. Recursion"
-            className="px-4 py-2 border border-gray-300 rounded w-full"
-          />
-          <button
-            onClick={handleStart}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            disabled={loading}
-          >
-            {history[inputConcept] ? "View Attempt" : "Start"}
-          </button>
-        </div>
+          <div className="mb-4 flex flex-col items-center gap-3">
+            {/* Styled Dropdown */}
+            <select
+              value={inputConcept}
+              onChange={(e) => setInputConcept(e.target.value)}
+              className="form-select form-select-lg border border-blue-600 rounded px-4 py-2 text-base"
+              style={{ maxWidth: "350px" }}
+              disabled={loading}
+            >
+              <option value="">Select a topic...</option>
+              {validTopics.map((topic: string, i: number) => (
+                <option key={i} value={topic}>
+                  {topic}
+                </option>
+              ))}
+            </select>
 
-        {loading && <p>⏳ Generating questions...</p>}
+            {/* Start Button */}
+            <button
+              onClick={handleStart}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-2"
+              disabled={loading || !inputConcept}
+              style={{ minWidth: 150 }}
+            >
+              {history[inputConcept] ? "View Attempt" : "Start"}
+            </button>
+          </div>
 
-        {question && (
-          <motion.div
-            key={question.question}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white p-6 rounded shadow"
-          >
-            <h2 className="text-lg font-semibold text-gray-700 mb-2">
-              Concept: <span className="text-indigo-600">{question.concept}</span>
-            </h2>
-            <p className="text-gray-800">{question.question}</p>
-            <div className="mt-4 flex gap-3">
-              <button
-                onClick={() => handleAnswer("yes")}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => handleAnswer("no")}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                No
-              </button>
-            </div>
-          </motion.div>
-        )}
 
-        {result && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="mt-6 bg-gray-50 border p-6 rounded"
-          >
-            <h3 className="text-xl font-semibold mb-2">✅ Session Summary</h3>
-            <p>
-              <strong>Strong Concepts:</strong>{" "}
-              {result.strongConcepts.join(", ") || "None"}
-            </p>
-            <p>
-              <strong>Weak Concepts:</strong>{" "}
-              {result.weakConcepts.join(", ") || "None"}
-            </p>
-            <p>
-              <strong>Recommended:</strong>{" "}
-              {result.recommendedConcepts.join(", ") || "None"}
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
+          {loading && <p>⏳ Generating questions...</p>}
+
+          {question && (
+            <motion.div
+              key={question.question}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-black p-6 rounded shadow"
+            >
+              <h2 className="text-lg font-semibold text-gray-700 mb-2">
+                Concept: <span className="text-indigo-600">{question.concept}</span>
+              </h2>
+              <p className="text-gray-800">{question.question}</p>
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => handleAnswer("yes")}
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => handleAnswer("no")}
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                >
+                  No
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {result && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="mt-6 bg-gray-50 border p-6 rounded"
+            >
+              <h3 className="text-xl font-semibold mb-2"> Session Summary</h3>
+              <p>
+                <strong>Strong Concepts:</strong>{" "}
+                {result.strongConcepts.join(", ") || "None"}
+              </p>
+              <p>
+                <strong>Weak Concepts:</strong>{" "}
+                {result.weakConcepts.join(", ") || "None"}
+              </p>
+              <p>
+                <strong>Recommended:</strong>{" "}
+                {result.recommendedConcepts.join(", ") || "None"}
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Right: Knowledge Trail (40%) */}
+      <div className="w-2/5 bg-black shadow-md p-6 border-l border-gray-200">
+        <h2 className="text-xl font-bold mb-4">🎓 Knowledge Trail</h2>
+        <AttemptHistory history={history} />
+      </div>
     </div>
-
-    {/* Right: Knowledge Trail (40%) */}
-    <div className="w-2/5 bg-black shadow-md p-6 border-l border-gray-200">
-      <h2 className="text-xl font-bold mb-4">🎓 Knowledge Trail</h2>
-      <AttemptHistory history={history} />
-    </div>
-  </div>
-);
+  );
 }
 export default PlaygroundPage;
