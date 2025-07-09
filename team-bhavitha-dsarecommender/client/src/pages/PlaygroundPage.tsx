@@ -179,7 +179,7 @@ const PlaygroundPage = () => {
     </div>
 
     {/* Right: Knowledge Trail (40%) */}
-    <div className="w-2/5 bg-white shadow-md p-6 border-l border-gray-200">
+    <div className="w-2/5 bg-black shadow-md p-6 border-l border-gray-200">
       <h2 className="text-xl font-bold mb-4">🎓 Knowledge Trail</h2>
       <AttemptHistory history={history} />
     </div>
