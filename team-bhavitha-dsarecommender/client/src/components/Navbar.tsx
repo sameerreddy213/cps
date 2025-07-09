@@ -122,6 +122,16 @@ const Navbar = () => {
                     Get Recommendation
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink
+                    to={protectedLink("/playground")}
+                    className={({ isActive }) =>
+                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                    }
+                  >
+                    Ask Dhruv
+                  </NavLink>
+                  </li>
                 <li className="nav-item">
                   <NavLink
                     to="/discuss"

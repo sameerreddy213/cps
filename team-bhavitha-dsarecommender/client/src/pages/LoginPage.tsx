@@ -24,7 +24,7 @@ const LoginPage = () => {
       const res = await authApi.post("/login", { username, password });
       if (res.status === 200) {
         const userData = res.data.user;
-        login(userData.username);
+        login(userData.username, userData.role);
         setProfile(userData);
         navigate(`/dashboard/${userData.username}`);
       } 

@@ -8,7 +8,7 @@ interface Props {
   onClose: () => void;
   onRefresh: () => void;
   username: string;
-  userRole?: string; // Optional role prop for future use
+  userRole?: string; 
 }
 
 const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => {
@@ -31,7 +31,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
           username,
         });
       }
-      onRefresh(); // refetch discussions
+      onRefresh();
       onClose();
     } catch (err) {
       console.error("Failed to create discussion", err);
