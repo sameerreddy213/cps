@@ -15,16 +15,16 @@ const AttemptHistory = ({ history }: Props) => {
   return (
     <div className="space-y-4">
       {Object.entries(history).map(([concept, result]) => (
-        <div key={concept} className="bg-gray-50 p-4 rounded border">
+        <div key={concept} className="bg-black-50 p-4 rounded border">
           <h4 className="font-bold text-indigo-700 mb-1">{concept}</h4>
           <p className="text-sm">
-            <strong>✅ Strong:</strong> {result.strongConcepts.join(", ") || "None"}
+            <strong>Strong:</strong> {result.strongConcepts.join(", ") || "None"}
           </p>
           <p className="text-sm">
-            <strong>❌ Weak:</strong> {result.weakConcepts.join(", ") || "None"}
+            <strong>Weak:</strong> {result.weakConcepts.join(", ") || "None"}
           </p>
           <p className="text-sm">
-            <strong>📌 Recommended:</strong> {result.recommendedConcepts.join(", ") || "None"}
+            <strong>Recommended:</strong> {result.recommendedConcepts.join(", ") || "None"}
           </p>
         </div>
       ))}
