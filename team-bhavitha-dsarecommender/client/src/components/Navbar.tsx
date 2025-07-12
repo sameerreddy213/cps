@@ -67,26 +67,6 @@ const Navbar = () => {
                     Discussions
                   </NavLink>
                 </li>
-                <li className="nav-item">
-                  <NavLink
-                    to="/educator/upload"
-                    className={({ isActive }) =>
-                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
-                    }
-                  >
-                    Upload Materials
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink
-                    to="/educator/questions"
-                    className={({ isActive }) =>
-                      `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
-                    }
-                  >
-                    Questions Asked
-                  </NavLink>
-                </li>
               </>
             ) : isAuthenticated ? (
               <>
