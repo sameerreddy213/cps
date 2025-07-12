@@ -41,16 +41,17 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
 
   return (
     <Modal show={show} onHide={onClose} backdrop="static" centered>
-      <Modal.Header closeButton>
+      <Modal.Header closeButton style={{ borderBottom: '2px solid #0d6efd' }}>
         <Modal.Title>Start a Discussion</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body style={{ border: '1px solid #dee2e6' }}>
         <Form>
           <Form.Check
             type="radio"
             label="General Discussion"
             checked={type === "general"}
             onChange={() => setType("general")}
+            style={{ border: '1px solid #dee2e6', padding: '10px', borderRadius: '5px', marginBottom: '10px' }}
           />
           <Form.Check
             type="radio"
@@ -58,6 +59,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
             checked={type === "question"}
             onChange={() => setType("question")}
             className="mb-3"
+            style={{ border: '1px solid #dee2e6', padding: '10px', borderRadius: '5px' }}
           />
 
           {type === "general" ? (
@@ -70,6 +72,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="What's on your mind?"
+                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
                 />
               </Form.Group>
             </>
@@ -82,6 +85,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g., Graph Theory"
+                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
                 />
               </Form.Group>
               <Form.Group>
@@ -90,6 +94,7 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
                   type="number"
                   value={questionIndex}
                   onChange={(e) => setQuestionIndex(e.target.value === "" ? "" : Number(e.target.value))}
+                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
                 />
               </Form.Group>
               <Form.Group>
@@ -99,13 +104,14 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
                   rows={2}
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
+                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
                 />
               </Form.Group>
             </>
           )}
         </Form>
       </Modal.Body>
-      <Modal.Footer>
+      <Modal.Footer style={{ borderTop: '2px solid #0d6efd' }}>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

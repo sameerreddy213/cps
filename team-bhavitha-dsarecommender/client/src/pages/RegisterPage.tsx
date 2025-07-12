@@ -4,10 +4,10 @@ import { authApi } from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 import Select from "react-select";
-import { validTopics } from "../data/validTopic"; // Assuming validTopics is an array of strings
-import { Eye, EyeOff } from "lucide-react";
+import { validTopics } from "../data/validTopic";
+import { Eye, EyeOff, User, Mail, Lock, BookOpen, GraduationCap } from "lucide-react";
 import LoadingWithQuotes from "../components/LoadingWithQuotes";
-import DashboardBackground from "../components/DashboardBackground"; // Re-importing as requested
+import { motion } from "framer-motion";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -74,7 +74,7 @@ const RegisterPage = () => {
         email,
         progress: topics,
         role,
-        eid: role === "educator" ? eid.trim() : undefined, // Only include EID if role is educator
+        eid: role === "educator" ? eid.trim() : undefined,
       };
 
       const res = await authApi.post("/register", userPayload);
@@ -85,221 +85,319 @@ const RegisterPage = () => {
         setProfile(userData);
         navigate(`/dashboard/${userData.username}`);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Registration failed. Please try again.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Registration failed. Please try again.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut" as const,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut" as const
+      }
+    }
+  };
+
   return (
-    <>
-      {/* Renders DashboardBackground directly as requested */}
-      <DashboardBackground />
-
-      {/* This is the full-screen overlay with blur, as requested */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen bg-white/60 backdrop-blur-sm">
-        {/* The outer white card, as in your provided code */}
-        <div className="p-8 rounded-xl shadow-xl bg-white/80 max-w-md w-full">
-          {isLoading && <LoadingWithQuotes />} {/* Loading overlaying the white card */}
-
-          {/* The main dark registration card */}
-          <div
-            className={`card bg-dark text-white p-4 shadow-lg rounded-4 w-100 ${isLoading ? "opacity-60 blur-sm" : ""
-              }`}
-            style={{ maxWidth: "800px" }} // Adjusted maxWidth for 2-column
+    <motion.div
+      className="d-flex justify-content-center align-items-center min-vh-100"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div
+        className="card bg-gradient-secondary border-0 shadow-2xl"
+        style={{ maxWidth: "800px", width: "100%" }}
+        variants={itemVariants}
+        whileHover={{ y: -5 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="card-body p-5">
+          <motion.div 
+            className="text-center mb-4"
+            variants={itemVariants}
           >
-            <h2 className="card-title text-center text-primary mb-4 fs-2 fw-bold">
-              Create Your Account
-            </h2>
+            <motion.div
+              className="mb-3"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.6 }}
+            >
+              <User size={48} className="text-primary" />
+            </motion.div>
+            <h2 className="card-title text-gradient fs-1 fw-bold mb-2">Create Account</h2>
+          </motion.div>
 
-            {/* Form content with 2-column layout */}
-            <form onSubmit={handleRegister}>
+          {isLoading ? (
+            <LoadingWithQuotes />
+          ) : (
+            <motion.form onSubmit={handleRegister} variants={itemVariants}>
               <div className="row">
-                {/* Full Name */}
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="fullName" className="form-label">
-                    Full Name:
+                <div className="col-md-6 mb-4">
+                  <label htmlFor="fullName" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <User size={18} className="me-2" />
+                    Full Name
                   </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-                    placeholder="e.g. Anurag Kumar"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
+                  <motion.div
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <input
+                      id="fullName"
+                      type="text"
+                      className="form-control form-control-lg focus-ring"
+                      placeholder="e.g. Anurag Kumar"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </motion.div>
                 </div>
 
-                {/* Username */}
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="regUsername" className="form-label">
-                    Username:
+                <div className="col-md-6 mb-4">
+                  <label htmlFor="regUsername" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <User size={18} className="me-2" />
+                    Username
                   </label>
-                  <input
-                    id="regUsername"
-                    type="text"
-                    className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-                    placeholder="Choose a unique username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
+                  <motion.div
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <input
+                      id="regUsername"
+                      type="text"
+                      className="form-control form-control-lg focus-ring"
+                      placeholder="Choose a unique username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </motion.div>
                 </div>
               </div>
 
               <div className="row">
-                {/* Password */}
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="regPassword" className="form-label">
-                    Password:
+                <div className="col-md-6 mb-4">
+                  <label htmlFor="email" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <Mail size={18} className="me-2" />
+                    Email
                   </label>
-                  <div className="input-group">
+                  <motion.div
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <input
+                      id="email"
+                      type="email"
+                      className="form-control form-control-lg focus-ring"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </motion.div>
+                </div>
+
+                <div className="col-md-6 mb-4">
+                  <label htmlFor="role" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <GraduationCap size={18} className="me-2" />
+                    Role
+                  </label>
+                  <motion.div
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <select
+                      id="role"
+                      className="form-control form-control-lg focus-ring"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value as "student" | "educator")}
+                      disabled={isLoading}
+                    >
+                      <option value="student">Student</option>
+                      <option value="educator">Educator</option>
+                    </select>
+                  </motion.div>
+                </div>
+              </div>
+
+              {role === "educator" && (
+                <div className="mb-4">
+                  <label htmlFor="eid" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <BookOpen size={18} className="me-2" />
+                    Educator ID
+                  </label>
+                  <motion.div
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <input
+                      id="eid"
+                      type="text"
+                      className="form-control form-control-lg focus-ring"
+                      placeholder="Enter 16-digit Educator ID"
+                      value={eid}
+                      onChange={(e) => setEid(e.target.value)}
+                      required={role === "educator"}
+                      disabled={isLoading}
+                    />
+                  </motion.div>
+                </div>
+              )}
+
+              <div className="row">
+                <div className="col-md-6 mb-4">
+                  <label htmlFor="regPassword" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <Lock size={18} className="me-2" />
+                    Password
+                  </label>
+                  <motion.div
+                    className="position-relative"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <input
                       id="regPassword"
                       type={showPassword ? "text" : "password"}
-                      className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
+                      className="form-control form-control-lg focus-ring pe-5"
                       placeholder="Use at least 1 uppercase & special character"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={isLoading}
                     />
-                    <span
-                      className="input-group-text bg-white"
-                      role="button"
+                    <motion.button
+                      type="button"
+                      className="btn btn-link position-absolute top-50 end-0 translate-middle-y text-secondary"
                       onClick={() => setShowPassword(!showPassword)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      style={{ zIndex: 10 }}
                     >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </span>
-                  </div>
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </motion.button>
+                  </motion.div>
                   <div className="progress mt-2" style={{ height: "6px" }}>
-                    <div
+                    <motion.div
                       className={`progress-bar ${["bg-danger", "bg-warning", "bg-info", "bg-success"][
                         passwordStrength.score - 1
-                      ] || "bg-secondary"
-                        }`}
-                      style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                      ] || "bg-secondary"}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                      transition={{ duration: 0.5 }}
                     />
                   </div>
                   <small className="text-muted">Strength: {passwordStrength.label}</small>
                 </div>
 
-                {/* Confirm Password */}
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="confirmPassword" className="form-label">
-                    Confirm Password:
+                <div className="col-md-6 mb-4">
+                  <label htmlFor="confirmPassword" className="form-label text-white fw-semibold d-flex align-items-center">
+                    <Lock size={18} className="me-2" />
+                    Confirm Password
                   </label>
-                  <div className="input-group">
+                  <motion.div
+                    className="position-relative"
+                    whileFocus={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-                      placeholder="Re-enter your password"
+                      className="form-control form-control-lg focus-ring pe-5"
+                      placeholder="Confirm your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       disabled={isLoading}
                     />
-                    <span
-                      className="input-group-text bg-white"
-                      role="button"
+                    <motion.button
+                      type="button"
+                      className="btn btn-link position-absolute top-50 end-0 translate-middle-y text-secondary"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      style={{ zIndex: 10 }}
                     >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </span>
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </motion.button>
+                  </motion.div>
+                </div>
+              </div>
+
+              <motion.button
+                type="submit"
+                className="btn btn-primary btn-lg w-100 mb-3"
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="d-flex align-items-center justify-content-center">
+                    <div className="spinner me-2"></div>
+                    Creating Account...
                   </div>
-                </div>
-              </div>
-              {/* Role Selector */}
-              <div className="mb-3">
-                <label htmlFor="role" className="form-label">Register As:</label>
-                <select
-                  id="role"
-                  className="form-select form-select-lg bg-dark-subtle text-dark-contrast border-secondary"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as "student" | "educator")}
-                  disabled={isLoading}
-                >
-                  <option value="student">Student</option>
-                  <option value="educator">Educator</option>
-                </select>
-              </div>
-              {/* Educator ID (EID) - Conditional */}
-              {role === "educator" && (
-                <div className="mb-3">
-                  <label htmlFor="eid" className="form-label">
-                    Educator ID (16-digit):
-                  </label>
-                  <input
-                    id="eid"
-                    type="text"
-                    className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-                    placeholder="Enter your 16-digit EID"
-                    value={eid}
-                    onChange={(e) => setEid(e.target.value)}
-                    required={role === "educator"}
-                    disabled={isLoading}
-                  />
-                </div>
-              )}
-              {/* Email */}
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Email:
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  className="form-control form-control-lg bg-dark-subtle text-dark-contrast border-secondary"
-                  placeholder="e.g. anurag@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
+                ) : (
+                  <div className="d-flex align-items-center justify-content-center">
+                    <User size={20} className="me-2" />
+                    Create Account
+                  </div>
+                )}
+              </motion.button>
+            </motion.form>
+          )}
 
-              {/* Topics Already Covered */}
-              <div className="mb-4">
-                <label htmlFor="topics" className="form-label">
-                  Topics Already Covered:
-                </label>
-                <Select
-                  id="topics"
-                  isMulti
-                  options={validTopics.map((topic) => ({ value: topic, label: topic }))}
-                  value={selectedTopics}
-                  onChange={(selected) => {
-                    const selectedArr = selected as { value: string; label: string }[];
-                    setSelectedTopics(selectedArr);
-                    setTopics(selectedArr.map((opt) => opt.value));
-                  }}
-                  isDisabled={isLoading}
-                  className="text-dark" // Ensures Select component styling works with dark theme
-                  classNamePrefix="select"
-                  placeholder="Select covered topics (optional)"
-                />
-              </div>
+          {error && (
+            <motion.div
+              className="alert alert-danger mt-4 d-flex align-items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {error}
+            </motion.div>
+          )}
 
-              <button type="submit" className="btn btn-primary btn-lg w-100" disabled={isLoading}>
-                Register
-              </button>
-            </form>
-
-            {error && <div className="alert alert-danger mt-4 text-center">{error}</div>}
-            <p className="mt-4 text-center text-white">
+          <motion.div
+            className="text-center mt-4"
+            variants={itemVariants}
+          >
+            <p className="text-secondary mb-0">
               Already have an account?{" "}
-              <Link to="/login" className="text-info fw-bold">
-                Login
-              </Link>
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link to="/login" className="text-primary fw-bold text-decoration-none">
+                  Sign In
+                </Link>
+              </motion.span>
             </p>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 };
 
