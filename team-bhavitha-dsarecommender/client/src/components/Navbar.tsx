@@ -142,6 +142,17 @@ const Navbar = () => {
                     Discuss
                   </NavLink>
                 </li>
+              <li>
+                <NavLink
+                  to={protectedLink(`/Assignments`)}
+                  className={({ isActive }) =>
+                    `nav-link text-white fw-semibold mx-2 ${isActive ? "active-link" : ""}`
+                  }
+                >
+                  Assignments
+                </NavLink>
+
+              </li>
               </>
             ) : (
               <>

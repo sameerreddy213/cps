@@ -36,7 +36,7 @@ const LearnedConceptCard = ({ title, quizScores }: LearnedConceptCardProps) => {
         <div className="quiz-score-placeholder mt-2" style={{ minHeight: '1.5em' }}> {/* Adjust minHeight if content needs more space */}
             {quizScores && quizScores.length > 0 && (
                 <p className="card-text text-dark-emphasis mb-0">
-                    Last Score: **{quizScores[quizScores.length - 1].score.toFixed(0)}%**
+                    Last Score: {quizScores[quizScores.length - 1].score.toFixed(0)}%
                 </p>
             )}
         </div>
