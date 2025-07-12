@@ -238,7 +238,7 @@ const handleDeleteComment = async (threadId: string, commentId: string) => {
         <div className="row g-4 justify-content-center">
           {threads.map((thread) => (
             <div key={thread._id} className="col-12 col-md-10 col-lg-9 col-xl-8">
-              <div className="discussion-thread-card mb-4 p-3 p-lg-4" style={{ fontSize: '1.15rem' }}>
+              <div className="discussion-thread-card mb-4 p-3 p-lg-4" style={{ fontSize: '1.15rem', border: '2px solid #0d6efd', borderRadius: '12px', backgroundColor: '#000', color: '#fff' }}>
                 <div
                   className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"
                   style={{ cursor: "pointer" }}

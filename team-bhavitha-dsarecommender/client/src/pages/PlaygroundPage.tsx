@@ -105,7 +105,7 @@ const PlaygroundPage = () => {
       <div className="row g-4 justify-content-center">
         {/* Left: Playground (Main) */}
         <div className={`col-12 ${question ? '' : 'col-lg-7'} mb-4 mb-lg-0`}>
-          <div className="card shadow-lg border-primary border-2 h-100 bg-white">
+          <div className="card shadow-lg border-primary border-2 h-100 bg-black">
             <div className="card-body">
               <form className="row g-2 align-items-center mb-4" onSubmit={e => { e.preventDefault(); handleStart(); }}>
                 <div className="col-12 col-md-8">
@@ -153,25 +153,25 @@ const PlaygroundPage = () => {
               )}
 
               {result && (
-                <div className="alert alert-success p-4 shadow-sm mt-4 text-center">
-                  <h3 className="h5 fw-bold text-success mb-3">✅ Session Summary</h3>
+                <div className="alert p-4 shadow-sm mt-4 text-center" style={{ backgroundColor: '#000', color: '#fff', border: '2px solid #0d6efd' }}>
+                  <h3 className="h5 fw-bold text-white mb-3">✅ Session Summary</h3>
                   <div className="row mb-2">
                     <div className="col-12 col-md-4 mb-2 mb-md-0">
-                      <div className="bg-success bg-opacity-10 rounded p-2">
-                        <strong>Strong Concepts:</strong><br />
-                        <span className="fw-semibold">{result.strongConcepts.join(", ") || "None"}</span>
+                      <div className="rounded p-2" style={{ backgroundColor: 'rgba(25, 135, 84, 0.2)', border: '1px solid #198754' }}>
+                        <strong className="text-white">Strong Concepts:</strong><br />
+                        <span className="fw-semibold text-white">{result.strongConcepts.join(", ") || "None"}</span>
                       </div>
                     </div>
                     <div className="col-12 col-md-4 mb-2 mb-md-0">
-                      <div className="bg-danger bg-opacity-10 rounded p-2">
-                        <strong>Weak Concepts:</strong><br />
-                        <span className="fw-semibold">{result.weakConcepts.join(", ") || "None"}</span>
+                      <div className="rounded p-2" style={{ backgroundColor: 'rgba(220, 53, 69, 0.2)', border: '1px solid #dc3545' }}>
+                        <strong className="text-white">Weak Concepts:</strong><br />
+                        <span className="fw-semibold text-white">{result.weakConcepts.join(", ") || "None"}</span>
                       </div>
                     </div>
                     <div className="col-12 col-md-4">
-                      <div className="bg-primary bg-opacity-10 rounded p-2">
-                        <strong>Recommended:</strong><br />
-                        <span className="fw-semibold">{result.recommendedConcepts.join(", ") || "None"}</span>
+                      <div className="rounded p-2" style={{ backgroundColor: 'rgba(13, 110, 253, 0.2)', border: '1px solid #0d6efd' }}>
+                        <strong className="text-white">Recommended:</strong><br />
+                        <span className="fw-semibold text-white">{result.recommendedConcepts.join(", ") || "None"}</span>
                       </div>
                     </div>
                   </div>
