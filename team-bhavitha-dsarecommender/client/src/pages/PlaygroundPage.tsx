@@ -93,24 +93,22 @@ const PlaygroundPage = () => {
   };
 
   return (
-    <div className="container-fluid min-vh-100 py-5 bg-black text-white">
-      <div className="row g-4 justify-content-center">
-        {/* Left: Playground */}
-        <div className="col-12 col-lg-7 mb-4 mb-lg-0">
-          <div className="card shadow-lg border-primary border-2 h-100 bg-dark text-white">
-            <div className="card-body">
-              <h1 className="display-6 fw-bold mb-4 text-info">
-                Dhruv - Your Path to Mastery...
-              </h1>
 
-              {/* Topic Dropdown */}
-              <form
-                className="row g-2 align-items-center mb-4"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleStart();
-                }}
-              >
+    <div className="container-fluid min-vh-100 py-5" style={{ background: 'linear-gradient(120deg, #e0e7ef 60%, #f8fafc 100%)' }}>
+      <div className="row justify-content-center mb-4">
+        <div className="col-12 text-center mb-4">
+          <div className="py-3 mb-3 rounded bg-primary bg-gradient shadow-sm">
+            <h1 className="display-5 fw-bold text-white mb-0">Dhruv Playground</h1>
+            <div className="text-white-50">Your Path to Mastery</div>
+          </div>
+        </div>
+      </div>
+      <div className="row g-4 justify-content-center">
+        {/* Left: Playground (Main) */}
+        <div className={`col-12 ${question ? '' : 'col-lg-7'} mb-4 mb-lg-0`}>
+          <div className="card shadow-lg border-primary border-2 h-100 bg-black">
+            <div className="card-body">
+              <form className="row g-2 align-items-center mb-4" onSubmit={e => { e.preventDefault(); handleStart(); }}>
                 <div className="col-12 col-md-8">
                   <select
                     value={inputConcept}
@@ -136,21 +134,15 @@ const PlaygroundPage = () => {
                   </button>
                 </div>
               </form>
-
-              {loading && (
-                <div className="text-center text-info mb-3 fs-5">
-                  ⏳ Generating questions...
-                </div>
-              )}
+              {loading && <div className="alert alert-info text-center mb-3 fs-5">⏳ Generating questions...</div>}
 
               {question && (
-                <div className="card bg-dark text-white p-4 shadow-sm mb-4 border border-secondary">
-                  <h2 className="h5 fw-semibold text-white mb-2">
-                    Concept:{" "}
-                    <span className="text-info">{question.concept}</span>
+                <div className="card bg-light-subtle border-info border-2 p-4 shadow-sm mb-4">
+                  <h2 className="h5 fw-semibold text-secondary mb-2">
+                    Concept: <span className="text-primary">{question.concept}</span>
                   </h2>
-                  <p className="fs-5 text-light mb-3">{question.question}</p>
-                  <div className="d-flex gap-3">
+                  <p className="fs-5 text-dark mb-3">{question.question}</p>
+                  <div className="d-flex gap-3 justify-content-center">
                     <button
                       onClick={() => handleAnswer("yes")}
                       className="btn btn-success px-4 py-2 fs-5"
@@ -168,37 +160,45 @@ const PlaygroundPage = () => {
               )}
 
               {result && (
-                <div className="card bg-black text-white border-success border-2 p-4 shadow-sm mt-4">
-                  <h3 className="h5 fw-bold text-success mb-3">
-                    ✅ Session Summary
-                  </h3>
-                  <p className="mb-1">
-                    <strong>Strong Concepts:</strong>{" "}
-                    {result.strongConcepts.join(", ") || "None"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Weak Concepts:</strong>{" "}
-                    {result.weakConcepts.join(", ") || "None"}
-                  </p>
-                  <p>
-                    <strong>Recommended:</strong>{" "}
-                    {result.recommendedConcepts.join(", ") || "None"}
-                  </p>
+                <div className="alert p-4 shadow-sm mt-4 text-center" style={{ backgroundColor: '#000', color: '#fff', border: '2px solid #0d6efd' }}>
+                  <h3 className="h5 fw-bold text-white mb-3">✅ Session Summary</h3>
+                  <div className="row mb-2">
+                    <div className="col-12 col-md-4 mb-2 mb-md-0">
+                      <div className="rounded p-2" style={{ backgroundColor: 'rgba(25, 135, 84, 0.2)', border: '1px solid #198754' }}>
+                        <strong className="text-white">Strong Concepts:</strong><br />
+                        <span className="fw-semibold text-white">{result.strongConcepts.join(", ") || "None"}</span>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-4 mb-2 mb-md-0">
+                      <div className="rounded p-2" style={{ backgroundColor: 'rgba(220, 53, 69, 0.2)', border: '1px solid #dc3545' }}>
+                        <strong className="text-white">Weak Concepts:</strong><br />
+                        <span className="fw-semibold text-white">{result.weakConcepts.join(", ") || "None"}</span>
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-4">
+                      <div className="rounded p-2" style={{ backgroundColor: 'rgba(13, 110, 253, 0.2)', border: '1px solid #0d6efd' }}>
+                        <strong className="text-white">Recommended:</strong><br />
+                        <span className="fw-semibold text-white">{result.recommendedConcepts.join(", ") || "None"}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right: Knowledge Trail */}
-        <div className="col-12 col-lg-5">
-          <div className="card shadow border-0 h-100 bg-dark text-white">
-            <div className="card-body">
-              <h2 className="h4 fw-bold mb-4">🎓 Knowledge Trail</h2>
-              <AttemptHistory history={history} />
+        {/* Right: Knowledge Trail - only show when not answering questions */}
+        {!question && (
+          <div className="col-12 col-lg-5">
+            <div className="card shadow border-0 h-100 bg-dark text-white">
+              <div className="card-body">
+                <h2 className="h4 fw-bold mb-4">🎓 Knowledge Trail</h2>
+                <AttemptHistory history={history} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -179,7 +179,7 @@ const DiscussionDetailPage = () => {
 
   return (
     <div className="container py-5 text-white">
-      <div className="bg-dark p-4 rounded shadow">
+      <div className="bg-dark p-4 rounded shadow" style={{ border: '2px solid #0d6efd' }}>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h2 className="text-primary mb-0">{thread.title || "Discussion"}</h2>
           {userRole === 'educator' && (
@@ -204,7 +204,7 @@ const DiscussionDetailPage = () => {
             <p className="text-muted">No comments yet. Be the first to reply!</p>
           ) : (
             thread.comments.map((c) => (
-              <div key={c._id} className="mb-4 p-3 bg-light text-dark rounded shadow-sm">
+              <div key={c._id} className="mb-4 p-3 bg-light text-dark rounded shadow-sm" style={{ border: '1px solid #0d6efd', borderRadius: '8px' }}>
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <div>
                     <div className="fw-semibold d-flex align-items-center">
@@ -241,7 +241,7 @@ const DiscussionDetailPage = () => {
                 {(c.replies?.length ?? 0) > 0 && (
                   <div className="mt-3 ps-3 border-start border-secondary">
                     {c.replies!.map((r) => (
-                      <div key={r._id} className="mt-3 p-2 bg-white rounded">
+                      <div key={r._id} className="mt-3 p-2 bg-white rounded" style={{ border: '1px solid #198754', borderRadius: '6px' }}>
                         <div className="d-flex justify-content-between align-items-start">
                           <div>
                             <div className="d-flex align-items-center">
@@ -302,7 +302,7 @@ const DiscussionDetailPage = () => {
         </div>
 
         {/* Main Comment Input */}
-        <div className="bg-white text-dark rounded p-4 shadow-sm">
+        <div className="bg-white text-dark rounded p-4 shadow-sm" style={{ border: '2px solid #0d6efd', borderRadius: '10px' }}>
           <h5 className="mb-3">📝 Add a Comment</h5>
           <textarea
             value={newComment}
@@ -310,6 +310,7 @@ const DiscussionDetailPage = () => {
             rows={3}
             className="form-control mb-3"
             placeholder="Type your response..."
+            style={{ border: '1px solid #0d6efd', borderRadius: '6px' }}
           />
           <div className="d-flex justify-content-end">
             <button
