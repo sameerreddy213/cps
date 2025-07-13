@@ -2,14 +2,14 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { api } from "../lib/api";
-import "./customModal.css";
+import "./customModal.css"; // Make sure this is imported
 
 interface Props {
   show: boolean;
   onClose: () => void;
   onRefresh: () => void;
   username: string;
-  userRole?: string; 
+  userRole?: string;
 }
 
 const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => {
@@ -18,7 +18,6 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
   const [topic, setTopic] = useState("");
   const [questionIndex, setQuestionIndex] = useState<number | "">("");
   const [questionText, setQuestionText] = useState("");
-
 
   const handleSubmit = async () => {
     try {
@@ -41,79 +40,77 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
   };
 
   return (
-
     <Modal show={show} onHide={onClose} centered className="custom-modal">
       <Modal.Header closeButton>
-        <Modal.Title>Start a Discussion</Modal.Title>
+        <Modal.Title className="modal-title-text">Start a Discussion</Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ border: '1px solid #dee2e6' }}>
+      <Modal.Body>
         <Form>
           <Form.Check
             type="radio"
             label="General Discussion"
             checked={type === "general"}
             onChange={() => setType("general")}
-            style={{ border: '1px solid #dee2e6', padding: '10px', borderRadius: '5px', marginBottom: '10px' }}
+            className="discussion-radio"
           />
           <Form.Check
             type="radio"
             label="Question-Specific"
             checked={type === "question"}
             onChange={() => setType("question")}
-            className="mb-3"
-            style={{ border: '1px solid #dee2e6', padding: '10px', borderRadius: '5px' }}
+            className="discussion-radio mb-3"
           />
 
           {type === "general" ? (
-            <>
-              <Form.Group>
-                <Form.Label>Message</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="What's on your mind?"
-                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
-                />
-              </Form.Group>
-            </>
+            <Form.Group>
+              <Form.Label className="form-label-custom">Message</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className="form-control-dark"
+                placeholder="What's on your mind?"
+              />
+            </Form.Group>
           ) : (
             <>
               <Form.Group>
-                <Form.Label>Topic</Form.Label>
+                <Form.Label className="form-label-custom">Topic</Form.Label>
                 <Form.Control
                   type="text"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
+                  className="form-control-dark"
                   placeholder="e.g., Graph Theory"
-                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>Question Index</Form.Label>
+                <Form.Label className="form-label-custom">Question Index</Form.Label>
                 <Form.Control
                   type="number"
                   value={questionIndex}
-                  onChange={(e) => setQuestionIndex(e.target.value === "" ? "" : Number(e.target.value))}
-                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
+                  onChange={(e) =>
+                    setQuestionIndex(e.target.value === "" ? "" : Number(e.target.value))
+                  }
+                  className="form-control-dark"
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>Question Text</Form.Label>
+                <Form.Label className="form-label-custom">Question Text</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={2}
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
-                  style={{ border: '2px solid #0d6efd', borderRadius: '8px' }}
+                  className="form-control-dark"
                 />
               </Form.Group>
             </>
           )}
         </Form>
       </Modal.Body>
-      <Modal.Footer style={{ borderTop: '2px solid #0d6efd' }}>
+      <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
