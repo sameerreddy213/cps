@@ -118,6 +118,7 @@ const QuizPage = () => {
         topic,
         questionText,
         questionIndex: index,
+        username,
       });
       const threadId = res.data._id;
       navigate(`/discuss/${threadId}`);

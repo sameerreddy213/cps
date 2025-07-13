@@ -51,7 +51,7 @@ export default function StudentAssignments() {
               <div className="card border-info shadow-sm h-100">
                 <div className="card-body">
                   <h5 className="card-title text-info">{a.title}</h5>
-                  <p className="card-text">{a.description}</p>
+                  <p className="card-text text-white">{a.description}</p>
                   <a
                     href={a.fileUrl}
                     target="_blank"
@@ -60,7 +60,7 @@ export default function StudentAssignments() {
                   >
                     📎 View File
                   </a>
-                  <p className="text-muted mt-2">
+                  <p className="text-white mt-2">
                     Assigned on {new Date(a.createdAt).toLocaleDateString()}
                   </p>
                 </div>

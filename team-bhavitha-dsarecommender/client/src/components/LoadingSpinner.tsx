@@ -6,6 +6,7 @@ interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
   text?: string;
   className?: string;
+  message?:string;
 }
 
 const LoadingSpinner = ({ size = "md", text, className = "" }: LoadingSpinnerProps) => {
