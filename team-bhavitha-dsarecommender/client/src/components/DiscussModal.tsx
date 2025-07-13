@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { api } from "../lib/api";
+import "./customModal.css";
 
 interface Props {
   show: boolean;
@@ -40,8 +41,9 @@ const StartDiscussionModal = ({ show, onClose, onRefresh, username }: Props) => 
   };
 
   return (
-    <Modal show={show} onHide={onClose} backdrop="static" centered>
-      <Modal.Header closeButton style={{ borderBottom: '2px solid #0d6efd' }}>
+
+    <Modal show={show} onHide={onClose} centered className="custom-modal">
+      <Modal.Header closeButton>
         <Modal.Title>Start a Discussion</Modal.Title>
       </Modal.Header>
       <Modal.Body style={{ border: '1px solid #dee2e6' }}>

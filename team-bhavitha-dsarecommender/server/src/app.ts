@@ -17,6 +17,9 @@ import questionRoutes from "./routes/question";
 import reportRoutes from "./routes/report";
 import educatorRoutes from "./routes/educator";
 import Dhruv from "./routes/Dhruv";
+import assignmentRoutes from "./routes/assignment";
+import path from "path";
+
 //dotenv.config({ path: path.join(__dirname, "../../.env") });
 dotenv.config();
 
@@ -50,7 +53,8 @@ app.use("/api/discuss", discussionRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api", educatorRoutes);
-
+app.use("/api/assignments", assignmentRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 connectDB(); // before app.listen
 app.listen(PORT, () => {

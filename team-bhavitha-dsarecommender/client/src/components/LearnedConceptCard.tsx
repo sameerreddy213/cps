@@ -76,6 +76,7 @@ const LearnedConceptCard = ({ title, quizScores }: LearnedConceptCardProps) => {
       animate="visible"
       whileHover="hover"
     >
+
       <div className="card-body d-flex flex-column justify-content-center align-items-center p-4">
         <motion.div 
           className="mb-3"

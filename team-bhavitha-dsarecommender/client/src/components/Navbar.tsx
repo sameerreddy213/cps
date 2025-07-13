@@ -99,29 +99,7 @@ const Navbar = () => {
                     <MessageCircle size={18} className="me-2" />
                     Discussions
                   </NavLink>
-                </motion.li>
-                <motion.li className="nav-item" variants={navItemVariants} initial="hidden" animate="visible" whileHover="hover">
-                  <NavLink
-                    to="/educator/upload"
-                    className={({ isActive }) =>
-                      `nav-link text-white fw-semibold mx-2 d-flex align-items-center ${isActive ? "active-link" : ""}`
-                    }
-                  >
-                    <Upload size={18} className="me-2" />
-                    Upload Materials
-                  </NavLink>
-                </motion.li>
-                <motion.li className="nav-item" variants={navItemVariants} initial="hidden" animate="visible" whileHover="hover">
-                  <NavLink
-                    to="/educator/questions"
-                    className={({ isActive }) =>
-                      `nav-link text-white fw-semibold mx-2 d-flex align-items-center ${isActive ? "active-link" : ""}`
-                    }
-                  >
-                    <BookOpen size={18} className="me-2" />
-                    Questions Asked
-                  </NavLink>
-                </motion.li>
+                  </motion.li>
               </>
             ) : isAuthenticated ? (
               <>
@@ -182,6 +160,16 @@ const Navbar = () => {
                     Discuss
                   </NavLink>
                 </motion.li>
+              <motion.li className="nav-item" variants={navItemVariants} initial="hidden" animate="visible" whileHover="hover">
+                <NavLink
+                  to={protectedLink(`/Assignments`)}
+                  className={({ isActive }) =>
+                    `nav-link text-white fw-semibold mx-2 d-flex align-items-center ${isActive ? "active-link" : ""}`
+                  }
+                >
+                  Assignments
+                </NavLink>
+              </motion.li> 
               </>
             ) : (
               <>

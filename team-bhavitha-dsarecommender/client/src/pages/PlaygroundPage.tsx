@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {api} from "../lib/api";
+import { api } from "../lib/api";
 import { useAuthStore } from "../store/authStore";
 import AttemptHistory from "../components/AttemptHistory";
+import { validTopics } from "../data/validTopic";
 
 type Question = { concept: string; question: string };
 type Result = {
@@ -11,7 +12,7 @@ type Result = {
 };
 
 const PlaygroundPage = () => {
-  const { username : user } = useAuthStore();
+  const { username: user } = useAuthStore();
   const [inputConcept, setInputConcept] = useState("");
   const [concept, setConcept] = useState("");
   const [sessionId, setSessionId] = useState("");
@@ -20,7 +21,6 @@ const PlaygroundPage = () => {
   const [history, setHistory] = useState<Record<string, Result>>({});
   const [loading, setLoading] = useState(false);
 
-  // 🔄 Load previous attempts on first load
   useEffect(() => {
     const loadHistory = async () => {
       const localData = localStorage.getItem("playgroundHistory");
@@ -93,6 +93,7 @@ const PlaygroundPage = () => {
   };
 
   return (
+
     <div className="container-fluid min-vh-100 py-5" style={{ background: 'linear-gradient(120deg, #e0e7ef 60%, #f8fafc 100%)' }}>
       <div className="row justify-content-center mb-4">
         <div className="col-12 text-center mb-4">
@@ -109,24 +110,30 @@ const PlaygroundPage = () => {
             <div className="card-body">
               <form className="row g-2 align-items-center mb-4" onSubmit={e => { e.preventDefault(); handleStart(); }}>
                 <div className="col-12 col-md-8">
-                  <input
+                  <select
                     value={inputConcept}
                     onChange={(e) => setInputConcept(e.target.value)}
-                    placeholder="e.g. Recursion"
-                    className="form-control form-control-lg border-primary"
-                  />
+                    className="form-select form-select-lg bg-black text-white border-primary"
+                    disabled={loading}
+                  >
+                    <option value="">Select a topic...</option>
+                    {validTopics.map((topic, idx) => (
+                      <option key={idx} value={topic}>
+                        {topic}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="col-12 col-md-4 d-grid">
                   <button
                     type="submit"
                     className="btn btn-primary btn-lg"
-                    disabled={loading}
+                    disabled={loading || !inputConcept}
                   >
                     {history[inputConcept] ? "View Attempt" : "Start"}
                   </button>
                 </div>
               </form>
-
               {loading && <div className="alert alert-info text-center mb-3 fs-5">⏳ Generating questions...</div>}
 
               {question && (
@@ -195,5 +202,6 @@ const PlaygroundPage = () => {
       </div>
     </div>
   );
-}
+};
+
 export default PlaygroundPage;

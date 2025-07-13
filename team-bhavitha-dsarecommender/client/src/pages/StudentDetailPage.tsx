@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import LearnedConceptCard from "../components/LearnedConceptCard";
+import AssignTaskModal from "../components/AssignTaskModal";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from "recharts";
@@ -20,6 +21,7 @@ const StudentDetailPage = () => {
   const [quizHistory, setQuizHistory] = useState<QuizEntry[]>([]);
   const [progress, setProgress] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (!username) return;
@@ -66,6 +68,8 @@ const StudentDetailPage = () => {
       fullDate: new Date(entry.createdAt).getTime(),
     }))
     .sort((a, b) => a.fullDate - b.fullDate);
+
+
 
   return (
     <div className="container py-5">
@@ -155,10 +159,23 @@ const StudentDetailPage = () => {
           </div>
         </div>
       </div>
+      {/* Assign Task Button */}
+      <button
+        className="btn btn-outline-primary btn-lg mt-4 w-50 w-md-auto d-block mx-auto"
+        onClick={() => setShowModal(true)}
+      >
+        Assign Task
+      </button>
+
+      <AssignTaskModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        username={username || ""}
+      />
 
       <div className="row justify-content-center">
         <div className="col-12 col-md-10 col-lg-8 text-center">
-          <button className="btn btn-outline-primary btn-lg mt-4 w-100 w-md-auto" onClick={() => navigate(-1)}>⬅ Back to Dashboard</button>
+          <button className="btn btn-outline-primary btn-lg mt-4 w-100 w-md-auto d-block mx-auto" onClick={() => navigate(-1)}>Back to Dashboard</button>
         </div>
       </div>
     </div>

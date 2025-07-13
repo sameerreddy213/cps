@@ -262,5 +262,27 @@ router.delete("/thread/:threadId/comment/:commentId/reply/:replyId", async (req,
 }
 );
 
+router.post("/ask", async (req, res) => {
+  const { userId, title, body, topic } = req.body;
+  if (!userId || !title || !body || !topic) {
+    res.status(400).json({ error: "All fields are required" });
+    return;
+  }
+  try {
+    const newThread = new Discussion({
+      topic,
+      createdBy: userId,
+      title,
+      body,
+      comments: [{ username: userId, text: body }],
+    });
+    await newThread.save();
+    res.status(201).json({ message: "Question posted successfully", threadId: newThread._id });
+  } catch (err) {
+    console.error("Error posting question:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 export default router;

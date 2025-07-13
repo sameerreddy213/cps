@@ -15,10 +15,8 @@ import DiscussionDetailPage from "./pages/DiscussionDetailPage";
 import Discuss from './pages/DiscussionPage.tsx';
 import StudentDetailPage from './pages/StudentDetailPage.tsx';
 import PlaygroundPage from './pages/PlaygroundPage.tsx';
-
-// Inside <Routes>...
-
-
+import AskQuestionPage from './pages/AskQuestionPage.tsx';
+import StudentAssignments from './pages/StudentAssignments.tsx';
 
 function App() {
   return (
@@ -35,17 +33,19 @@ function App() {
             {/* Public routes go here */}
             {/* Protected routes go here */}
             <Route element={<ProtectedRoutes/>}>
-              <Route path="/educator/student/:username" element={<StudentDetailPage />} />
-              <Route path="/student/:username" element={<StudentDetailPage />} />
-              <Route path="/discuss/:id" element={<DiscussionDetailPage />} />
-              <Route path="/discuss" element={< Discuss/>} />
-              <Route path="/recommend" element={<RecommendationPage />} />
-              <Route path="/explore/:topic" element={<ExploreTopicPage />} />
-              <Route path="/dashboard/:username" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/quiz/:topic" element={<QuizPage />} />
-              <Route path="/quiz-select" element={<QuizSelectPage/>} />
-              <Route path="/playground" element={<PlaygroundPage />} />
+            <Route path="/assignments" element={<StudentAssignments />} />
+            <Route path="/educator/student/:username" element={<StudentDetailPage />} />
+            <Route path= "/ask-question" element={<AskQuestionPage />} />
+            <Route path="/student/:username" element={<StudentDetailPage />} />
+            <Route path="/discuss/:id" element={<DiscussionDetailPage />} />
+            <Route path="/discuss" element={< Discuss />} />
+            <Route path="/recommend" element={<RecommendationPage />} />
+            <Route path="/explore/:topic" element={<ExploreTopicPage />} />
+            <Route path="/dashboard/:username" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/quiz/:topic" element={<QuizPage />} />
+            <Route path="/quiz-select" element={<QuizSelectPage />} />
+            <Route path="/playground" element={<PlaygroundPage />} />
             </Route>
           </Routes>
         </main>
