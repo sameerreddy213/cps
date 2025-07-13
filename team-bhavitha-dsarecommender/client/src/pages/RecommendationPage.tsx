@@ -116,7 +116,7 @@ const RecommendationPage = () => {
                   {recommendedPath.map((topic, idx) => (
                     <li
                       key={idx}
-                      className="list-group-item bg-light-subtle d-flex flex-column flex-md-row justify-content-between align-items-center py-3 px-4 mb-2 rounded"
+                      className="list-group-item bg-dark-subtle d-flex flex-column flex-md-row justify-content-between align-items-center py-3 px-4 mb-2 rounded"
                     >
                       <span className="fw-bold fs-5 mb-2 mb-md-0">{idx + 1}. {topic}</span>
                       <div className="d-flex gap-2">
